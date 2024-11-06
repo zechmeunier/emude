@@ -78,7 +78,7 @@ ggplot(data = y2, aes(x = Time, y = Abundance, group = Species)) +
 
 Plot the predator and prey populations with package function
 ```{r}
-source("../src/Plotting.R")
+source("../src/plotting.R")
 series_plot(data = y2, x = Time, y = Abundance, group = Species)
 predictions_plot(data = y2, x = Time, y = Abundance, group = Species, predictions = y3)
 ```
