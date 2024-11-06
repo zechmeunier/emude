@@ -1,0 +1,85 @@
+---
+title: "Julia-R Integration"
+author: "Zechariah Meunier"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+Load libraries
+```{r}
+library(JuliaCall)
+library(diffeqr)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+```
+
+Set up Julia with local filepath
+```{r}
+julia_setup(JULIA_HOME = "C:/Users/zdmeu/AppData/Local/Programs/Julia-1.9.3/bin")
+
+de <- diffeq_setup()
+```
+
+Test with Lotka-Volterra model
+```{r}
+#Define function for prey (du1) and predator (du2)
+f <- function(u, p, t) {
+    du1 <- p[1] * u[1] + p[2] * u[1] * u[2]
+    du2 <- p[3] * u[2] + p[4] * u[1] * u[2]
+    return( c(du1, du2) )
+}
+
+#Set parameters (p), initial populations (u0), and time span (tspan)
+p <- c(0.1, -0.01, -0.05, 0.001)
+u0 <- c(50, 15)
+tspan <- c(0, 240)
+```
+
+Assign the time point at which a solution shall be returned (to make the plotted function smoother) and call Julia’s Differential Equation solver
+```{r}
+t <- seq(0, 240, by=2)
+
+prob <- de$ODEProblem(f, u0, tspan, p)
+sol <- de$solve(prob, reltol = 1e-08, saveat = t)
+
+#Convert Julia object into an R data frame
+y <- sapply(sol$u,identity)
+
+#Wrangle y in tidy format
+y2 <- data.frame(t(y)) %>%
+  mutate(Time = t) %>%
+  pivot_longer(cols = c(X1, X2),
+               names_to = "Species",
+               values_to = "Abundance")
+
+y3 <- y2 %>%
+  mutate(Abundance = Abundance - 100)
+```
+
+Plot the predator and prey populations with base plot
+```{r}
+par(mar=c(4, 2, 2, 1))
+plot(0, 0, type = 'n', xlim = c(0, 250), ylim = c(0, 100),
+     xlab = 'time', ylab = '',
+     main = 'Solution to Lotka-Volterra equations')
+grid()
+
+lines(t, y[1, ], col = 3, lwd = 1.5)
+lines(t, y[2, ], col = 2, lwd = 1.5)
+```
+
+
+Plot the predator and prey populations with ggplot2
+```{r}
+ggplot(data = y2, aes(x = Time, y = Abundance, group = Species)) +
+  geom_line()
+```
+
+Plot the predator and prey populations with package function
+```{r}
+source("../src/Plotting.R")
+series_plot(data = y2, x = Time, y = Abundance, group = Species)
+predictions_plot(data = y2, x = Time, y = Abundance, group = Species, predictions = y3)
+```
+
