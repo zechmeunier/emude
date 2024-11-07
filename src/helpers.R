@@ -8,7 +8,7 @@ R_to_Julia <- function(f){
   f_code <- paste(deparsed_f,collapse = ";") # turns the function into a single string with semi-colons
   f_code <- gsub("\\{", "", f_code) # gets rid of opening brackets
   f_code <- gsub("else if", "elseif", f_code) # translates elseif to julia 
-  f_code <- gsub("\\};\\s*else",";else",f _code) # get rid of closing brackets next to else
+  f_code <- gsub("\\};\\s*else",";else",f_code) # get rid of closing brackets next to else
   f_code <- gsub("\\}", "; end", f_code) # turns closing brackets to end
   f_code <- gsub("\\$", "\\.", f_code) # turns $ into . for accessing named lists
   f_code <- gsub("\\*"," \\.\\*", f_code) # adds . to make multiplication broadcast by default
