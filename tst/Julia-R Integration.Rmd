@@ -80,6 +80,6 @@ Plot the predator and prey populations with package function
 ```{r}
 source("../src/plotting.R")
 series_plot(data = y2, x = Time, y = Abundance, group = Species)
-predictions_plot(data = y2, x = Time, y = Abundance, group = Species, predictions = y3)
+predictions_plot(data = y2, predictions = y3, x = Time, y = Abundance, group = Species)
 ```
 
