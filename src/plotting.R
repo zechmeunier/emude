@@ -14,7 +14,7 @@ defaulttheme <- theme(axis.title = element_text(size = 11, color = "gray10"),
                       legend.title = element_text(size = 10, color = "gray10"),
                       legend.text = element_text(size = 9, color = "gray10"))
 
-#Plot observations as points and model predictions as lines
+#Plot observations as points and model predictions as lines in a time series
 series_plot <- function(
     observations,
     x,
@@ -39,4 +39,35 @@ series_plot <- function(
           max(observations %>% pull({{y}}))
       ))
     }
+}
+
+#Plot observations as points and model predictions as lines in a 2D phase plane
+phase_plane_2D <- function(
+    observations,
+    names,
+    values,
+    x,
+    y,
+    predictions = NULL
+){
+  #Pivot observation and prediction datasets
+  observations <- observations %>% 
+    pivot_wider(names_from = {{names}}, values_from = {{values}})
+  
+  if (!is.null(predictions)) {
+    predictions <- predictions %>% 
+      pivot_wider(names_from = {{names}}, values_from = {{values}})
+  }
+
+  
+  #Create plot
+  p <- ggplot(data = observations, aes(x = {{x}}, y = {{y}})) + 
+    geom_point() +
+    defaulttheme
+  
+  if (!is.null(predictions)) {
+    p + geom_path(data = predictions)
+  } else {
+    p
+  }
 }
