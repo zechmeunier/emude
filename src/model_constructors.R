@@ -29,8 +29,13 @@ NODE <- function(
                      ",extrap_rho=",extrap_rho,")"),
                     need_return = "Julia")
   }else{
+<<<<<<< HEAD
+    julia_assign("covariates_julia",covariates)
+    julia_eval(paste(model_type,
+=======
     assign("covariates_julia",covariates)
     julia_model <- julia_eval(paste0(model_type,
+>>>>>>> main
                      "(data_julia,covariates_julia,time_column_name=\"",time_column_name,
                      "\",hidden_units=",hidden_units,
                      ",seed=",seed,
@@ -106,9 +111,15 @@ custom_derivatives <- function(
   return(julia_model)
 }
 
+<<<<<<< HEAD
+custom_derivatives_jl <- function(
+  file,
+  data,
+=======
 custom_derivatives_from_jl <- function(
   data,
   file,
+>>>>>>> main
   covariates = NULL,
   time_column_name = "time",
   hidden_units = 10,
@@ -127,7 +138,7 @@ custom_derivatives_from_jl <- function(
 
   if(is.null(covariates)){
     julia_model <- julia_eval(paste0(model_type,
-                     "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,
+                     "(data_julia,derivs,parameters,time_column_name=\"",time_column_name,
                      "\",hidden_units=",hidden_units,
                      ",seed=",seed,
                      ",proc_weight=",proc_weight,
@@ -140,7 +151,7 @@ custom_derivatives_from_jl <- function(
   }else{
     assign("covariates_julia",covariates)
     julia_model <- julia_eval(paste0(model_type,
-                     "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,
+                     "(data_julia,covariates_julia,derivs,parameters,time_column_name=\"",time_column_name,
                      "\",hidden_units=",hidden_units,
                      ",seed=",seed,
                      ",proc_weight=",proc_weight,
