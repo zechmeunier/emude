@@ -18,11 +18,3 @@ function build_custom_derivs_function_R(f_julia,p_julia,inputs,outputs)
   end
   return derivs, init_params
 end
-
-
-function build_custom_derivs(data,f_julia,p_julia,inputs,outputs)
-  deriv, init_params = build_custom_derivs_function_R(f_julia,p_julia,inputs,outputs)
-
-  return CustomDerivatives(data,deriv,init_params)
-  
-end

@@ -54,7 +54,7 @@ y2 <- data.frame(t(y)) %>%
                values_to = "Abundance")
 
 y3 <- y2 %>%
-  mutate(Abundance = Abundance - 100)
+  mutate(Abundance = Abundance - 10)
 ```
 
 Plot the predator and prey populations with base plot
@@ -81,5 +81,13 @@ Plot the predator and prey populations with package function
 source("../src/plotting.R")
 series_plot(observations = y2, x = Time, y = Abundance, group = Species)
 series_plot(observations = y2, predictions = y3, x = Time, y = Abundance, group = Species)
+
+phase_plane_2D(observations = y2, x = X1, y = X2, names = Species, values = Abundance)
+phase_plane_2D(observations = y2, predictions = y3, x = X1, y = X2, names = Species, values = Abundance)
+
+#use geom_quiver, may need to rescale arrows
+#write a function that outputs a vector field data frame, same with bifurcation plots
+#ude.check() to take model object and return time series and 1:1 plot
+#saving model objects
 ```
 
