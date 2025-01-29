@@ -1,0 +1,165 @@
+
+
+```{r}
+library(JuliaCall)
+library(diffeqr)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+```
+
+Set up Julia with local filepath
+```{r}
+julia_setup(JULIA_HOME = "/Applications/Julia-1.10.app/Contents/Resources/julia/bin")
+source("../src/emude.R")
+ude <- emude_setup()
+```
+
+
+
+
+```{r}
+# source("src/model_constructors.R")
+data <- data.frame(time = 1:10, x = rnorm(10))
+julia_eval('include("../src/helpers.jl")')
+source("../src/helpers.R")
+
+custom_derivatives_r <- function(data,dudt, parameters){
+    julia_assign("dudt_jl", dudt)
+    julia_assign("parameters_jl", parameters)
+    julia_assign("data_jl", data)
+    julia_eval("derivs_jl, params_jl = build_custom_derivs_function_R(dudt_jl,parameters_jl,[1],1)")
+    julia_eval("UDE_jl = CustomDerivatives(data_jl,derivs_jl,params_jl)")
+}
+
+custom_derivatives_jl <- function(file,data, parameters){
+    julia_eval(paste0('include("', file, '")'))
+    julia_assign("parameters_jl", parameters)
+    julia_eval("parameters_jl = NamedTuple(parameters_jl")
+    julia_assign("data_jl", data)
+    julia_eval("derivs_jl, params_jl = build_custom_derivs_function_R(derivs,parameters_jl,[1],1)")
+    julia_eval("println(params_jl)")
+    julia_eval("UDE_jl = CustomDerivatives(data_jl,derivs_jl,params_jl)")
+}
+
+write_julia <- function(fn,path){
+    fileConn<-file(paste0(path,".jl"))
+    writeLines(sapply(strsplit(R_to_Julia(fn), split=';;', fixed=TRUE),identity), fileConn)
+    close(fileConn)
+}
+
+
+train_r <- function(UDE,maxiter = 500){
+    julia_assign("UDE_jl", UDE)
+    julia_eval(paste0("gradient_descent!(UDE_jl,verbose = true,maxiter=",maxiter,")"))
+    UDE <- julia_eval("UDE_jl")
+    UDE
+}
+
+```
+
+```{r}
+parameters <- c(0.5,0.5)
+
+dudt <- function(u,nn,p,t){
+    p[1]*u[1]*nn[1] + p[2]
+}
+
+ude <- custom_derivatives_r(data,dudt,parameters)
+ude <- train_r(ude,maxiter = 2) # run tain to make sure things are compiled 
+
+start.time <- Sys.time()
+ude <- train_r(ude,maxiter = 50)
+end.time <- Sys.time()
+print(" ")
+print(paste("Time R: ", end.time - start.time))
+```
+
+```{r}
+
+
+parameters <- list(r=0.5,b=0.5)
+
+dudt <- function(u,nn,p,t){
+    p$r*u[1]*nn[1] + p$b
+}
+
+write_julia(dudt,"derivs_from_r")
+
+ude_jl <- custom_derivatives_jl("derivs_from_r.jl",data,parameters)
+ude_jl <- train_r(ude_jl,maxiter = 2)
+
+start.time <- Sys.time()
+ude <- train_r(ude_jl,maxiter = 50)
+end.time <- Sys.time()
+print(" ")
+print(paste("Time julia: ", end.time - start.time))
+```
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+```{r}
+build_UDE_R <- function(UDE){
+    julia_assign("UDE_jl", UDE)
+    UDE_R <- list(data = julia_eval("UDE_jl.data"), 
+                parameters = julia_eval("UDE_jl.parameters"),
+                model = UDE)
+    class(UDE_R) <- "UDE"
+    return(UDE_R)
+}
+UDE_R
+```
+
+```{r}
+get_parameters <- function(UDE){
+    julia_assign("UDE_jl", UDE)
+    julia_eval("UDE_jl.parameters")
+}
+```
+
+```{r}
+df <- sapply(UDE,identity)
+```
+
+```{r}
+get_right_hand_side <- function(UDE){
+    julia_assign("UDE_jl", UDE)
+    julia_eval("UDE_jl")
+
+    dudt <- function(u,t){
+        julia_assign("u_jl", u)
+        julia_assign("t_jl", t)
+        julia_eval("typeof(u_jl) == ")
+        julia_eval("println(typeof(u_jl))")
+        julia_eval("UDE_jl.process_model.rhs(u_jl,UDE_jl.parameters.process_model,t_jl)")
+    }
+
+    return(dudt)
+}
+
+rhs <- get_right_hand_side(UDE)
+```
+
+```{r}
+plot_predict(UDE)
+```
+
+```{r}
+source("src/helpers.R")
+```
+
+```{r}
+
+```
+
+```{r}
+deparse(dudt)
+```

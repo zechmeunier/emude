@@ -1,5 +1,6 @@
 R_to_Julia <- function(f){
   deparsed_f <- deparse(f)
+  deparsed_f[1] <- gsub("function ", "function derivs", deparsed_f[1]) 
   for(i in 1:length(deparsed_f)){
     if(grepl("for", deparsed_f[i])){
       deparsed_f[i] <- sub("\\((.*)\\)","\\1", deparsed_f[i]) # the forloop deals with for loops
