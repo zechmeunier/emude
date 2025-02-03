@@ -22,7 +22,7 @@ R_to_Julia <- function(f, filepath = NULL){
   f_code <- gsub("\\^", " \\.\\^", f_code) # broadcasts exponentiation
   f_code <- gsub("c\\(([^()]*)\\)", "[\\1]", f_code) # converts c() to []
   
-  if(filepath != NULL) {
+  if(!is.null(filepath)) {
     fileConn<-file(paste0(filepath,".jl"))
     writeLines(sapply(strsplit(f_code, split=';;', fixed=TRUE),identity), fileConn)
     close(fileConn)
