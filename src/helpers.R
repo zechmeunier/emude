@@ -1,4 +1,4 @@
-R_to_Julia <- function(f){
+R_to_Julia <- function(f, filepath = NULL){
   deparsed_f <- deparse(f)
   deparsed_f[1] <- gsub("function ", "function derivs", deparsed_f[1]) 
   for(i in 1:length(deparsed_f)){
@@ -21,5 +21,12 @@ R_to_Julia <- function(f){
   f_code <- gsub("/", " \\./", f_code) # broadcasts division
   f_code <- gsub("\\^", " \\.\\^", f_code) # broadcasts exponentiation
   f_code <- gsub("c\\(([^()]*)\\)", "[\\1]", f_code) # converts c() to []
+  
+  if(filepath != NULL) {
+    fileConn<-file(paste0(filepath,".jl"))
+    writeLines(sapply(strsplit(f_code, split=';;', fixed=TRUE),identity), fileConn)
+    close(fileConn)
+  }
+  
   return(f_code)
-} 
+}
