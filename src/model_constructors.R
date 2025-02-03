@@ -74,8 +74,16 @@ custom_derivatives <- function(
     bayesian = FALSE
 ){
   model_type <- ifelse(bayesian,"BayesianUDE","CustomDerivatives")
-  translated_function <- R_to_Julia(derivs)
-  julia_eval(paste("f_julia = ", translated_function))
+  
+  if(is.character(derivs)) {
+    julia_eval(paste0('include("', derivs, '")'))
+    julia_eval("f_julia = derivs")
+  }
+  else{
+    translated_function <- R_to_Julia(derivs)
+    julia_eval(paste("f_julia = ", translated_function))
+  }
+
   
   julia_assign("p_julia",initial_parameters)
   julia_eval("p_julia = NamedTuple(p_julia)", need_return = "Julia")
