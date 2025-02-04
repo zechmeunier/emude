@@ -17,9 +17,26 @@ library(tidyr)
 Set up Julia with local filepath
 ```{r}
 julia_setup(JULIA_HOME = "C:/Users/zdmeu/AppData/Local/Programs/Julia-1.9.3/bin")
-
+source("../src/emude.R")
+ude <- emude_setup()
 de <- diffeq_setup()
 ```
+
+Test gradient descent function
+```{r}
+shallow_training <- read.csv("C:/Users/zdmeu/Documents/Research Projects/Scientific Machine Learning/Coral Reefs/Coral-Empirical-Model/Results/Transect Annual Means/USVI All Shallow Reefs Training Transects (other proportion).csv")
+
+x<- list(model = ude$MultiNODE(shallow_training[3:7],
+                               time_column_name = "t", series_column_name = "series",
+                               obs_weight = 1, proc_weight = 1, reg_weight = 10^-6))
+```
+
+```{r}
+ude$gradient_descent_bang
+
+x$model, maxiter = 200, step_size = 0.1)
+```
+
 
 Test with Lotka-Volterra model
 ```{r}

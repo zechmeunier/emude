@@ -15,7 +15,7 @@ R_to_Julia <- function(f){
   f_code <- gsub("\\*"," \\.\\*", f_code) # adds . to make multiplication broadcast by default
   f_code <- gsub("% \\.\\*%"," \\*", f_code) # translates matrix multiplication
   f_code <- gsub("<\\-", "=", f_code) # translates <- to =
-  f_code <- gsub("=\\s*","=", f_code)  # removes spaced before equal signs to get the next line to work 
+  f_code <- gsub("=\\s*","=", f_code)  # removes space before equal signs to get the next line to work 
   f_code <- gsub("[^\\^\\+\\*\\-\\/=)]\\-"," \\.\\-", f_code) # broadcasts subtraction unless it is creating a negative number  
   f_code <- gsub("\\+", " \\.\\+", f_code) # broads casts addition 
   f_code <- gsub("/", " \\./", f_code) # broadcasts division
