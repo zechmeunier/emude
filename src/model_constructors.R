@@ -90,7 +90,7 @@ custom_derivatives <- function(
                      ",extrap_rho=",extrap_rho,")"),
                     need_return = "Julia")
   }else{
-    assign("covariates_julia",covariates)
+    julia_assign("covariates_julia",covariates)
     julia_model <- julia_eval(paste0(model_type,
                      "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,
                      "\",hidden_units=",hidden_units,
@@ -138,7 +138,7 @@ custom_derivatives_from_jl <- function(
                      ",extrap_rho=",extrap_rho,")"),
                     need_return = "Julia")
   }else{
-    assign("covariates_julia",covariates)
+    julia_assign("covariates_julia",covariates)
     julia_model <- julia_eval(paste0(model_type,
                      "(data_julia,covariates_julia,derivs,parameters,time_column_name=\"",time_column_name,
                      "\",hidden_units=",hidden_units,
