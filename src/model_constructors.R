@@ -34,6 +34,7 @@ NODE <- function(
   }else{
     julia_assign("covariates_julia",covariates)
     julia_model <- julia_eval(paste(model_type,
+
                      "(data_julia,covariates_julia,time_column_name=\"",time_column_name,
                      "\",hidden_units=",hidden_units,
                      ",seed=",seed,
