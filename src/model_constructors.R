@@ -34,7 +34,6 @@ NODE <- function(
   }else{
     julia_assign("covariates_julia",covariates)
     julia_model <- julia_eval(paste(model_type,
-
                      "(data_julia,covariates_julia,time_column_name=\"",time_column_name,
                      "\",hidden_units=",hidden_units,
                      ",seed=",seed,
@@ -121,58 +120,6 @@ custom_derivatives <- function(
                      ",extrap_rho=",extrap_rho,")"),
                     need_return = "Julia")
   }
-  return(julia_model)
-}
-
-custom_derivatives_from_jl <- function(
-  data,
-  file,
-  covariates = NULL,
-  time_column_name = "time",
-  hidden_units = 10,
-  seed = 1,
-  proc_weight = 1.0,
-  obs_weight = 1.0,
-  reg_weight = 10 ^ -6,
-  reg_type = "L2",
-  l = 0.25,
-  extrap_rho = 0.0,
-  bayesian = FALSE
-){
-  model_type <- ifelse(bayesian,"BayesianUDE","CustomDerivatives")
-  julia_eval(paste0("include(\"", file, "\")")) # ould also try julia_source
-  julia_assign("data_julia", data)
-
-  if(is.null(covariates)){
-    
-    julia_model <- julia_eval(paste0(model_type,
-                     "(data_julia,derivs,parameters,time_column_name=\"",time_column_name,
-                     "\",hidden_units=",hidden_units,
-                     ",seed=",seed,
-                     ",proc_weight=",proc_weight,
-                     ",obs_weight=",obs_weight,
-                     ",reg_weight=",reg_weight,
-                     ",reg_type=\"",reg_type,
-                     "\",l=",l,
-                     ",extrap_rho=",extrap_rho,")"),
-                    need_return = "Julia")
-      
-  }else{
-    julia_assign("covariates_julia",covariates)
-    julia_model <- julia_eval(paste0(model_type,
-                     "(data_julia,covariates_julia,derivs,parameters,time_column_name=\"",time_column_name,
-                     "\",hidden_units=",hidden_units,
-                     ",seed=",seed,
-                     ",proc_weight=",proc_weight,
-                     ",obs_weight=",obs_weight,
-                     ",reg_weight=",reg_weight,
-                     ",reg_type=\"",reg_type,
-                     "\",l=",l,
-                     ",extrap_rho=",extrap_rho,")"),
-                    need_return = "Julia")
-  print("here")
-  }
-  
   return(julia_model)
 }
 
