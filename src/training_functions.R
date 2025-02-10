@@ -13,7 +13,7 @@ train <- function(julia_model,
                     ",optimizer=",optimizer,
                     ",regularization_weight=",regularization_weight,
                     ",verbose=",verbose,
-                    "loss_options=NamedTuple(loss_options),",
-                    "optim_options=NamedTuple(optim_options))"))
+                    ",loss_options=NamedTuple(loss_options)",
+                    ",optim_options=NamedTuple(optim_options))"))
   return(julia_eval("model",need_return = "Julia"))
 }
