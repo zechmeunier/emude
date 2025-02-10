@@ -5,9 +5,9 @@ train <- function(julia_model,
                   verbose = TRUE){
   verbose <- ifelse(verbose,"true","false")
   julia_assign("model",julia_model)
-  julia_eval(paste0("train!(model,loss_function",loss_function,
+  julia_eval(paste0("train!(model,loss_function=",loss_function,
                     ",optimizer=",optimizer,
-                    "regularization_weight",regularization_weight,
-                    "verbose",verbose,")"))
+                    ",regularization_weight=",regularization_weight,
+                    ",verbose=",verbose,")"))
   return(julia_eval("model",need_return = "Julia"))
 }
