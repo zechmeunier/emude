@@ -27,7 +27,7 @@ rel_colmax <- function(mat) {
 ##   Input: mat - matrix with any dimensions
 ##  Output: A matrix scaled so that minimum and maximum values per column are 0 and 1, respectively
 rel_minmax <- function(mat) {
-  return((mat - matrix(colmin(df), nrow = nrow(df), ncol = ncol(df), byrow = TRUE))
-         / (matrix(colmax(df), nrow = nrow(df), ncol = ncol(df), byrow = TRUE) -
-              matrix(colmin(df), nrow = nrow(df), ncol = ncol(df), byrow = TRUE)))
+  return((mat - matrix(colmin(mat), nrow = nrow(mat), ncol = ncol(mat), byrow = TRUE))
+         / (matrix(colmax(mat), nrow = nrow(mat), ncol = ncol(mat), byrow = TRUE) -
+              matrix(colmin(mat), nrow = nrow(mat), ncol = ncol(mat), byrow = TRUE)))
 }
