@@ -91,14 +91,14 @@ custom_derivatives <- function(
   julia_assign("data_julia",data)
   julia_assign("inputs",neural_network_inputs)
   julia_assign("outputs",neural_network_outputs)
+  julia_assign("hidden_units", hidden_units)
   
-  julia_model <- julia_eval("deriv, parameters = build_custom_derivs_function_R(f_julia,p_julia,inputs,outputs)")
+  julia_model <- julia_eval("deriv, parameters = build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
   
   if(is.null(covariates)){
     julia_model <- julia_eval(paste0(model_type,
                      "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,
-                     "\",hidden_units=",hidden_units,
-                     ",seed=",seed,
+                     "\"",
                      ",proc_weight=",proc_weight,
                      ",obs_weight=",obs_weight,
                      ",reg_weight=",reg_weight,
@@ -110,8 +110,7 @@ custom_derivatives <- function(
     julia_assign("covariates_julia",covariates)
     julia_model <- julia_eval(paste0(model_type,
                      "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,
-                     "\",hidden_units=",hidden_units,
-                     ",seed=",seed,
+                     "\"",
                      ",proc_weight=",proc_weight,
                      ",obs_weight=",obs_weight,
                      ",reg_weight=",reg_weight,
