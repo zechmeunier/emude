@@ -1,9 +1,9 @@
 using Lux
 using Random 
 
-function build_custom_derivs_function_R(f_julia,p_julia,inputs,outputs)
-
-  NN = Lux.Chain(Lux.Dense(length(inputs),10,tanh),Lux.Dense(10,outputs))
+function build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)
+  inputs, hidden_units, outputs = [inputs,hidden_units,outputs] .|> Integer
+  NN = Lux.Chain(Lux.Dense(length(inputs),hidden_units,tanh),Lux.Dense(hidden_units,outputs))
   rng = Random.default_rng()
   params, states = Lux.setup(rng,NN)
   init_params = (rparams = p_julia, NN = params, )
