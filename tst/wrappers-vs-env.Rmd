@@ -2,8 +2,15 @@
 library(tidyverse)
 library(JuliaCall)
 source("../src/emude.R")
-#source(file = "../src/model_constructors.R")
+#source("../src/model_constructors.R")
 ```
+
+```{r}
+readLines("../src/model_constructors.R", n = 100)  # Read first 5 lines
+
+
+```
+
 
 ```{r}
 ude <- emude_setup()
