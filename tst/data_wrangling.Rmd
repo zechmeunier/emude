@@ -14,6 +14,9 @@ source("../src/data_wrangling.R")
 
 ```{r}
 julia_setup(JULIA_HOME = "C:/Users/zdmeu/AppData/Local/Programs/Julia-1.9.3/bin")
+  JuliaCall::julia_library("UniversalDiffEq")
+
+#ude<-emude_setup()
 ```
 
 
@@ -120,19 +123,19 @@ abline(a = 0, b = 1, col = "red", lty = 2)
 
 Simulate time series
 ```{r}
-ts1 = tibble("t" = c(1,2,3,4,5), "value" = c(0.2,0.4,0.8,0.16,0.99))
+ts1 = tibble("t" = seq(1:25), "value" = c(-3,0.4,0.8,rep(0.1,20),0.16,3))
 ts2 = tibble("t" = c(1,2,3,4,5), "value" = c(2,4,8,16,99))
 ```
 
 Test NODE function
 ```{r}
-NODE(data=ts2,
+NODE(data=ts1,
      time_column_name = "t")
 ```
 
 Test ode_model function
 ```{r}
-ode_model(data=ts2,
+ode_model(data=ts1,
           derivs = "derivs_from_r.jl",
           initial_parameters = list(r=0.5, b=0.5),
           time_column_name = "t")
