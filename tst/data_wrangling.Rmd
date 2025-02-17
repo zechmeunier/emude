@@ -7,9 +7,17 @@ output: html_document
 
 ```{r}
 library(tidyverse)
+library(JuliaCall)
+source("../src/emude.R")
 source("../src/data_wrangling.R")
 ```
 
+```{r}
+julia_setup(JULIA_HOME = "C:/Users/zdmeu/AppData/Local/Programs/Julia-1.9.3/bin")
+```
+
+
+# Test data relativization functions
 
 Simulate data for six species with some missing values
 ```{r}
@@ -37,6 +45,7 @@ table(is.na(df$Species_D))
 table(is.na(df$Species_E))
 table(is.na(df$Species_F))
 ```
+
 Test column maximum and column minimum functions
 ```{r}
 colmax(df)
@@ -107,3 +116,32 @@ plot(x=df_colmax$Species_F, df_minmax$Species_F)
 abline(a = 0, b = 1, col = "red", lty = 2)
 ```
 
+# Test error messages
+
+Simulate time series
+```{r}
+ts1 = tibble("t" = c(1,2,3,4,5), "value" = c(0.2,0.4,0.8,0.16,0.99))
+ts2 = tibble("t" = c(1,2,3,4,5), "value" = c(2,4,8,16,99))
+```
+
+Test NODE function
+```{r}
+NODE(data=ts2,
+     time_column_name = "t")
+```
+
+Test ode_model function
+```{r}
+ode_model(data=ts2,
+          derivs = "derivs_from_r.jl",
+          initial_parameters = list(r=0.5, b=0.5),
+          time_column_name = "t")
+```
+
+Test custom_derivatives function
+```{r}
+custom_derivatives(data=ts2,
+                   derivs = "derivs_from_r.jl",
+                   initial_parameters = list(r=0.5, b=0.5),
+                   time_column_name = "t")
+```
