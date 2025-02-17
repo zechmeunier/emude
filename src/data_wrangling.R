@@ -17,7 +17,7 @@ colmin <- function(mat) {
 # Function: rel_colmax
 ##   About: Relativizes matrix by its column maxima
 ##   Input: mat - matrix with any dimensions
-##  Output: A matrix scaled so that values are a proportion of the maximum value per column
+##  Output: A matrix scaled so that values are proportions of the maximum value per column
 rel_colmax <- function(mat) {
   return(mat/matrix(colmax(mat), nrow = nrow(mat), ncol = ncol(mat), byrow = TRUE))
 }
