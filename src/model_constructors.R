@@ -140,11 +140,11 @@ multi_custom_derivatives <- function(
     extrap_rho = 0.0,
     bayesian = FALSE
 ){
-  if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
+  if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
         "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
-  model_type <- ifelse(bayesian,"BayesianUDE","CustomDerivatives")
+  model_type <- ifelse(bayesian,"BayesianUDE","MultiCustomDerivatives")
   
   if(is.character(derivs)) {
     julia_eval(paste0('include("', derivs, '")'))
@@ -167,6 +167,17 @@ multi_custom_derivatives <- function(
   julia_model <- julia_eval("deriv, parameters = build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
   
   if(is.null(covariates)){
+    
+    print(paste0(model_type,
+                  "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                  ",series_column_name=\"",series_column_name,"\"",
+                  ",proc_weight=",proc_weight,
+                  ",obs_weight=",obs_weight,
+                  ",reg_weight=",reg_weight,
+                  ",reg_type=\"",reg_type,"\"",
+                  ",l=",l,
+                  ",extrap_rho=",extrap_rho,")"))
+    
     julia_model <- julia_eval(paste0(model_type,
                                      "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                      ",series_column_name=\"",series_column_name,"\"",

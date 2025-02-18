@@ -14,7 +14,7 @@ source("../src/data_wrangling.R")
 
 ```{r}
 julia_setup(JULIA_HOME = "C:/Users/zdmeu/AppData/Local/Programs/Julia-1.9.3/bin")
-  JuliaCall::julia_library("UniversalDiffEq")
+julia_library("UniversalDiffEq")
 
 #ude<-emude_setup()
 ```
@@ -123,8 +123,21 @@ abline(a = 0, b = 1, col = "red", lty = 2)
 
 Simulate time series
 ```{r}
-ts1 = tibble("t" = seq(1:25), "value" = c(-3,0.4,0.8,rep(0.1,20),0.16,3))
-ts2 = tibble("t" = c(1,2,3,4,5), "value" = c(2,4,8,16,99))
+#Single time series
+ts1 = tibble("t" = seq(1:5), "value" = c(-0.5,0.4,0.8,0.16,0.5))
+ts2 = tibble("t" = seq(1:5), "value" = c(2,4,8,16,99))
+
+#Multiple time series
+mts1 = tibble("t" = rep(seq(1:5),2),
+              "species" = c(rep(1,5),rep(2,5)),
+              "value" = rnorm(10))
+mts1_wide <- pivot_wider(mts1, names_from = "species", names_prefix = "Sp",
+                    values_from = "value")
+mts2 <- bind_cols(mts1_wide[,1], rel_minmax(mts1_wide[,2:3])) %>%
+  pivot_longer(names_to = "species", names_prefix = "Sp", cols = c("Sp1","Sp2"))
+
+#Covariates
+covars = tibble("t" = seq(1:5), "value" = c(1,1,1,1,2))
 ```
 
 Test NODE function
@@ -143,8 +156,19 @@ ode_model(data=ts1,
 
 Test custom_derivatives function
 ```{r}
-custom_derivatives(data=ts2,
+custom_derivatives(data=ts1,
                    derivs = "derivs_from_r.jl",
+                   covariates = covars,
                    initial_parameters = list(r=0.5, b=0.5),
                    time_column_name = "t")
+```
+
+Test multi_custom_derivatives function
+```{r}
+multi_custom_derivatives(data=mts2,
+                         derivs = "multi_derivs_from_r.jl",
+                         #covariates = covars,
+                         initial_parameters = list(r=0.5, b=0.5),
+                         time_column_name = "t",
+                         series_column_name = "species")
 ```
