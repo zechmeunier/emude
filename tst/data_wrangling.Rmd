@@ -146,6 +146,13 @@ NODE(data=ts1,
      time_column_name = "t")
 ```
 
+Test multi_NODE function
+```{r}
+multi_NODE(data=mts2,
+           time_column_name = "t",
+           series_column_name = "species")
+```
+
 Test ode_model function
 ```{r}
 ode_model(data=ts1,
