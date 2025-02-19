@@ -69,7 +69,7 @@ multi_NODE <- function(
     extrap_rho = 0.0,
     bayesian = FALSE
 ){
-  if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name,series_column_name))]), na.rm = TRUE) > 1) {
+  if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
         "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
@@ -220,7 +220,7 @@ multi_custom_derivatives <- function(
   julia_assign("outputs",neural_network_outputs)
   julia_assign("hidden_units",hidden_units)
   
-  julia_model <- julia_eval("deriv, parameters = build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
+  julia_model <- julia_eval("deriv, parameters = build_multi_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
   
   if(is.null(covariates)){
     
@@ -240,7 +240,6 @@ multi_custom_derivatives <- function(
                                      ",proc_weight=",proc_weight,
                                      ",obs_weight=",obs_weight,
                                      ",reg_weight=",reg_weight,
-                                     ",reg_type=\"",reg_type,"\"",
                                      ",l=",l,
                                      ",extrap_rho=",extrap_rho,")"),
                               need_return = "Julia")
@@ -252,7 +251,6 @@ multi_custom_derivatives <- function(
                                      ",proc_weight=",proc_weight,
                                      ",obs_weight=",obs_weight,
                                      ",reg_weight=",reg_weight,
-                                     ",reg_type=\"",reg_type,"\"",
                                      ",l=",l,
                                      ",extrap_rho=",extrap_rho,")"),
                               need_return = "Julia")
