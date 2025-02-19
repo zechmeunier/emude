@@ -223,17 +223,7 @@ multi_custom_derivatives <- function(
   julia_model <- julia_eval("deriv, parameters = build_multi_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
   
   if(is.null(covariates)){
-    
-    print(paste0(model_type,
-                 "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
-                 ",series_column_name=\"",series_column_name,"\"",
-                 ",proc_weight=",proc_weight,
-                 ",obs_weight=",obs_weight,
-                 ",reg_weight=",reg_weight,
-                 ",reg_type=\"",reg_type,"\"",
-                 ",l=",l,
-                 ",extrap_rho=",extrap_rho,")"))
-    
+
     julia_model <- julia_eval(paste0(model_type,
                                      "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                      ",series_column_name=\"",series_column_name,"\"",
