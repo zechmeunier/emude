@@ -1,0 +1,40 @@
+```{r setup}
+library(tidyverse)
+library(JuliaCall)
+source("../src/emude.R")
+#source("../src/model_constructors.R")
+```
+
+```{r}
+readLines("../src/model_constructors.R", n = 100)  # Read first 5 lines
+
+
+```
+
+
+```{r}
+ude <- emude_setup()
+```
+
+
+```{r}
+data = tibble("t" = c(1,2,3,4,5), "value" = c(2,4,8,16,32))
+
+model <- custom_derivatives(data=data, derivs = "./derivs_from_r.jl", initial_parameters = list(r=0.5, b=0.5), neural_network_inputs = 1,
+                    neural_network_outputs = 1, hidden_units = 10, time_column_name = "t"
+                   )
+
+NODE_model <- NODE(data=data, hidden_units = 10, time_column_name = "t")
+```
+
+
+```{r}
+
+ude$predict(model,data)
+
+plot <- ude$predict(NODE_model, data)
+  
+julia_assign("plot", plot)
+
+julia_eval("plot(plot)")
+```

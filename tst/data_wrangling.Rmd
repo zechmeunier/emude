@@ -1,0 +1,181 @@
+---
+title: "data_wrangling"
+author: "Zechariah Meunier"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(JuliaCall)
+source("../src/emude.R")
+source("../src/data_wrangling.R")
+```
+
+```{r}
+julia_setup(JULIA_HOME = "C:/Users/zdmeu/AppData/Local/Programs/Julia-1.9.3/bin")
+julia_library("UniversalDiffEq")
+
+#ude<-emude_setup()
+```
+
+
+# Test data relativization functions
+
+Simulate data for six species with some missing values
+```{r}
+set.seed(23)
+
+df <- tibble(
+  #moderate NAs, values from 0 to 150
+  Species_A = sample(c(0:150, NA), 50, replace = TRUE, prob = c(rep(1/200, 151), 0.245)), 
+  #no NAs, values from 0 to 150
+  Species_B = sample(c(0:150, NA), 50, replace = TRUE, prob = c(rep(1/151, 151), 0)), 
+  #many NAs, values from 0 to 100
+  Species_C = sample(c(0:100, NA), 50, replace = TRUE, prob = c(rep(1/250, 101), 0.596)),
+  #moderate NAs, values from 0 to 20
+  Species_D = sample(c(0:20, NA), 50, replace = TRUE, prob = c(rep(1/30, 21), 0.3)), 
+  #no NAs, values from 0 to 20
+  Species_E = sample(c(0:20, NA), 50, replace = TRUE, prob = c(rep(1/21, 21), 0)), 
+  #many NAs, values from 2 to 20
+  Species_F = sample(c(2:20, NA), 50, replace = TRUE, prob = c(rep(1/250, 19), 0.396))
+)
+
+table(is.na(df$Species_A))
+table(is.na(df$Species_B))
+table(is.na(df$Species_C))
+table(is.na(df$Species_D))
+table(is.na(df$Species_E))
+table(is.na(df$Species_F))
+```
+
+Test column maximum and column minimum functions
+```{r}
+colmax(df)
+max(df$Species_A, na.rm = T)
+max(df$Species_B, na.rm = T)
+max(df$Species_C, na.rm = T)
+max(df$Species_D, na.rm = T)
+max(df$Species_E, na.rm = T)
+max(df$Species_F, na.rm = T)
+
+colmin(df)
+min(df$Species_A, na.rm = T)
+min(df$Species_B, na.rm = T)
+min(df$Species_C, na.rm = T)
+min(df$Species_D, na.rm = T)
+min(df$Species_E, na.rm = T)
+min(df$Species_F, na.rm = T)
+```
+
+Test relativization by column maximum
+```{r}
+df_colmax <- rel_colmax(df)
+
+plot(x=df$Species_A, df_colmax$Species_A)
+abline(a = 0, b = 1/max(df$Species_A, na.rm = T), col = "red", lty = 2)
+
+plot(x=df$Species_B, df_colmax$Species_B)
+abline(a = 0, b = 1/max(df$Species_B, na.rm = T), col = "red", lty = 2)
+
+plot(x=df$Species_C, df_colmax$Species_C)
+abline(a = 0, b = 1/max(df$Species_C, na.rm = T), col = "red", lty = 2)
+
+plot(x=df$Species_D, df_colmax$Species_D)
+abline(a = 0, b = 1/max(df$Species_D, na.rm = T), col = "red", lty = 2)
+
+plot(x=df$Species_E, df_colmax$Species_E)
+abline(a = 0, b = 1/max(df$Species_E, na.rm = T), col = "red", lty = 2)
+
+plot(x=df$Species_F, df_colmax$Species_F)
+abline(a = 0, b = 1/max(df$Species_F, na.rm = T), col = "red", lty = 2)
+```
+
+Test relativization by minimum-maximum
+```{r}
+df_minmax <- rel_minmax(df)
+
+plot(x=df$Species_A, df_minmax$Species_A) 
+plot(x=df$Species_B, df_minmax$Species_B)
+plot(x=df$Species_C, df_minmax$Species_C)
+plot(x=df$Species_D, df_minmax$Species_D)
+plot(x=df$Species_E, df_minmax$Species_E)
+plot(x=df$Species_F, df_minmax$Species_F)
+```
+
+Compare the relativizations
+```{r}
+plot(x=df_colmax$Species_A, df_minmax$Species_A)
+abline(a = 0, b = 1, col = "red", lty = 2)
+plot(x=df_colmax$Species_B, df_minmax$Species_B)
+abline(a = 0, b = 1, col = "red", lty = 2)
+plot(x=df_colmax$Species_C, df_minmax$Species_C)
+abline(a = 0, b = 1, col = "red", lty = 2)
+plot(x=df_colmax$Species_D, df_minmax$Species_D)
+abline(a = 0, b = 1, col = "red", lty = 2)
+plot(x=df_colmax$Species_E, df_minmax$Species_E)
+abline(a = 0, b = 1, col = "red", lty = 2)
+plot(x=df_colmax$Species_F, df_minmax$Species_F)
+abline(a = 0, b = 1, col = "red", lty = 2)
+```
+
+# Test error messages
+
+Simulate time series
+```{r}
+#Single time series
+ts1 = tibble("t" = seq(1:5), "value" = c(-0.5,0.4,0.8,0.16,0.5))
+ts2 = tibble("t" = seq(1:5), "value" = c(2,4,8,16,99))
+
+#Multiple time series
+mts1 = tibble("t" = rep(seq(1:5),2),
+              "species" = c(rep(1,5),rep(2,5)),
+              "value" = rnorm(10))
+mts1_wide <- pivot_wider(mts1, names_from = "species", names_prefix = "Sp",
+                    values_from = "value")
+mts2 <- bind_cols(mts1_wide[,1], rel_minmax(mts1_wide[,2:3])) %>%
+  pivot_longer(names_to = "species", names_prefix = "Sp", cols = c("Sp1","Sp2"))
+
+#Covariates
+covars = tibble("t" = seq(1:5), "value" = c(1,1,1,1,2))
+```
+
+Test NODE function
+```{r}
+NODE(data=ts1,
+     time_column_name = "t")
+```
+
+Test multi_NODE function
+```{r}
+multi_NODE(data=mts2,
+           time_column_name = "t",
+           series_column_name = "species")
+```
+
+Test ode_model function
+```{r}
+ode_model(data=ts1,
+          derivs = "derivs_from_r.jl",
+          initial_parameters = list(r=0.5, b=0.5),
+          time_column_name = "t")
+```
+
+Test custom_derivatives function
+```{r}
+custom_derivatives(data=ts1,
+                   derivs = "derivs_from_r.jl",
+                   covariates = covars,
+                   initial_parameters = list(r=0.5, b=0.5),
+                   time_column_name = "t")
+```
+
+Test multi_custom_derivatives function
+```{r}
+multi_custom_derivatives(data=mts2,
+                         derivs = "multi_derivs_from_r.jl",
+                         #covariates = covars,
+                         initial_parameters = list(r=0.5, b=0.5),
+                         time_column_name = "t",
+                         series_column_name = "species")
+```

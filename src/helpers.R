@@ -1,7 +1,11 @@
 julia_eval("include(\"src/helpers.jl\")")
-R_to_Julia <- function(f){
+R_to_Julia <- function(f, filepath = NULL){
   deparsed_f <- deparse(f)
-  deparsed_f[1] <- gsub("function ", "function derivs", deparsed_f[1]) 
+  
+  if(!is.null(filepath)) {
+    deparsed_f[1] <- gsub("function ", "function derivs", deparsed_f[1])
+  }
+
   for(i in 1:length(deparsed_f)){
     if(grepl("for", deparsed_f[i])){
       deparsed_f[i] <- sub("\\((.*)\\)","\\1", deparsed_f[i]) # the forloop deals with for loops
@@ -22,6 +26,13 @@ R_to_Julia <- function(f){
   f_code <- gsub("/", " \\./", f_code) # broadcasts division
   f_code <- gsub("\\^", " \\.\\^", f_code) # broadcasts exponentiation
   f_code <- gsub("c\\(([^()]*)\\)", "[\\1]", f_code) # converts c() to []
+  
+  if(!is.null(filepath)) {
+    fileConn<-file(paste0(filepath,".jl"))
+    writeLines(sapply(strsplit(f_code, split=';;', fixed=TRUE),identity), fileConn)
+    close(fileConn)
+  }
+  
   return(f_code)
 } 
 
