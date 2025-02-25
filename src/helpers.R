@@ -1,3 +1,4 @@
+julia_eval("include(\"src/helpers.jl\")")
 R_to_Julia <- function(f){
   deparsed_f <- deparse(f)
   deparsed_f[1] <- gsub("function ", "function derivs", deparsed_f[1]) 
@@ -23,3 +24,10 @@ R_to_Julia <- function(f){
   f_code <- gsub("c\\(([^()]*)\\)", "[\\1]", f_code) # converts c() to []
   return(f_code)
 } 
+
+extract_model_parameters <- function(model){
+  julia_assign("to_extract_parameters",model)
+  parameters <- julia_eval("retrieve_model_parameters(to_extract_parameters)",
+                           need_return = "R")
+  return(parameters)
+}
