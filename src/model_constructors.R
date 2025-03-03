@@ -13,7 +13,8 @@ NODE <- function(
     reg_type = "L2",
     l = 0.25,
     extrap_rho = 0.0,
-    bayesian = FALSE
+    bayesian = FALSE,
+    uid = format(Sys.time(), "%Y%m%d%H%M%OS6")
 ){
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
@@ -34,7 +35,7 @@ NODE <- function(
                                      ",extrap_rho=",extrap_rho,")"),
                               need_return = "Julia")
     
-    julia_assign("julia_model_jl", julia_model)
+    julia_assign(paste0("julia_model_","uid"), julia_model)
     
   }else{
     julia_assign("covariates_julia",covariates)
@@ -67,7 +68,8 @@ multi_NODE <- function(
     reg_type = "L2",
     l = 0.25,
     extrap_rho = 0.0,
-    bayesian = FALSE
+    bayesian = FALSE,
+    uid = format(Sys.time(), "%Y%m%d%H%M%OS6")
 ){
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
@@ -89,7 +91,7 @@ multi_NODE <- function(
                                      ",extrap_rho=",extrap_rho,")"),
                               need_return = "Julia")
     
-    julia_assign("julia_model_jl", julia_model)
+    julia_assign(paste0("julia_model_","uid"), julia_model)
     
   }else{
     julia_assign("covariates_julia",covariates)
@@ -125,7 +127,8 @@ custom_derivatives <- function(
     reg_type = "L2",
     l = 0.25,
     extrap_rho = 0.0,
-    bayesian = FALSE
+    bayesian = FALSE,
+    uid = format(Sys.time(), "%Y%m%d%H%M%OS6")
 ){
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
@@ -163,6 +166,8 @@ custom_derivatives <- function(
                                      ",l=",l,
                                      ",extrap_rho=",extrap_rho,")"),
                               need_return = "Julia")
+    
+    julia_assign(paste0("julia_model_","uid"), julia_model)
   }else{
     julia_assign("covariates_julia",covariates)
     julia_model <- julia_eval(paste0(model_type,
