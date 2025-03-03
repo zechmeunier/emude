@@ -1,3 +1,4 @@
+julia_eval("include(\"src/helpers.jl\")")
 R_to_Julia <- function(f, filepath = NULL){
   deparsed_f <- deparse(f)
   
@@ -19,7 +20,7 @@ R_to_Julia <- function(f, filepath = NULL){
   f_code <- gsub("\\*"," \\.\\*", f_code) # adds . to make multiplication broadcast by default
   f_code <- gsub("% \\.\\*%"," \\*", f_code) # translates matrix multiplication
   f_code <- gsub("<\\-", "=", f_code) # translates <- to =
-  f_code <- gsub("=\\s*","=", f_code)  # removes spaced before equal signs to get the next line to work 
+  f_code <- gsub("=\\s*","=", f_code)  # removes space before equal signs to get the next line to work 
   f_code <- gsub("[^\\^\\+\\*\\-\\/=)]\\-"," \\.\\-", f_code) # broadcasts subtraction unless it is creating a negative number  
   f_code <- gsub("\\+", " \\.\\+", f_code) # broads casts addition 
   f_code <- gsub("/", " \\./", f_code) # broadcasts division
@@ -33,4 +34,11 @@ R_to_Julia <- function(f, filepath = NULL){
   }
   
   return(f_code)
+} 
+
+extract_model_parameters <- function(model){
+  julia_assign("to_extract_parameters",model)
+  parameters <- julia_eval("retrieve_model_parameters(to_extract_parameters)",
+                           need_return = "R")
+  return(parameters)
 }

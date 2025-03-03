@@ -1,3 +1,5 @@
+using UniversalDiffEq
+using ComponentArrays
 using Lux
 using Random 
 
@@ -41,12 +43,17 @@ function build_multi_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_unit
   return derivs, init_params
 end
 
-
-
 function build_custom_ode(f_julia,p_julia,inputs,outputs)
   init_params = NamedTuple(p_julia),
   function derivs(du, u, p, t)
       du .= f_julia(u,p,t)
   end
   return derivs, init_params
+end
+
+function retrieve_model_parameters(model)
+  param_names = labels(model.parameters)
+  parameters = model.parameters
+  param_tuple = NamedTuple{Tuple(Symbol.(param_names))}(Tuple(parameters))
+  return param_tuple
 end
