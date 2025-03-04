@@ -18,7 +18,7 @@ ude <- emude_setup()
 
 
 ```{r}
-data = tibble("t" = c(1,2,3,4,5), "value" = c(2,4,8,16,32))
+data = tibble("t" = c(1,2,3,4,5,6,7,8,9,10), "value" = c(2,4,8,16,32,64,128,256,512,1024))
 
 model <- custom_derivatives(data=data, derivs = "./derivs_from_r.jl", initial_parameters = list(r=0.5, b=0.5), neural_network_inputs = 1,
                     neural_network_outputs = 1, hidden_units = 10, time_column_name = "t"
@@ -26,7 +26,9 @@ model <- custom_derivatives(data=data, derivs = "./derivs_from_r.jl", initial_pa
 
 NODE_model <- NODE(data=data, hidden_units = 10, time_column_name = "t")
 ```
-
+```{r}
+train(NODE_model, loss_options = list(d=2))
+```
 
 ```{r}
 
