@@ -14,7 +14,7 @@ NODE <- function(
     l = 0.25,
     extrap_rho = 0.0,
     bayesian = FALSE,
-    uid = format(Sys.time(), "%Y%m%d%H%M%OS6")
+    uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
@@ -23,7 +23,7 @@ NODE <- function(
   model_type <- ifelse(bayesian,"BayesianNODE","NODE")
   julia_assign("data_julia",data)
   if(is.null(covariates)){
-    julia_model <- julia_eval(paste0(model_type,
+    julia_eval(paste0("julia_model_",uid,"=", model_type,
                                      "(data_julia,time_column_name=\"",time_column_name,"\"",
                                      ",hidden_units=",hidden_units,
                                      ",seed=",seed,
@@ -32,14 +32,13 @@ NODE <- function(
                                      ",reg_weight=",reg_weight,
                                      ",reg_type=\"",reg_type,"\"",
                                      ",l=",l,
-                                     ",extrap_rho=",extrap_rho,")"),
-                              need_return = "Julia")
+                                     ",extrap_rho=",extrap_rho,")"))
     
-    julia_assign(paste0("julia_model_","uid"), julia_model)
+
     
   }else{
     julia_assign("covariates_julia",covariates)
-    julia_model <- julia_eval(paste(model_type,
+    julia_eval(paste0("julia_model_",uid,"=",model_type,
                                     "(data_julia,covariates_julia,time_column_name=\"",time_column_name,"\"",
                                     ",hidden_units=",hidden_units,
                                     ",seed=",seed,
@@ -52,7 +51,7 @@ NODE <- function(
                               need_return = "Julia")
   }
   
-  return(julia_model)
+  return(paste0("julia_model_",uid))
 }
 
 multi_NODE <- function(
@@ -78,7 +77,7 @@ multi_NODE <- function(
   model_type <- ifelse(bayesian,"BayesianNODE","MultiNODE")
   julia_assign("data_julia",data)
   if(is.null(covariates)){
-    julia_model <- julia_eval(paste0(model_type,
+    julia_eval(paste0("julia_model_",uid,"=",model_type,
                                      "(data_julia,time_column_name=\"",time_column_name,"\"",
                                      ",series_column_name=\"",series_column_name,"\"",
                                      ",hidden_units=",hidden_units,
@@ -91,11 +90,11 @@ multi_NODE <- function(
                                      ",extrap_rho=",extrap_rho,")"),
                               need_return = "Julia")
     
-    julia_assign(paste0("julia_model_","uid"), julia_model)
+
     
   }else{
     julia_assign("covariates_julia",covariates)
-    julia_model <- julia_eval(paste(model_type,
+    julia_eval(paste0("julia_model_",uid,"=",model_type,
                                     "(data_julia,covariates_julia,time_column_name=\"",time_column_name,"\"",
                                     ",series_column_name=\"",series_column_name,"\"",
                                     ",hidden_units=",hidden_units,
@@ -109,7 +108,7 @@ multi_NODE <- function(
                               need_return = "Julia")
   }
   
-  return(julia_model)
+  return(paste0("julia_model_",uid))
 }
 
 custom_derivatives <- function(
@@ -154,10 +153,10 @@ custom_derivatives <- function(
   julia_assign("outputs",neural_network_outputs)
   julia_assign("hidden_units", hidden_units)
   
-  julia_model <- julia_eval("deriv, parameters = build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
+  julia_eval("deriv, parameters = build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
   
   if(is.null(covariates)){
-    julia_model <- julia_eval(paste0(model_type,
+    julia_eval(paste0("julia_model_",uid,"=",model_type,
                                      "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                      ",proc_weight=",proc_weight,
                                      ",obs_weight=",obs_weight,
@@ -167,10 +166,10 @@ custom_derivatives <- function(
                                      ",extrap_rho=",extrap_rho,")"),
                               need_return = "Julia")
     
-    julia_assign(paste0("julia_model_","uid"), julia_model)
+    julia_assign(paste0("julia_model_",uid), julia_model)
   }else{
     julia_assign("covariates_julia",covariates)
-    julia_model <- julia_eval(paste0(model_type,
+    julia_eval(paste0("julia_model_",uid,"=",model_type,
                                      "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                      ",proc_weight=",proc_weight,
                                      ",obs_weight=",obs_weight,
@@ -180,7 +179,8 @@ custom_derivatives <- function(
                                      ",extrap_rho=",extrap_rho,")"),
                               need_return = "Julia")
   }
-  return(julia_model)
+  
+  return(paste0("julia_model_",uid))
 }
 
 multi_custom_derivatives <- function(
@@ -225,11 +225,11 @@ multi_custom_derivatives <- function(
   julia_assign("outputs",neural_network_outputs)
   julia_assign("hidden_units",hidden_units)
   
-  julia_model <- julia_eval("deriv, parameters = build_multi_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
+  julia_eval("deriv, parameters = build_multi_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
   
   if(is.null(covariates)){
 
-    julia_model <- julia_eval(paste0(model_type,
+    julia_eval(paste0("julia_model_",uid,"=",model_type,
                                      "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                      ",series_column_name=\"",series_column_name,"\"",
                                      ",proc_weight=",proc_weight,
@@ -240,7 +240,7 @@ multi_custom_derivatives <- function(
                               need_return = "Julia")
   }else{
     julia_assign("covariates_julia",covariates)
-    julia_model <- julia_eval(paste0(model_type,
+    julia_eval(paste0("julia_model_",uid,"=",model_type,
                                      "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                      ",series_column_name=\"",series_column_name,"\"",
                                      ",proc_weight=",proc_weight,
@@ -250,7 +250,7 @@ multi_custom_derivatives <- function(
                                      ",extrap_rho=",extrap_rho,")"),
                               need_return = "Julia")
   }
-  return(julia_model)
+  return(paste0("julia_model_",uid))
 }
 
 ode_model <- function(
@@ -291,7 +291,7 @@ ode_model <- function(
   julia_model <- julia_eval("deriv, parameters = build_custom_ode(f_julia,p_julia,inputs,outputs)")
   
   if(is.null(covariates)){
-    julia_model <- julia_eval(paste0(model_type,
+    julia_eval(paste0("julia_model_",uid,"=",model_type,
                                      "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                      ",proc_weight=",proc_weight,
                                      ",obs_weight=",obs_weight,
@@ -302,7 +302,7 @@ ode_model <- function(
                               need_return = "Julia")
   }else{
     julia_assign("covariates_julia",covariates)
-    julia_model <- julia_eval(paste0(model_type,
+    julia_eval(paste0("julia_model_",uid,"=",model_type,
                                      "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                      ",proc_weight=",proc_weight,
                                      ",obs_weight=",obs_weight,
@@ -312,5 +312,5 @@ ode_model <- function(
                                      ",extrap_rho=",extrap_rho,")"),
                               need_return = "Julia")
   }
-  return(julia_model)
+  return(paste0("julia_model_",uid))
 }
