@@ -37,8 +37,7 @@ R_to_Julia <- function(f, filepath = NULL){
 } 
 
 extract_model_parameters <- function(model){
-  julia_assign("to_extract_parameters",model)
-  parameters <- julia_eval("retrieve_model_parameters(to_extract_parameters)",
+  parameters <- julia_eval("retrieve_model_parameters(",model,")",
                            need_return = "R")
   return(parameters)
 }
