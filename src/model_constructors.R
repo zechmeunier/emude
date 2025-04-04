@@ -18,7 +18,7 @@ NODE <- function(
 ){
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
   }
   model_type <- ifelse(bayesian,"BayesianNODE","NODE")
   julia_assign("data_julia",data)
@@ -68,11 +68,11 @@ multi_NODE <- function(
     l = 0.25,
     extrap_rho = 0.0,
     bayesian = FALSE,
-    uid = format(Sys.time(), "%Y%m%d%H%M%OS6")
+    uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
   }
   model_type <- ifelse(bayesian,"BayesianNODE","MultiNODE")
   julia_assign("data_julia",data)
@@ -127,11 +127,11 @@ custom_derivatives <- function(
     l = 0.25,
     extrap_rho = 0.0,
     bayesian = FALSE,
-    uid = format(Sys.time(), "%Y%m%d%H%M%OS6")
+    uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","CustomDerivatives")
   
@@ -165,8 +165,6 @@ custom_derivatives <- function(
                                      ",l=",l,
                                      ",extrap_rho=",extrap_rho,")"),
                               need_return = "Julia")
-    
-    julia_assign(paste0("julia_model_",uid), julia_model)
   }else{
     julia_assign("covariates_julia",covariates)
     julia_eval(paste0("julia_model_",uid,"=",model_type,
@@ -203,7 +201,7 @@ multi_custom_derivatives <- function(
 ){
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","MultiCustomDerivatives")
   
@@ -269,7 +267,7 @@ ode_model <- function(
 ){
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
   }
   #model_type <- ifelse(bayesian,"BayesianUDE","CustomDerivatives")
   model_type <- "CustomDerivatives"
