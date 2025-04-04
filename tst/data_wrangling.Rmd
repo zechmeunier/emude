@@ -140,10 +140,28 @@ mts2 <- bind_cols(mts1_wide[,1], rel_minmax(mts1_wide[,2:3])) %>%
 covars = tibble("t" = seq(1:5), "value" = c(1,1,1,1,2))
 ```
 
+```{r}
+extract_julia_fields <- function(julia_model){
+  lapply(fields(julia_model), function(x) field(julia_model,x))
+}
+```
+
+```{r}
+extract_julia_fields <- function(julia_model){
+  julia_fields <- list()
+  for(name in fields(julia_model)) julia_fields[[name]] <- field(julia_model,name)
+  return(julia_fields)
+}
+```
+
 Test NODE function
 ```{r}
-NODE(data=ts1,
-     time_column_name = "t")
+NODEresults <- NODE(data=ts1,
+                    time_column_name = "t")
+
+list1 <- extract_julia_fields(NODEresults)
+
+julia_eval("model.parameters.process_model.NN.layer_1.weight",need_return = "R")
 ```
 
 Test multi_NODE function
@@ -179,3 +197,13 @@ multi_custom_derivatives(data=mts2,
                          time_column_name = "t",
                          series_column_name = "species")
 ```
+# Test predict and forecast functions
+
+Generate time series
+```{r}
+df <- tibble(
+  #moderate NAs, values from 0 to 150
+  Species_B = sample(c(0:150, NA), 50, replace = TRUE, prob = c(rep(1/151, 151), 0)))
+```
+
+Define 
