@@ -11,8 +11,8 @@ predict <- function(
   if(bayesian){
     return(
       julia_eval(
-        paste0("predict(", UDE, test_ID,
-               "summarize =", as.character(summarize),
+        paste0("predict(", UDE, ",", test_ID, "," ,
+               "summarize =", as.character(summarize), ",",
                "CI =", as.character(CI),
                ")"
         )
@@ -22,7 +22,7 @@ predict <- function(
   else{
     return(
       julia_eval(
-        paste0("predict(", UDE, test_ID, ")"
+        paste0("UniversalDiffEq.predict(", UDE,",", test_ID, ")"
         )
       )
     )

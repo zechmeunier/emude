@@ -4,6 +4,7 @@ library(JuliaCall)
 setwd("../")
 source("src/emude.R")
 source("src/model_constructors.R")
+source("src/model_testing.R")
 source("src/training_functions.R")
 ```
 
@@ -29,7 +30,6 @@ train(NODE_model, loss_options = list(d=2))
 ```
 
 ```{r}
-
 ude$predict(model,data)
 
 plot <- ude$predict(NODE_model, data)
@@ -38,3 +38,15 @@ julia_assign("plot", plot)
 
 julia_eval("plot(plot)")
 ```
+
+```{r}
+predict(UDE = model, test_data = data)
+```
+
+uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
+test_ID <- paste0("test_data_",uid)
+print(test_ID)
+  julia_assign(test_ID, data)
+  julia_eval(paste0("return(typeof(",test_ID,"))"))
+```
+
