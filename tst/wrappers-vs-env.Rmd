@@ -9,12 +9,13 @@ source("src/training_functions.R")
 ```
 
 ```{r}
-ude <- emude_setup()
+#ude <- emude_setup()
+julia_library("UniversalDiffEq")
 ```
 
 
 ```{r}
-data = tibble("t" = c(1,2,3,4,5,6,7,8,9,10), "value" = c(2,4,8,16,32,64,128,256,512,1024))
+data = tibble("t" = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0), "x" = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0) , "y" = c(2.0,4.0,8.0,16.0,32.0,64.0,128.0,256.0,512.0,1024.0))
 
 model <- custom_derivatives(data=data, derivs = "./derivs_from_r.jl",
                             initial_parameters = list(r=0.5, b=0.5),
@@ -23,24 +24,51 @@ model <- custom_derivatives(data=data, derivs = "./derivs_from_r.jl",
                             hidden_units = 10, time_column_name = "t"
 )
 
-NODE_model <- NODE(data=data, hidden_units = 10, time_column_name = "t")
+#NODE_model <- NODE(data=data, hidden_units = 10, time_column_name = "t")
 ```
 ```{r}
 train(NODE_model, loss_options = list(d=2))
 ```
 
 ```{r}
-ude$predict(model,data)
+predict(model,data)
 
-plot <- ude$predict(NODE_model, data)
+#predict(NODE_model, data)
   
-julia_assign("plot", plot)
+#julia_assign("plot", plot)
 
-julia_eval("plot(plot)")
+#julia_eval("plot(plot)")
 ```
 
 ```{r}
-predict(UDE = model, test_data = data)
+julia_library("Random")
+julia_library("Lux")
+julia_library("ComponentArrays")
+julia_library("DataFrames")
+```
+
+
+```{r}
+#predict(UDE = model, test_data = data)
+
+julia_eval("Random.seed!(5)")
+julia_eval("rng = Random.default_rng()")
+julia_eval("NN = Lux.Chain(Lux.Dense( 2 => 10, tanh), Lux.Dense( 10 => 10, tanh),Lux.Dense(10 => 2))")
+julia_eval("NNparams, NNstates =Lux.setup(rng, NN)")
+julia_eval("NNparams = NNparams |> ComponentArray")
+
+julia_eval("include(\"./derivs_from_r.jl\")")
+
+julia_eval("f_julia = derivs")
+
+julia_eval("function dudt!(du,u, p,t) x,y = u; du .= NN([x,y], p , NNstates)[1]end")
+
+julia_eval("data = DataFrame(t = [1.0,2.0,3.0,4.0,5.0], value1 = [2.0,4.0,6.0,8.0,10.0], value2=[1.0,2.0,3.0,4.0,5.0])")
+
+julia_eval("model=CustomDerivatives(data,f_julia,NNparams)")
+
+julia_eval("testdata = DataFrame(t = [6.0,7.0,8.0], value1=[12.0,14.0,16.0], value2=[6.0,7.0,8.0])")
+julia_eval("predict(model, testdata)")
 ```
 
 uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
