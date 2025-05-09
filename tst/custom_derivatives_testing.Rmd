@@ -1,0 +1,60 @@
+```{r setup}
+library(tidyverse)
+library(JuliaCall)
+setwd("../")
+source("src/emude.R")
+source("src/model_constructors.R")
+source("src/model_testing.R")
+source("src/training_functions.R")
+```
+
+```{r}
+#ude <- emude_setup()
+julia_library("UniversalDiffEq")
+julia_library("DataFrames")
+
+```
+
+
+```{r}
+julia_eval("f_julia = (u, nn, p, t) -> u[1] + nn[1] + p[1] * t")
+julia_assign("p_julia", c(1.1))
+julia_assign("inputs", c(1) )
+```
+
+```{r}
+julia_eval("deriv, parameters = build_custom_derivs_function_R(f_julia,p_julia,inputs,10,1)")
+
+julia_assign( "data",
+tibble(
+    t = c(0.0, 1.0, 2.0),
+    u1 = c(1.0, 2.0, 3.0),
+    u2 = c(4.0, 5.0, 6.0)
+))
+```
+
+
+```{r}
+julia_eval("f_julia = (u, nn, p, t) -> u[1] + nn[1] + p[1] * t")
+julia_eval("p_julia =[1.1]" )
+#julia_eval("data = DataFrame(t = [0.0, 1.0, 2.0],u1 = [1.0, 2.0, 3.0],u2 = [4.0, 5.0, 6.0])")
+julia_eval("inputs = [1]" )
+```
+
+```{r}
+julia_eval("f_julia = (u, nn, p, t) -> u[1] + nn[1] + p[1] * t;p_julia = [1.0];inputs = [1];deriv, parameters = build_custom_derivs_function_R(f_julia,p_julia,inputs,10,1)")
+julia_eval("deriv, parameters = build_custom_derivs_function_R(f_julia,p_julia,inputs,10,1)")
+
+```
+
+```{r}
+julia_eval("model = CustomDerivatives(data, deriv, parameters)")
+```
+
+```{r}
+julia_eval("gradient_descent!(model, verbose=true)")
+```
+
+```{r}
+julia_eval("predict(model, data)")
+```

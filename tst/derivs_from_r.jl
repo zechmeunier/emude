@@ -1,3 +1,4 @@
-function derivs(u, nn, p, t) 
-    p.r  .* u[1]  .* nn[1]  .+ p.b
+function derivs(u, du, p, t) 
+    x,y = u
+    du .= NN([x,y], p , NNstates)[1]
  end
