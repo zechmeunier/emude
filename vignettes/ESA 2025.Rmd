@@ -1,0 +1,106 @@
+---
+title: "emude at ESA 2025"
+author: "Zechariah Meunier"
+date: '`r Sys.Date()`'
+output: html_document
+---
+# Setup
+
+Load dependencies
+```{r}
+library(JuliaCall)
+```
+
+Set up Julia with local filepath
+```{r}
+julia_setup(JULIA_HOME = "C:\\Users\\zdmeu\\.julia\\juliaup\\julia-1.11.4+0.x64.w64.mingw32\\bin")
+julia_library("UniversalDiffEq")
+```
+
+Load source code
+
+```{r, include=FALSE}
+setwd("..")
+
+# Source Julia files
+jl_files <- list.files("src", pattern = "\\.jl$", full.names = TRUE)
+lapply(jl_files, JuliaCall::julia_source)
+
+# Source R files, excluding emude.R
+r_files <- list.files("src", pattern = "\\.R$", full.names = TRUE)
+r_files <- r_files[!basename(r_files) %in% c("emude.R")]
+lapply(r_files, source)
+```
+
+# Case Study 1: Canadian Lynx-Hare Predator-Prey Cycles
+
+## Data Processing
+
+Load data
+
+Dataset 1 is from https://gist.github.com/michaelosthege/27315631c1aedbe55f5affbccabef1ca
+Dataset 2 is from https://jckantor.github.io/CBE30338/02.05-Hare-and-Lynx-Population-Dynamics.html
+
+```{r}
+lynxhare1 <- read.csv("Hare and Lynx Time Series 1.csv")
+lynxhare2 <- read.csv("Hare and Lynx Time Series 2.csv")
+```
+
+Join data frames and see how they differ
+
+```{r}
+lynxhare <- right_join(lynxhare1, lynxhare2, by = "Year")
+
+ggplot(data = lynxhare) +
+  geom_abline(intercept = 0, slope = 1/1000) +
+  geom_point(aes(x = Hare.x, y = Hare.y, color = "1")) +
+  geom_point(aes(x = Lynx.x, y = Lynx.y, color = "2")) +
+  scale_x_continuous(name = "Dataset 1 population (pelts)") +
+  scale_y_continuous(name = "Dataset 2 population (thousand pelts)") +
+  scale_color_manual(name = "",
+                     labels = c("Hare","Lynx"),
+                     values = c("dodgerblue","firebrick")) +
+  theme_bw() +
+  theme(legend.position = "top")
+```
+
+
+Plot time series
+```{r}
+ggplot(data = lynxhare1, aes(x = Year)) +
+  geom_line(aes(y = Hare, color = "1")) +
+  geom_point(aes(y = Hare, color = "1")) +
+  geom_line(aes(y = Lynx, color = "2")) +
+  geom_point(aes(y = Lynx, color = "2")) +
+  scale_x_continuous(breaks = seq(1845, 1935, 5)) +
+  scale_y_continuous(name = "Population (pelts)") +
+  scale_color_manual(name = "",
+                     labels = c("Hare","Lynx"),
+                     values = c("dodgerblue","firebrick")) +
+  theme_bw() +
+  theme(legend.position = "top")
+
+ggplot(data = lynxhare2, aes(x = Year)) +
+  geom_line(aes(y = Hare, color = "1")) +
+  geom_point(aes(y = Hare, color = "1")) +
+  geom_line(aes(y = Lynx, color = "2")) +
+  geom_point(aes(y = Lynx, color = "2")) +
+    scale_x_continuous(breaks = seq(1845, 1935, 5)) +
+  scale_y_continuous(name = "Population (thousand pelts)") +
+  scale_color_manual(name = "",
+                     labels = c("Hare","Lynx"),
+                     values = c("dodgerblue","firebrick")) +
+  theme_bw() +
+  theme(legend.position = "top")
+```
+
+## Neural Ordinary Differential Equation (NODE)
+
+Create a NODE model on data set 1 without rescaling the data. Then train this model and make predictions based on the original data frame.
+
+```{r}
+nodemodel1 <- NODE(data = lynxhare1, time_column_name = "Year")
+train(nodemodel1)
+predict(nodemodel1, test_data = lynxhare1)
+```
+
