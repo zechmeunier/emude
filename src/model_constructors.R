@@ -222,7 +222,6 @@ multi_custom_derivatives <- function(
   julia_eval("deriv, parameters = build_multi_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
   
   if(is.null(covariates)){
-    
     julia_eval(paste0("julia_model_",uid,"=",model_type,
                       "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
                       ",series_column_name=\"",series_column_name,"\"",
@@ -260,15 +259,15 @@ ode_model <- function(
     reg_weight = 10^-6,
     reg_type = "L2",
     l = 0.25,
-    extrap_rho = 0.0
-    #bayesian = FALSE
+    extrap_rho = 0.0,
+    bayesian = FALSE,
+    uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
         "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
   }
-  #model_type <- ifelse(bayesian,"BayesianUDE","CustomDerivatives")
-  model_type <- "CustomDerivatives"
+  model_type <- ifelse(bayesian,"BayesianUDE","CustomDerivatives")
   
   if(is.character(derivs)) {
     julia_eval(paste0('include("', derivs, '")'))
