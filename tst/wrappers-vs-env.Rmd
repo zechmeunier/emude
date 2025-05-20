@@ -1,3 +1,10 @@
+
+
+
+```{r}
+julia_setup(JULIA_HOME = '/Applications/Julia-1.10.app/Contents/Resources/julia/bin')
+```
+
 ```{r setup}
 library(tidyverse)
 library(JuliaCall)
@@ -15,11 +22,14 @@ julia_library("UniversalDiffEq")
 
 
 ```{r}
-data = tibble("t" = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0), "x" = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0) , "y" = c(2.0,4.0,8.0,16.0,32.0,64.0,128.0,256.0,512.0,1024.0))
+data = tibble(
+"series" = c(1.0,1.0,1.0,1.0,1.0,2.0,2.0,2.0,2.0,2.0),
+"t" = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0), "x" = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0) , "y" = c(2.0,4.0,8.0,16.0,32.0,64.0,128.0,256.0,512.0,1024.0)/1000
+)
 
-model <- custom_derivatives(data=data, derivs = "./derivs_from_r.jl",
+model <- multi_custom_derivatives(data=data, derivs = "./derivs_from_r.jl",
                             initial_parameters = list(r=0.5, b=0.5),
-                            neural_network_inputs = 1,
+                            neural_network_inputs = c(1),
                             neural_network_outputs = 1,
                             hidden_units = 10, time_column_name = "t"
 )
@@ -27,7 +37,7 @@ model <- custom_derivatives(data=data, derivs = "./derivs_from_r.jl",
 #NODE_model <- NODE(data=data, hidden_units = 10, time_column_name = "t")
 ```
 ```{r}
-train(NODE_model, loss_options = list(d=2))
+train(model, "shooting", loss_options = list(d = 2))
 ```
 
 ```{r}

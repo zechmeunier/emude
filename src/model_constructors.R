@@ -116,7 +116,7 @@ custom_derivatives <- function(
     derivs,
     initial_parameters,
     covariates = NULL,
-    neural_network_inputs = 1,
+    neural_network_inputs = c(1),
     neural_network_outputs = 1,
     hidden_units = 10,
     time_column_name = "time",
@@ -197,7 +197,8 @@ multi_custom_derivatives <- function(
     reg_type = "L2",
     l = 0.25,
     extrap_rho = 0.0,
-    bayesian = FALSE
+    bayesian = FALSE,
+    uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
