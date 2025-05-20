@@ -111,7 +111,7 @@ custom_derivatives <- function(
     derivs,
     initial_parameters,
     covariates = NULL,
-    neural_network_inputs = 1,
+    neural_network_inputs = c(1),
     neural_network_outputs = 1,
     hidden_units = 10,
     time_column_name = "time",
