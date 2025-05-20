@@ -32,10 +32,8 @@ NODE <- function(
                       ",reg_weight=",reg_weight,
                       ",reg_type=\"",reg_type,"\"",
                       ",l=",l,
-                      ",extrap_rho=",extrap_rho,")"))
-    
-    
-    
+                      ",extrap_rho=",extrap_rho,")"),
+               need_return = "Julia")
   }else{
     julia_assign("covariates_julia",covariates)
     julia_eval(paste0("julia_model_",uid,"=",model_type,
@@ -89,9 +87,6 @@ multi_NODE <- function(
                       ",l=",l,
                       ",extrap_rho=",extrap_rho,")"),
                need_return = "Julia")
-    
-    
-    
   }else{
     julia_assign("covariates_julia",covariates)
     julia_eval(paste0("julia_model_",uid,"=",model_type,
@@ -151,7 +146,7 @@ custom_derivatives <- function(
   julia_assign("data_julia",data)
   julia_assign("inputs",neural_network_inputs)
   julia_assign("outputs",neural_network_outputs)
-  julia_assign("hidden_units", hidden_units)
+  julia_assign("hidden_units",hidden_units)
   
   julia_eval("deriv, parameters = build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
   
