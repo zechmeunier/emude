@@ -3,6 +3,7 @@ using ComponentArrays
 using Lux
 using Random
 using DiffEqFlux
+using DataFrames
 
 function build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)
   hidden_units, outputs = Integer.([hidden_units,outputs])
@@ -65,4 +66,11 @@ function retrieve_model_parameters(model)
   parameters = model.parameters
   param_tuple = NamedTuple{Tuple(Symbol.(param_names))}(Tuple(parameters))
   return param_tuple
+end
+
+function convert_column_types(data, series_column_name, time_column_name)
+  data[:, (names(data) != series_column_name && 
+          names(data) != time_column_name)] .|> Float64
+      
+  return data
 end
