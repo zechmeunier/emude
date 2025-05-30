@@ -67,10 +67,3 @@ function retrieve_model_parameters(model)
   param_tuple = NamedTuple{Tuple(Symbol.(param_names))}(Tuple(parameters))
   return param_tuple
 end
-
-function convert_column_types(data, series_column_name, time_column_name)
-  data[:, (names(data) != series_column_name && 
-          names(data) != time_column_name)] .|> Float64
-      
-  return data
-end

@@ -21,7 +21,7 @@ NODE <- function(
         "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
   }
   model_type <- ifelse(bayesian,"BayesianNODE","NODE")
-  julia_assign("data_julia",data)
+  julia_assign("data_julia",convert_column_types(data))
   if(is.null(covariates)){
     julia_eval(paste0("julia_model_",uid,"=", model_type,
                       "(data_julia,time_column_name=\"",time_column_name,"\"",
@@ -73,7 +73,7 @@ multi_NODE <- function(
         "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
   }
   model_type <- ifelse(bayesian,"BayesianNODE","MultiNODE")
-  julia_assign("data_julia",data)
+  julia_assign("data_julia",convert_column_types(data))
   if(is.null(covariates)){
     julia_eval(paste0("julia_model_",uid,"=",model_type,
                       "(data_julia,time_column_name=\"",time_column_name,"\"",
@@ -143,7 +143,7 @@ custom_derivatives <- function(
   julia_assign("p_julia",initial_parameters)
   julia_eval("p_julia = NamedTuple(p_julia)", need_return = "Julia")
   
-  julia_assign("data_julia",data)
+  julia_assign("data_julia",convert_column_types(data))
   julia_assign("inputs",neural_network_inputs)
   julia_assign("outputs",neural_network_outputs)
   julia_assign("hidden_units",hidden_units)
@@ -214,7 +214,7 @@ multi_custom_derivatives <- function(
   julia_assign("p_julia",initial_parameters)
   julia_eval("p_julia = NamedTuple(p_julia)", need_return = "Julia")
   
-  julia_assign("data_julia",data)
+  julia_assign("data_julia",convert_column_types(data))
   julia_assign("inputs",neural_network_inputs)
   julia_assign("outputs",neural_network_outputs)
   julia_assign("hidden_units",hidden_units)
@@ -281,7 +281,7 @@ ode_model <- function(
   julia_assign("p_julia",initial_parameters)
   julia_eval("p_julia = NamedTuple(p_julia)", need_return = "Julia")
   
-  julia_assign("data_julia",data)
+  julia_assign("data_julia",convert_column_types(data))
   
   julia_model <- julia_eval("deriv, parameters = build_custom_ode(f_julia,p_julia,inputs,outputs)")
   

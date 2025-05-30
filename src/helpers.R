@@ -41,3 +41,10 @@ extract_model_parameters <- function(model){
                            need_return = "R")
   return(parameters)
 }
+
+convert_column_types <- function(data) {
+  data[] <- lapply(data, function(col) {
+    if (is.numeric(col)) as.double(col) else col
+  })
+  return(data)
+}

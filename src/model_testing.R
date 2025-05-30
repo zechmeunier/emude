@@ -7,7 +7,7 @@ predict <- function(
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   test_ID <- paste0("test_data_",uid)
-  julia_assign(test_ID, test_data)
+  julia_assign(test_ID, convert_column_types(test_data))
   if(bayesian){
     return(
       julia_eval(
