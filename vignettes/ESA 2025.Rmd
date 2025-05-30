@@ -43,6 +43,8 @@ Dataset 2 is from https://jckantor.github.io/CBE30338/02.05-Hare-and-Lynx-Popula
 
 ```{r}
 lynxhare1 <- read.csv("Hare and Lynx Time Series 1.csv")
+lynxhare1$Hare <- lynxhare1$Hare + 0.1
+lynxhare1$Lynx <- lynxhare1$Lynx + 0.1
 lynxhare2 <- read.csv("Hare and Lynx Time Series 2.csv")
 ```
 
@@ -102,5 +104,8 @@ Create a NODE model on data set 1 without rescaling the data. Then train this mo
 nodemodel1 <- NODE(data = lynxhare1, time_column_name = "Year")
 train(nodemodel1)
 predict(nodemodel1, test_data = lynxhare1)
+
+julia_eval(paste0(nodemodel1, ".data_frame"))
+
 ```
 
