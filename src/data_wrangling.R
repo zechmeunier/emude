@@ -15,19 +15,39 @@ colmin <- function(mat) {
   colmins  }
 
 # Function: rel_colmax
-##   About: Relativizes matrix by its column maxima
+##   About: Relativizes matrix by its column maxima, excluding time and series columns
 ##   Input: mat - matrix with any dimensions
 ##  Output: A matrix scaled so that values are proportions of the maximum value per column
-rel_colmax <- function(mat) {
-  return(mat/matrix(colmax(mat), nrow = nrow(mat), ncol = ncol(mat), byrow = TRUE))
+rel_colmax <- function(mat, time_column_name = "time", series_column_name = "series") {
+  
+  cols_to_exclude <- intersect(c(time_column_name, series_column_name), names(mat))
+  cols_to_rel <- setdiff(names(mat), cols_to_exclude)
+  mat_to_rel <- mat[cols_to_rel]
+  
+  colmaxes <- colmax(mat_to_rel)
+  
+  mat[cols_to_rel] <- sweep(mat_to_rel, 2, colmaxes, `/`)
+  
+  return(mat)
 }
 
 # Function: rel_minmax
-##   About: Relativizes matrix by its column maxima and minima
+##   About: Relativizes matrix by column minima and maxima, excluding time and series columns
 ##   Input: mat - matrix with any dimensions
 ##  Output: A matrix scaled so that minimum and maximum values per column are 0 and 1, respectively
-rel_minmax <- function(mat) {
-  return((mat - matrix(colmin(mat), nrow = nrow(mat), ncol = ncol(mat), byrow = TRUE))
-         / (matrix(colmax(mat), nrow = nrow(mat), ncol = ncol(mat), byrow = TRUE) -
-              matrix(colmin(mat), nrow = nrow(mat), ncol = ncol(mat), byrow = TRUE)))
+rel_minmax <- function(mat, time_column_name = "time", series_column_name = "series") {
+  
+  cols_to_exclude <- intersect(c(time_column_name, series_column_name), names(mat))
+  cols_to_rel <- setdiff(names(mat), cols_to_exclude)
+  mat_to_rel <- mat[cols_to_rel]
+  
+  colmins <- colmin(mat_to_rel)
+  colmaxes <- colmax(mat_to_rel)
+  
+  mat[cols_to_rel] <- sweep(
+    sweep(mat_to_rel, 2, colmins, `-`),
+    2, colmaxes - colmins, `/`
+  )
+  
+  return(mat)
 }
