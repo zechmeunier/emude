@@ -1,18 +1,18 @@
 library(ggplot2)
 library(dplyr)
 
-defaulttheme <- theme(axis.title = element_text(size = 11, color = "gray10"),
-                      axis.text = element_text(size = 9, color ="gray10"),
-                      axis.ticks = element_line(color = "gray10"),
+defaulttheme <- theme(axis.title = element_text(size = 11, color = "black"),
+                      axis.text = element_text(size = 9, color ="black"),
+                      axis.ticks = element_line(color = "black"),
                       panel.background = element_blank(),
-                      panel.border = element_rect(fill = NA, color = "gray10"),
+                      panel.border = element_rect(fill = NA, color = "black"),
                       legend.key = element_blank(), 
                       legend.position = "top",
                       legend.box = "vertical",
                       legend.box.just = "center",
                       legend.box.spacing = unit(0.1,"cm"),
-                      legend.title = element_text(size = 10, color = "gray10"),
-                      legend.text = element_text(size = 9, color = "gray10"))
+                      legend.title = element_text(size = 11, color = "black"),
+                      legend.text = element_text(size = 9, color = "black"))
 
 #Plot observations as points and model predictions as lines in a time series
 series_plot <- function(
@@ -23,22 +23,22 @@ series_plot <- function(
     predictions = NULL
 ){
   p <- ggplot(data = observations,
-         aes(x = {{x}}, y = {{y}}, group = {{group}}, color = {{group}})) + 
+              aes(x = {{x}}, y = {{y}}, group = {{group}}, color = {{group}})) + 
     geom_point() +
     defaulttheme
   
-    if (!is.null(predictions)) {
-      p + geom_line(data = predictions) +
-        scale_y_continuous(limits = c(
-          min(c(0, observations %>% pull({{y}}), predictions %>% pull({{y}}))),
-          max(observations %>% pull({{y}}), predictions %>% pull({{y}}))
+  if (!is.null(predictions)) {
+    p + geom_line(data = predictions) +
+      scale_y_continuous(limits = c(
+        min(c(0, observations %>% pull({{y}}), predictions %>% pull({{y}}))),
+        max(observations %>% pull({{y}}), predictions %>% pull({{y}}))
       ))
-    } else {
+  } else {
     p + scale_y_continuous(limits = c(
-          min(c(0, observations %>% pull({{y}}))),
-          max(observations %>% pull({{y}}))
-      ))
-    }
+      min(c(0, observations %>% pull({{y}}))),
+      max(observations %>% pull({{y}}))
+    ))
+  }
 }
 
 #Plot observations as points and model predictions as lines in a 2D phase plane
@@ -58,7 +58,7 @@ phase_plane_2D <- function(
     predictions <- predictions %>% 
       pivot_wider(names_from = {{names}}, values_from = {{values}})
   }
-
+  
   
   #Create plot
   p <- ggplot(data = observations, aes(x = {{x}}, y = {{y}})) + 
