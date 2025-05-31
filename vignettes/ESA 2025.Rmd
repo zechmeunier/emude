@@ -76,9 +76,9 @@ ggplot(data = lynxhare) +
   theme(legend.position = "top")
 ```
 
-An excellent fit for the hare counts and a fairly good fit for the lynx counts.
+An excellent correspondence for the hare counts and a fairly good correspondence for the lynx counts.
 
-Next we will plot the two time series using the **emude function** `series_plot`. This leverages ggplot functionality but it expects long-format data, so we need to pivot the joined data frame longer and do some additional data wrangling.
+Next we will plot the two time series using the **emude function** `series_plot`. This leverages ggplot functionality but it expects long-format data, so we need to pivot the joined data frame longer and do some additional data wrangling before plotting.
 
 ```{r}
 lynxhare_long <- pivot_longer(data = lynxhare,
@@ -112,13 +112,13 @@ series_plot(observations = lynxhare_long,
 
 ### Model Training
 
-Create six NODE models, one each for:
+We will create six NODE models, one each for:
 
 -   datasets 1 and 2 with raw abundances (note the warnings)
 -   datasets 1 and 2 with populations relativized by column maximum
 -   datasets 1 and 2 with populations rescaled by min-max normalization
 
-Then train these models and make one-step-ahead predictions based on the original, relativized, and rescaled data frames.
+Then we'll train these models and make one-step-ahead predictions based on the original, relativized, and rescaled data frames.
 
 ```{r}
 # raw data, no rescaling
