@@ -20,11 +20,12 @@ predict <- function(
     )
   }
   else{
-    return(
-      julia_eval(
-        paste0("UniversalDiffEq.predict(", UDE,",", test_ID, ")"
-        )
-      )
+    df <- as.data.frame(
+      julia_eval(paste0("UniversalDiffEq.predict(", UDE, ",", test_ID, ")"))
     )
+    
+    # Set column names to match test_data
+    colnames(df) <- names(test_data)
+    return(df)
   }
 }
