@@ -18,7 +18,7 @@ library(tidyverse)
 Set up Julia with local filepath
 
 ```{r}
-julia_setup(JULIA_HOME = "C:\\Users\\zdmeu\\.julia\\juliaup\\julia-1.11.4+0.x64.w64.mingw32\\bin")
+julia_setup(JULIA_HOME = "/Applications/Julia-1.10.app/Contents/Resources/julia/bin")
 julia_library("UniversalDiffEq")
 ```
 
@@ -26,7 +26,6 @@ Load source code
 
 ```{r, include=FALSE}
 setwd("..")
-
 # Source Julia files
 jl_files <- list.files("src", pattern = "\\.jl$", full.names = TRUE)
 lapply(jl_files, JuliaCall::julia_source)
@@ -120,6 +119,8 @@ We will create six NODE models, one each for:
 
 Then we'll train these models and make one-step-ahead predictions based on the original, relativized, and rescaled data frames.
 
+
+
 ```{r}
 # raw data, no rescaling
 NODE1 <- NODE(data = lynxhare1, time_column_name = "Year")
@@ -200,3 +201,27 @@ for (i in 1:6){
   print(plot)
 }
 ```
+
+
+
+```{r}
+
+derivs <- function(u,nn,p,t){
+  du1 = p$r*u[1] - nn[1]
+  du2 = p$theta*nn[1] - p$m*u[2]
+  return(c(du1,du2))
+}
+
+model_2 <- custom_derivatives(data=lynxhare1_rel, derivs = derivs,
+                            initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
+                            neural_network_inputs = c(1),
+                            neural_network_outputs = 1,
+                            hidden_units = 10, time_column_name = "Year"
+)
+
+train(model_2)
+```
+
+
+
+

@@ -16,7 +16,7 @@ function build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outp
   end
   init_params = ComponentArray(rparams = p_julia, NN = params)
 
-  function derivs(du, u, p, t)
+  function derivs(u, p, t)
       nn = [0.0]
       if length(inputs) == 1
            nn = NN(u[round.(Int, [inputs])],p.NN,states)[1]
