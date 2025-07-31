@@ -1,0 +1,13 @@
+Package: emude
+Title: Environmental Modeling with Universal Dynamic Equations
+Version: 0.0.0.9000
+Authors@R: 
+    person("Zechariah", "Meunier", "zdmeunier@willamette.edu", role = c("cre", "aut"))
+    person("Jack H.", "Buckner", , "bucknejo@oregonstate.edu", role = c("aut"))
+    person("Nathan", "Fitzpatrick", , "nmf68@hawaii.edu", role = c("aut"))
+    
+Description: This R package is intended for users who want to apply state-space universal dynamic equations (UDEs) to environmental data. It serves as a front-end for UniversalDiffEq.jl, which performs the machine learning algorithms in Julia on the back-end. It also leverages the enhanced plotting features in ggplot2 to create publication-ready figures.
+License: use_gpl3_license()
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2

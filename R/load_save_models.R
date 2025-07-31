@@ -1,3 +1,11 @@
+#' Load Julia Model Weights
+#'
+#' Description here
+#'
+#' @param model description
+#' @param file description
+#' @return description
+#' @export
 load_julia_model_weights <- function(model,file){
   julia_eval(paste0("load_model_parameters!(",model,",",file,")"))
 }

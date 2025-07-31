@@ -1,3 +1,16 @@
+#' Cross Validation
+#'
+#' description
+#'
+#' @param model description
+#' @param k description
+#' @param loss_function description
+#' @param optimizer description
+#' @param regularization_weight description
+#' @param verbose description
+#' @param loss_options description
+#' @param optim_options description
+#' @param path description
 cross_validation <- function(
     model,
     k = 10,
@@ -8,7 +21,7 @@ cross_validation <- function(
     loss_options = list(),
     optim_options = list(),
     path = "Null")
-  
+
 {
   verbose <- ifelse(verbose,"true","false")
   julia_assign("loss_options",loss_options)
