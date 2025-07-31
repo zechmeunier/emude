@@ -1,29 +1,34 @@
-#' Column max
+#' Calculate the column maxima
 #'
-#' Calculates the column maxima
+#' `colmax()` calculates the maximum value per column.
 #'
-#' @param mat - matrix with any dimensions
-#' @return colmaxes - vector of column maxima
+#' @param mat A matrix with any dimensions
+#'
+#' @return vector of column maxima, with length equal to the number of columns
 #' @export
+#'
+#' @examples
+#' colmax(mat = X)
 colmax <- function(mat) {
   colmaxes <- as.numeric(sapply(mat, function(x) ifelse(all(is.na(x)), NA, max(x, na.rm = TRUE))))
   colmaxes  }
 
-#' Column Min
+#' Calculate the column minima
 #'
-#' Calculates the column minima
-#'@param mat - matrix with any dimensions
-#'@return colmins - vector of column minima
-#'@export
+#' @param mat - matrix with any dimensions
+#'
+#' @return colmins - vector of column minima
+#' @export
 colmin <- function(mat) {
   colmins <- as.numeric(sapply(mat, function(x) ifelse(all(is.na(x)), NA, min(x, na.rm = TRUE))))
   colmins  }
 
-#' Relative Column Max
+#' Relativize matrix by its column maxima, excluding time and series columns
 #'
-#'Relativizes matrix by its column maxima, excluding time and series columns
-#'
+#' @param time_column_name
+#' @param series_column_name
 #' @param mat - matrix with any dimensions
+#'
 #' @return A matrix scaled so that values are proportions of the maximum value per column
 #' @export
 rel_colmax <- function(mat, time_column_name = "time", series_column_name = "series") {
@@ -43,7 +48,10 @@ rel_colmax <- function(mat, time_column_name = "time", series_column_name = "ser
 #'
 #' Relativizes matrix by column minima and maxima, excluding time and series columns
 #'
+#' @param time_column_name
+#' @param series_column_name
 #' @param mat - matrix with any dimensions
+#'
 #' @return A matrix scaled so that minimum and maximum values per column are 0 and 1, respectively
 #' @export
 rel_minmax <- function(mat, time_column_name = "time", series_column_name = "series") {
