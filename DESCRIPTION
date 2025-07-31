@@ -1,11 +1,16 @@
 Package: emude
 Title: Environmental Modeling with Universal Dynamic Equations
 Version: 0.0.0.9000
-Authors@R:
-    person("Zechariah D.", "Meunier", "zdmeunier@willamette.edu", role = c("cre", "aut"))
-    person("Jack H.", "Buckner", "bucknejo@oregonstate.edu", role = c("aut"))
-    person("Nathan", "Fitzpatrick", "nmf68@hawaii.edu", role = c("aut"))
-    person("Jorge", "Arroyo-Esquivel", "arroyoesquiveljorge@gmail.com", role = c("aut"))
+Authors@R: c(
+    person("Zechariah D.", "Meunier", "zdmeunier@willamette.edu", role = c("cre", "aut"),
+    comment = c(ORCID = "0000-0001-7900-3041"))
+    person("Jack H.", "Buckner", "bucknejo@oregonstate.edu", role = c("aut"),
+    comment = c(ORCID = "0000-0001-8767-8583"))
+    person("Nathan", "Fitzpatrick", "nmf68@hawaii.edu", role = c("aut"),
+    comment = c(ORCID = "0009-0001-6631-2846"))
+    person("Jorge", "Arroyo-Esquivel", "arroyoesquiveljorge@gmail.com", role = c("aut"),
+    comment = c(ORCID = "0000-0003-4399-954X"))
+    )
 Description: This R package is intended for users who want to apply state-space
     universal dynamic equations (UDEs) to environmental data. It serves as a
     front-end for 'UniversalDiffEq.jl', which performs the machine learning
@@ -15,3 +20,5 @@ License: use_gpl3_license()
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+URL: https://github.com/zechmeunier/emude
+BugReports: https://github.com/zechmeunier/emude/issues
