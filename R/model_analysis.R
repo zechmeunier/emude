@@ -11,6 +11,7 @@
 #' @param loss_options description
 #' @param optim_options description
 #' @param path description
+#' @export
 cross_validation <- function(
     model,
     k = 10,

@@ -1,5 +1,4 @@
 R_to_Julia <- function(f, filepath = NULL){
-  JuliaCall::julia_eval("include(\"src/helpers.jl\")")
   deparsed_f <- deparse(f)
 
   if(!is.null(filepath)) {
