@@ -15,7 +15,3 @@ Vector of column minima, with length equal to the number of columns
 \description{
 \code{colmin()} calculates the minimum (lowest) value per column.
 }
-\examples{
-colmin(mat = X)
-
-}

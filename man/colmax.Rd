@@ -15,7 +15,3 @@ Vector of column maxima, with length equal to the number of columns
 \description{
 \code{colmax()} calculates the maximum (highest) value per column.
 }
-\examples{
-colmax(mat = X)
-
-}
