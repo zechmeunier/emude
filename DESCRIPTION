@@ -2,15 +2,15 @@ Package: emude
 Title: Environmental Modeling with Universal Dynamic Equations
 Version: 0.0.0.9000
 Authors@R: c(
-    person(given = "Zechariah D.", family ="Meunier", email="zdmeunier@willamette.edu", role = c("cre", "aut"),
-    comment = c(ORCID = "0000-0001-7900-3041")),
-    person(given ="Jack H.", family ="Buckner", email="bucknejo@oregonstate.edu", role = c("aut"),
-    comment = c(ORCID = "0000-0001-8767-8583")),
-    person(given ="Nathan", family ="Fitzpatrick", email="nmf68@hawaii.edu", role = c("aut"),
-    comment = c(ORCID = "0009-0001-6631-2846")),
-    person(given ="Jorge", family ="Arroyo-Esquivel", email ="arroyoesquiveljorge@gmail.com", role = c("aut"),
-    comment = c(ORCID = "0000-0003-4399-954X"))
-    )
+    person(given = "Zechariah D.", family = "Meunier", email = "zdmeunier@willamette.edu", role = c("cre", "aut"),
+           comment = c(ORCID = "0000-0001-7900-3041")),
+    person(given = "Jack H.", family = "Buckner", email = "bucknejo@oregonstate.edu", role = "aut",
+           comment = c(ORCID = "0000-0001-8767-8583")),
+    person(given = "Nathan", family = "Fitzpatrick", email = "nmf68@hawaii.edu", role = "aut",
+           comment = c(ORCID = "0009-0001-6631-2846")),
+    person(given = "Jorge", family = "Arroyo-Esquivel", email = "arroyoesquiveljorge@gmail.com", role = "aut",
+           comment = c(ORCID = "0000-0003-4399-954X"))
+           )
 Description: This R package is intended for users who want to apply
     state-space universal dynamic equations (UDEs) to environmental data.
     It serves as a front-end for 'UniversalDiffEq.jl', which performs the
