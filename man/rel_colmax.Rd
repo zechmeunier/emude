@@ -2,18 +2,20 @@
 % Please edit documentation in R/data_wrangling.R
 \name{rel_colmax}
 \alias{rel_colmax}
-\title{Relativize matrix by its column maxima, excluding time and series columns}
+\title{Relativize matrix by its column maxima}
 \usage{
 rel_colmax(mat, time_column_name = "time", series_column_name = "series")
 }
 \arguments{
-\item{mat}{\itemize{
-\item matrix with any dimensions
-}}
+\item{mat}{A matrix with any dimensions containing \code{time_column_name}, \code{series_column_name}, and observations.}
+
+\item{time_column_name}{The column that contains the time data, indicating when the observations were made}
+
+\item{series_column_name}{The column that contains the series data, indicating the identifying information for the observations}
 }
 \value{
 A matrix scaled so that values are proportions of the maximum value per column
 }
 \description{
-Relativize matrix by its column maxima, excluding time and series columns
+\code{rel_colmax()} relativizes a matrix by the maximum values per column. It will exclude the specified time and series columns.
 }

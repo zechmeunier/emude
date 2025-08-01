@@ -10,7 +10,7 @@ colmin(mat)
 \item{mat}{A matrix with any dimensions}
 }
 \value{
-vector of column minima, with length equal to the number of columns
+Vector of column minima, with length equal to the number of columns
 }
 \description{
 \code{colmin()} calculates the minimum (lowest) value per column.

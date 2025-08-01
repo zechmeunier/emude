@@ -2,18 +2,20 @@
 % Please edit documentation in R/data_wrangling.R
 \name{rel_minmax}
 \alias{rel_minmax}
-\title{Relative Minmax}
+\title{Relativize matrix by its column maxima and minima}
 \usage{
 rel_minmax(mat, time_column_name = "time", series_column_name = "series")
 }
 \arguments{
-\item{mat}{\itemize{
-\item matrix with any dimensions
-}}
+\item{mat}{A matrix with any dimensions containing \code{time_column_name}, \code{series_column_name}, and observations.}
+
+\item{time_column_name}{The column that contains the time data, indicating when the observations were made}
+
+\item{series_column_name}{The column that contains the series data, indicating the identifying information for the observations}
 }
 \value{
 A matrix scaled so that minimum and maximum values per column are 0 and 1, respectively
 }
 \description{
-Relativizes matrix by column minima and maxima, excluding time and series columns
+\code{rel_minmax()} relativizes a matrix by the maximum and minimum values per column. It will exclude the specified time and series columns.
 }

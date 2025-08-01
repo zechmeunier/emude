@@ -10,7 +10,7 @@ colmax(mat)
 \item{mat}{A matrix with any dimensions}
 }
 \value{
-vector of column maxima, with length equal to the number of columns
+Vector of column maxima, with length equal to the number of columns
 }
 \description{
 \code{colmax()} calculates the maximum (highest) value per column.
