@@ -4,10 +4,10 @@
 \alias{colmin}
 \title{Calculate the column minima}
 \usage{
-colmin(mat)
+colmin(df)
 }
 \arguments{
-\item{mat}{A matrix with any dimensions.}
+\item{df}{A data frame with any dimensions.}
 }
 \value{
 Vector of column minima, with length equal to the number of columns.
@@ -16,7 +16,8 @@ Vector of column minima, with length equal to the number of columns.
 \code{colmin()} calculates the minimum (lowest) value per column.
 }
 \examples{
-X <- matrix(data = seq(1,100), nrow = 20, ncol = 5)
-colmax(mat = X)
+X <- data.frame("speciesA" = rpois(40,2),
+                "speciesB" = rpois(40,3))
+colmax(df = X)
 
 }
