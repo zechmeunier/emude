@@ -1,3 +1,4 @@
+#'@export
 NODE <- function(
     data,
     covariates = NULL,
@@ -49,6 +50,7 @@ NODE <- function(
   return(paste0("julia_model_",uid))
 }
 
+#'@export
 multi_NODE <- function(
     data,
     covariates = NULL,
@@ -104,6 +106,7 @@ multi_NODE <- function(
   return(paste0("julia_model_",uid))
 }
 
+#'@export
 custom_derivatives <- function(
     data,
     derivs,
@@ -175,6 +178,7 @@ custom_derivatives <- function(
   return(paste0("julia_model_",uid))
 }
 
+#'@export
 multi_custom_derivatives <- function(
     data,
     derivs,
@@ -248,6 +252,7 @@ multi_custom_derivatives <- function(
   return(paste0("julia_model_",uid))
 }
 
+#'@export
 ode_model <- function(
     data,
     derivs,
