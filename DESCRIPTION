@@ -11,17 +11,18 @@ Authors@R: c(
     person(given ="Jorge", family ="Arroyo-Esquivel", email ="arroyoesquiveljorge@gmail.com", role = c("aut"),
     comment = c(ORCID = "0000-0003-4399-954X"))
     )
-Description: This R package is intended for users who want to apply state-space
-    universal dynamic equations (UDEs) to environmental data. It serves as a
-    front-end for 'UniversalDiffEq.jl', which performs the machine learning
-    algorithms in Julia on the back-end. It also leverages enhanced plotting
-    features in 'ggplot2' to create publication-ready figures.
+Description: This R package is intended for users who want to apply
+    state-space universal dynamic equations (UDEs) to environmental data.
+    It serves as a front-end for 'UniversalDiffEq.jl', which performs the
+    machine learning algorithms in Julia on the back-end. It also
+    leverages enhanced plotting features in 'ggplot2' to create
+    publication-ready figures.
 License: use_gpl3_license()
+URL: https://github.com/zechmeunier/emude
+BugReports: https://github.com/zechmeunier/emude/issues
 Imports:
-  JuliaCall,
-  ggplot2
+    ggplot2,
+    JuliaCall
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-URL: https://github.com/zechmeunier/emude
-BugReports: https://github.com/zechmeunier/emude/issues

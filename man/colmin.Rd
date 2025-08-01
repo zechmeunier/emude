@@ -7,13 +7,15 @@
 colmin(mat)
 }
 \arguments{
-\item{mat}{\itemize{
-\item matrix with any dimensions
-}}
+\item{mat}{A matrix with any dimensions}
 }
 \value{
-colmins - vector of column minima
+vector of column minima, with length equal to the number of columns
 }
 \description{
-Calculate the column minima
+\code{colmin()} calculates the minimum (lowest) value per column.
+}
+\examples{
+colmin(mat = X)
+
 }
