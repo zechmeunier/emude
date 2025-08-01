@@ -1,4 +1,4 @@
-#' Predict
+#' Predict UDE
 #'
 #' Use the specified model to make predictions on provided testing data
 #'
@@ -10,7 +10,7 @@
 #' @param uid A string which serves as a unique identifier to save the test data into Julia. it is not recommended to modify this parameter
 #' @return
 #' @export
-predict <- function(
+predict_ude <- function(
     UDE,
     test_data,
     summarize = TRUE,

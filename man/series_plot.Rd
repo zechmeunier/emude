@@ -14,6 +14,8 @@ series_plot(observations, x, y, group, predictions = NULL)
 \item{y}{description}
 
 \item{group}{description}
+
+\item{predictions}{description}
 }
 \value{
 description
