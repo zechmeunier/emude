@@ -2,12 +2,12 @@
 #'
 #' `colmax()` calculates the maximum (highest) value per column.
 #'
-#' @param mat A matrix with any dimensions
+#' @param mat A matrix with any dimensions.
 #'
-#' @return Vector of column maxima, with length equal to the number of columns
+#' @return Vector of column maxima, with length equal to the number of columns.
 #'
 #' @examples
-#' X <- matrix(data=seq(1,100), nrow = 20, ncol = 5)
+#' X <- matrix(data = seq(1,100), nrow = 20, ncol = 5)
 #' colmax(mat = X)
 #'
 #' @export
@@ -19,12 +19,12 @@ colmax <- function(mat) {
 #'
 #' `colmin()` calculates the minimum (lowest) value per column.
 #'
-#' @param mat A matrix with any dimensions
+#' @param mat A matrix with any dimensions.
 #'
-#' @return Vector of column minima, with length equal to the number of columns
+#' @return Vector of column minima, with length equal to the number of columns.
 #'
 #' @examples
-#' X <- matrix(data=seq(1,100), nrow = 20, ncol = 5)
+#' X <- matrix(data = seq(1,100), nrow = 20, ncol = 5)
 #' colmax(mat = X)
 #'
 #' @export
@@ -36,11 +36,19 @@ colmin <- function(mat) {
 #'
 #' `rel_colmax()` relativizes a matrix by the maximum values per column. It will exclude the specified time and series columns.
 #'
-#' @param time_column_name The column that contains the time data, indicating when the observations were made
-#' @param series_column_name The column that contains the series data, indicating the identifying information for the observations
+#' @param time_column_name The column that contains the time data, indicating when the observations were made.
+#' @param series_column_name The column that contains the series data, indicating the identifying information for the observations.
 #' @param mat A matrix with any dimensions containing `time_column_name`, `series_column_name`, and observations.
 #'
-#' @return A matrix scaled so that values are proportions of the maximum value per column
+#' @return A matrix scaled so that values are proportions of the maximum value per column.
+#'
+#' @examples
+#' X <- data.frame("time" = seq(1,40),
+#'                 "transect" = c(rep(1,10),rep(2,10),rep(3,10),rep(4,10)),
+#'                 "speciesA" = rpois(40,2),
+#'                 "speciesB" = rpois(40,3))
+#' rel_colmax(X, time_column_name = "time", series_column_name = "transect")
+#'
 #' @export
 rel_colmax <- function(mat, time_column_name = "time", series_column_name = "series") {
 
@@ -59,11 +67,19 @@ rel_colmax <- function(mat, time_column_name = "time", series_column_name = "ser
 #'
 #' `rel_minmax()` relativizes a matrix by the maximum and minimum values per column. It will exclude the specified time and series columns.
 #'
-#' @param time_column_name The column that contains the time data, indicating when the observations were made
-#' @param series_column_name The column that contains the series data, indicating the identifying information for the observations
+#' @param time_column_name The column that contains the time data, indicating when the observations were made.
+#' @param series_column_name The column that contains the series data, indicating the identifying information for the observations.
 #' @param mat A matrix with any dimensions containing `time_column_name`, `series_column_name`, and observations.
 #'
-#' @return A matrix scaled so that minimum and maximum values per column are 0 and 1, respectively
+#' @return A matrix scaled so that minimum and maximum values per column are 0 and 1, respectively.
+#'
+#' @examples
+#' X <- data.frame("time" = seq(1,40),
+#'                 "transect" = c(rep(1,10),rep(2,10),rep(3,10),rep(4,10)),
+#'                 "speciesA" = rpois(40,2),
+#'                 "speciesB" = rpois(40,3))
+#' rel_colmax(X, time_column_name = "time", series_column_name = "transect")
+#'
 #' @export
 rel_minmax <- function(mat, time_column_name = "time", series_column_name = "series") {
 
