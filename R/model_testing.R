@@ -2,13 +2,13 @@
 #'
 #' Use the specified model to make predictions on provided testing data
 #'
-#' @param UDE the UDE model object in the R environment to perform predictions with
-#' @param test_data A DataFrame with the data to use to perform predictions
-#' @param summarize True or False, whether or not to receive a summarized output from the function
-#' @param CI For Bayesian UDEs only: True or False, whether or not to include a confidence interval for the prediction
-#' @param bayesian True or False whether or not the UDE is a Bayesian UDE
-#' @param uid A string which serves as a unique identifier to save the test data into Julia. it is not recommended to modify this parameter
-#' @return
+#' @param UDE The UDE model object in the R environment with which to perform predictions.
+#' @param test_data A data frame containing the testing data to use to perform predictions.
+#' @param summarize Logical (`TRUE` or `FALSE`) for whether or not to receive a summarized output from the function.
+#' @param CI Logical (`TRUE` or `FALSE`) for whether or not to include a confidence interval for the prediction. Only applicable to Bayesian UDEs.
+#' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a Bayesian UDE.
+#' @param uid A string that serves as a unique identifier to save the testing data into Julia. It is not recommended to modify this parameter.
+#' @return df A data frame of predictions.
 #' @export
 predict_ude <- function(
     UDE,
