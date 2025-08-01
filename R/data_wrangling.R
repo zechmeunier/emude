@@ -1,23 +1,28 @@
 #' Calculate the column maxima
 #'
-#' `colmax()` calculates the maximum value per column.
+#' `colmax()` calculates the maximum (highest) value per column.
 #'
 #' @param mat A matrix with any dimensions
 #'
 #' @return vector of column maxima, with length equal to the number of columns
-#' @export
 #'
-#' @examples
-#' colmax(mat = X)
+#' @examples colmax(mat = X)
+#'
+#' @export
 colmax <- function(mat) {
   colmaxes <- as.numeric(sapply(mat, function(x) ifelse(all(is.na(x)), NA, max(x, na.rm = TRUE))))
   colmaxes  }
 
 #' Calculate the column minima
 #'
-#' @param mat - matrix with any dimensions
+#' `colmin()` calculates the minimum (lowest) value per column.
 #'
-#' @return colmins - vector of column minima
+#' @param mat A matrix with any dimensions
+#'
+#' @return vector of column minima, with length equal to the number of columns
+#'
+#' @examples colmin(mat = X)
+#'
 #' @export
 colmin <- function(mat) {
   colmins <- as.numeric(sapply(mat, function(x) ifelse(all(is.na(x)), NA, min(x, na.rm = TRUE))))
