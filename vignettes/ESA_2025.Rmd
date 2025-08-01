@@ -1,0 +1,239 @@
+---
+title: "ESA_2025"
+author: "Zechariah Meunier"
+date: '`r Sys.Date()`'
+output: html_document
+vignette: >
+  %\VignetteIndexEntry{ESA_2025}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Setup
+
+Load dependencies
+
+```{r}
+library(JuliaCall)
+library(ModelMetrics)
+library(tidyverse)
+library(emude)
+```
+
+Set up Julia with local filepath
+
+```{r}
+julia_setup(installJulia = TRUE)
+emude_setup()
+```
+
+Load source code
+
+```{r, include=FALSE}
+setwd("..")
+# Source Julia files
+jl_files <- list.files("src", pattern = "\\.jl$", full.names = TRUE)
+lapply(jl_files, JuliaCall::julia_source)
+
+# Source R files, excluding emude.R
+r_files <- list.files("src", pattern = "\\.R$", full.names = TRUE)
+r_files <- r_files[!basename(r_files) %in% c("emude.R")]
+lapply(r_files, source)
+```
+
+# Case Study 1: Canadian Lynx-Hare Predator-Prey Cycles
+
+## Data Exploration
+
+We will work with two different versions of the lynx-hare time series. The first spanning 1845--1935 was documented by Duncan A. MacLulich in his book *Fluctuations in the Numbers of the Varying Hare (Lepus americanus)* published in 1937. The second spanning 1847--1903 was documented by Egbert G. Leigh, Jr. in Table III of his chapter entitled "The Ecological Role of Volterra's Equations" in the book *Some Mathematical Problems in Biology* published in 1968.
+
+The MacLulich (1937) dataset records the number of pelts in the thousands, while the Leigh (1968) dataset records the raw number of pelts. Both datasets have large variances, so we will apply the **emude functions** `rel_colmax` and `rel_minmax` as two possible methods for rescaling.
+
+```{r}
+lynxhare1 <- read.csv("MacLulich 1937.csv")
+lynxhare2 <- read.csv("Leigh 1968.csv")
+#perform relativization by column maximum
+lynxhare1_rel <- rel_colmax(lynxhare1, time_column_name = "Year")
+lynxhare2_rel <- rel_colmax(lynxhare2, time_column_name = "Year")
+#perform min-max normalization
+lynxhare1_norm <- rel_minmax(lynxhare1, time_column_name = "Year")
+lynxhare2_norm <- rel_minmax(lynxhare2, time_column_name = "Year")
+```
+
+Given the different data sources, it is interesting to see how they differ. Here we perform a simple left join by year, and then plot the data points and simple linear regressions as compared to a 1:1 line.
+
+```{r}
+lynxhare <- left_join(lynxhare1, lynxhare2, by = "Year")
+
+ggplot(data = lynxhare) +
+  geom_abline(intercept = 0, slope = 1000) +
+  geom_smooth(method = "lm", aes(x = Hare.x, y = Hare.y, color = "1")) +
+  geom_smooth(method = "lm", aes(x = Lynx.x, y = Lynx.y, color = "2")) +
+  geom_point(aes(x = Hare.x, y = Hare.y, color = "1"), alpha = 0.5) +
+  geom_point(aes(x = Lynx.x, y = Lynx.y, color = "2"), alpha = 0.5) +
+  scale_x_continuous(name = "MacLulich 1937 population (thousand pelts)") +  
+  scale_y_continuous(name = "Leigh 1968 population (pelts)") +
+  scale_color_manual(name = "",
+                     labels = c("Hare","Lynx"),
+                     values = c("dodgerblue","firebrick")) +
+  theme_bw() +
+  theme(legend.position = "top")
+```
+
+An excellent correspondence for the hare counts and a fairly good correspondence for the lynx counts.
+
+Next we will plot the two time series using the **emude function** `series_plot`. This leverages ggplot functionality but it expects long-format data, so we need to pivot the joined data frame longer and do some additional data wrangling before plotting.
+
+```{r}
+lynxhare_long <- pivot_longer(data = lynxhare,
+                              cols = c(Hare.x, Hare.y, Lynx.x, Lynx.y),
+                              names_to = "Species",
+                              values_to = "Population") %>%
+  mutate(
+    Source = case_match(
+      Species,
+      "Hare.x" ~ "MacLulich 1937", "Lynx.x" ~ "MacLulich 1937",
+      "Hare.y" ~ "Leigh 1968", "Lynx.y" ~ "Leigh 1968"),
+    Species = case_match(
+      Species,
+      "Hare.x" ~ "Hare", "Lynx.x" ~ "Lynx",
+      "Hare.y" ~ "Hare", "Lynx.y" ~ "Lynx")
+  )
+
+series_plot(observations = lynxhare_long, 
+            x = Year, y = Population, group = Species) +
+  geom_line() +
+  facet_wrap(~Source, scales = "free", nrow = 2) +
+  scale_x_continuous(breaks = seq(1845, 1935, 10)) +
+  scale_color_manual(name = "",
+                     labels = c("Hare","Lynx"),
+                     values = c("dodgerblue","firebrick"))
+```
+
+## Neural Ordinary Differential Equation (NODE)
+
+[explain what NODEs are]
+
+### Model Training
+
+We will create six NODE models, one each for:
+
+-   datasets 1 and 2 with raw abundances (note the warnings)
+-   datasets 1 and 2 with populations relativized by column maximum
+-   datasets 1 and 2 with populations rescaled by min-max normalization
+
+Then we'll train these models and make one-step-ahead predictions based on the original, relativized, and rescaled data frames.
+
+
+
+```{r}
+# raw data, no rescaling
+NODE1 <- NODE(data = lynxhare1, time_column_name = "Year")
+train(NODE1)
+NODEpredictions1 <- predict_ude(NODE1, test_data = lynxhare1)
+
+NODE2 <- NODE(data = lynxhare2, time_column_name = "Year")
+train(NODE2)
+NODEpredictions2 <- predict_ude(NODE2, test_data = lynxhare2)
+
+# relativization by column maximum
+NODE1_rel <- NODE(data = lynxhare1_rel, time_column_name = "Year")
+train(NODE1_rel)
+NODEpredictions1_rel <- predict_ude(NODE1_rel, test_data = lynxhare1_rel)
+
+NODE2_rel <- NODE(data = lynxhare2_rel, time_column_name = "Year")
+train(NODE2_rel)
+NODEpredictions2_rel <- predict_ude(NODE2_rel, test_data = lynxhare2_rel)
+
+# min-max normalization
+NODE1_norm <- NODE(data = lynxhare1_norm, time_column_name = "Year")
+train(NODE1_norm)
+NODEpredictions1_norm <- predict_ude(NODE1_norm, test_data = lynxhare1_norm)
+
+NODE2_norm <- NODE(data = lynxhare2_norm, time_column_name = "Year")
+train(NODE2_norm)
+NODEpredictions2_norm <- predict_ude(NODE2_norm, test_data = lynxhare2_norm)
+```
+
+### One-step-ahead Predictions
+
+To standardize our assessment of model performance across the different time series and methods, we will calculate the normalized root mean squared error $NRMSE = \frac{1}{\bar{y}} \sqrt{ \frac{1}{n} \sum_{i=1}^n (\hat{y}_i-y_i)^2}$.
+
+Then, we'll pivot the observations and predictions to long-format data frames. Finally, we will plot the observed data as points and the predictions as lines using the **emude function** `series_plot`.
+
+```{r}
+observations <- list(lynxhare1, lynxhare1_rel, lynxhare1_norm,
+                     lynxhare2, lynxhare2_rel, lynxhare2_norm)
+predictions <- list(NODEpredictions1, NODEpredictions1_rel, NODEpredictions1_norm,
+                    NODEpredictions2, NODEpredictions2_rel, NODEpredictions2_norm)
+subtitles <- c("Dataset 1, raw abundances",
+               "Dataset 1, relativization by column maximum",
+               "Dataset 1, min-max normalization",
+               "Dataset 2, raw abundances",
+               "Dataset 2, relativization by column maximum",
+               "Dataset 2, min-max normalization")
+
+for (i in 1:6){
+  obs <- observations[[i]]
+  preds <- predictions[[i]]
+  
+  # calculate the NRMSE separately for each species, removing the first row because the one-step-head predictions do not include the first year
+  hareNRMSE = round(rmse(actual = obs[-1,"Hare"],
+                         predicted = preds[,"Hare"])/mean(obs[-1,"Hare"]), 2)
+  lynxNRMSE = round(rmse(actual = obs[-1,"Lynx"],
+                         predicted = preds[,"Lynx"])/mean(obs[-1,"Lynx"]), 2)
+  
+  # pivot columns longer for plotting
+  obs_long <- pivot_longer(data = obs, cols = c(Hare, Lynx),
+                           names_to = "Species", values_to = "Population")
+  
+  preds_long <- pivot_longer(data = preds, cols = c(Hare, Lynx),
+                             names_to = "Species", values_to = "Population")
+  
+  # create plots and add NRMSE values for model fit
+  plot <- series_plot(observations = obs_long, predictions = preds_long,
+                      x = Year, y = Population, group = Species) + 
+    annotate(geom = "text", hjust = 1,
+             x = max(obs_long$Year, preds_long$Year),
+             y = max(obs_long$Population, preds_long$Population) * 0.95,
+             label = paste0("Hare NRMSE = ", hareNRMSE, "\n",
+                            "Lynx NRMSE = ", lynxNRMSE)) +
+    scale_color_manual(name = "",
+                       labels = c("Hare","Lynx"),
+                       values = c("dodgerblue","firebrick")) +
+    labs(subtitle = subtitles[i])
+  
+  print(plot)
+}
+```
+
+
+
+```{r}
+
+derivs <- function(u,nn,p,t){
+  du1 = p$r*u[1] - nn[1]
+  du2 = p$theta*nn[1] - p$m*u[2]
+  return(c(du1,du2))
+}
+
+model_2 <- custom_derivatives(data=lynxhare1_rel, derivs = derivs,
+                            initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
+                            neural_network_inputs = c(1),
+                            neural_network_outputs = 1,
+                            hidden_units = 10, time_column_name = "Year"
+)
+
+train(model_2)
+```
+
+
+
+
