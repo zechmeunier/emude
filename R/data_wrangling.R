@@ -4,7 +4,7 @@
 #'
 #' @param mat A matrix with any dimensions
 #'
-#' @return vector of column maxima, with length equal to the number of columns
+#' @return Vector of column maxima, with length equal to the number of columns
 #'
 #' @examples colmax(mat = X)
 #'
@@ -19,7 +19,7 @@ colmax <- function(mat) {
 #'
 #' @param mat A matrix with any dimensions
 #'
-#' @return vector of column minima, with length equal to the number of columns
+#' @return Vector of column minima, with length equal to the number of columns
 #'
 #' @examples colmin(mat = X)
 #'
@@ -28,11 +28,13 @@ colmin <- function(mat) {
   colmins <- as.numeric(sapply(mat, function(x) ifelse(all(is.na(x)), NA, min(x, na.rm = TRUE))))
   colmins  }
 
-#' Relativize matrix by its column maxima, excluding time and series columns
+#' Relativize matrix by its column maxima
 #'
-#' @param time_column_name
-#' @param series_column_name
-#' @param mat - matrix with any dimensions
+#' `rel_colmax()` relativizes a matrix by the maximum values per column. It will exclude the specified time and series columns.
+#'
+#' @param time_column_name The column that contains the time data, indicating when the observations were made
+#' @param series_column_name The column that contains the series data, indicating the identifying information for the observations
+#' @param mat A matrix with any dimensions containing `time_column_name`, `series_column_name`, and observations.
 #'
 #' @return A matrix scaled so that values are proportions of the maximum value per column
 #' @export
@@ -49,13 +51,13 @@ rel_colmax <- function(mat, time_column_name = "time", series_column_name = "ser
   return(mat)
 }
 
-#' Relative Minmax
+#' Relativize matrix by its column maxima and minima
 #'
-#' Relativizes matrix by column minima and maxima, excluding time and series columns
+#' `rel_minmax()` relativizes a matrix by the maximum and minimum values per column. It will exclude the specified time and series columns.
 #'
-#' @param time_column_name
-#' @param series_column_name
-#' @param mat - matrix with any dimensions
+#' @param time_column_name The column that contains the time data, indicating when the observations were made
+#' @param series_column_name The column that contains the series data, indicating the identifying information for the observations
+#' @param mat A matrix with any dimensions containing `time_column_name`, `series_column_name`, and observations.
 #'
 #' @return A matrix scaled so that minimum and maximum values per column are 0 and 1, respectively
 #' @export
