@@ -45,7 +45,7 @@ colmin <- function(df) {
 #' @return A data frame scaled so that values are proportions of the maximum value per column.
 #'
 #' @examples
-#' X <- data.frame("time" = seq(1,40),
+#' X <- data.frame("time" = rep(seq(1,10),4),
 #'                 "transect" = c(rep(1,10),rep(2,10),rep(3,10),rep(4,10)),
 #'                 "speciesA" = rpois(40,2),
 #'                 "speciesB" = rpois(40,3))
@@ -76,7 +76,7 @@ rel_colmax <- function(df, time_column_name = "time", series_column_name = "seri
 #' @return A data frame scaled so that minimum and maximum values per column are 0 and 1, respectively.
 #'
 #' @examples
-#' X <- data.frame("time" = seq(1,40),
+#' X <- data.frame("time" = rep(seq(1,10),4),
 #'                 "transect" = c(rep(1,10),rep(2,10),rep(3,10),rep(4,10)),
 #'                 "speciesA" = rpois(40,2),
 #'                 "speciesB" = rpois(40,3))

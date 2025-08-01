@@ -1,6 +1,6 @@
-#' Train
+#' Train the UDE
 #'
-#' Trains the model on the training data provided in the model definition
+#' `train_UDE` trains the UDE model on the training data provided, with customizable options for training.
 #'
 #' @param model description
 #' @param loss_function description
@@ -11,7 +11,7 @@
 #' @param optim_options description
 #' @return description
 #' @export
-train <- function(
+train_UDE <- function(
     model,
     loss_function = "derivative matching",
     optimizer = "ADAM",

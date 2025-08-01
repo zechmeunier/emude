@@ -10,7 +10,7 @@
 #' @param uid A string that serves as a unique identifier to save the testing data into Julia. It is not recommended to modify this parameter.
 #' @return df A data frame of predictions.
 #' @export
-predict_ude <- function(
+predict_UDE <- function(
     UDE,
     test_data,
     summarize = TRUE,
