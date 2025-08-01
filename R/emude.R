@@ -8,19 +8,14 @@
 # }
 
 #' @import JuliaCall
-.onAttach <- function(libname, pkgname) {
+.onLoad <- function(libname, pkgname) {
   JuliaCall::julia_setup(installJulia = TRUE)
-  JuliaCall::julia_install_package_if_needed("UniversalDiffEq")
+  JuliaCall::julia_install_package("UniversalDiffEq")
   JuliaCall::julia_install_package_if_needed("ComponentArrays")
   JuliaCall::julia_install_package_if_needed("Lux")
   JuliaCall::julia_install_package_if_needed("Random")
   JuliaCall::julia_install_package_if_needed("DiffEqFlux")
   JuliaCall::julia_install_package_if_needed("DataFrames")
-}
-
-#' @import JuliaCall
-.onLoad <- function(libname, pkgname) {
-  JuliaCall::julia_setup()
   JuliaCall::julia_library("UniversalDiffEq")
   JuliaCall::julia_library("ComponentArrays")
   JuliaCall::julia_library("Lux")
