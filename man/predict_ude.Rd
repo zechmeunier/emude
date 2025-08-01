@@ -15,17 +15,20 @@ predict_ude(
 )
 }
 \arguments{
-\item{UDE}{the UDE model object in the R environment to perform predictions with}
+\item{UDE}{The UDE model object in the R environment with which to perform predictions.}
 
-\item{test_data}{A DataFrame with the data to use to perform predictions}
+\item{test_data}{A data frame containing the testing data to use to perform predictions.}
 
-\item{summarize}{True or False, whether or not to receive a summarized output from the function}
+\item{summarize}{Logical (\code{TRUE} or \code{FALSE}) for whether or not to receive a summarized output from the function.}
 
-\item{CI}{For Bayesian UDEs only: True or False, whether or not to include a confidence interval for the prediction}
+\item{CI}{Logical (\code{TRUE} or \code{FALSE}) for whether or not to include a confidence interval for the prediction. Only applicable to Bayesian UDEs.}
 
-\item{bayesian}{True or False whether or not the UDE is a Bayesian UDE}
+\item{bayesian}{Logical (\code{TRUE} or \code{FALSE}) for whether or not the UDE is a Bayesian UDE.}
 
-\item{uid}{A string which serves as a unique identifier to save the test data into Julia. it is not recommended to modify this parameter}
+\item{uid}{A string that serves as a unique identifier to save the testing data into Julia. It is not recommended to modify this parameter.}
+}
+\value{
+df A data frame of predictions.
 }
 \description{
 Use the specified model to make predictions on provided testing data

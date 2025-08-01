@@ -9,13 +9,21 @@ rel_colmax(mat, time_column_name = "time", series_column_name = "series")
 \arguments{
 \item{mat}{A matrix with any dimensions containing \code{time_column_name}, \code{series_column_name}, and observations.}
 
-\item{time_column_name}{The column that contains the time data, indicating when the observations were made}
+\item{time_column_name}{The column that contains the time data, indicating when the observations were made.}
 
-\item{series_column_name}{The column that contains the series data, indicating the identifying information for the observations}
+\item{series_column_name}{The column that contains the series data, indicating the identifying information for the observations.}
 }
 \value{
-A matrix scaled so that values are proportions of the maximum value per column
+A matrix scaled so that values are proportions of the maximum value per column.
 }
 \description{
 \code{rel_colmax()} relativizes a matrix by the maximum values per column. It will exclude the specified time and series columns.
+}
+\examples{
+X <- data.frame("time" = seq(1,40),
+                "transect" = c(rep(1,10),rep(2,10),rep(3,10),rep(4,10)),
+                "speciesA" = rpois(40,2),
+                "speciesB" = rpois(40,3))
+rel_colmax(X, time_column_name = "time", series_column_name = "transect")
+
 }
