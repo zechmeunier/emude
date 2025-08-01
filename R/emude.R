@@ -17,6 +17,6 @@
 .onLoad <- function(libname, pkgname) {
   JuliaCall::julia_setup()
   JuliaCall::julia_library("UniversalDiffEq")
-  JuliaCall::julia_eval("include(\"R/helpers.jl\")")
+  JuliaCall::julia_eval("include(\"inst/helpers.jl\")")
 
 }
