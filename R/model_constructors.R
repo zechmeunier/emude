@@ -13,7 +13,6 @@ NODE <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
-  JuliaCall::julia_eval("include(\"src/helpers.jl\")")
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
         "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
@@ -66,7 +65,7 @@ multi_NODE <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
-  JuliaCall::julia_eval("include(\"src/helpers.jl\")")
+
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
         "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
@@ -123,7 +122,7 @@ custom_derivatives <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
-  JuliaCall::julia_eval("include(\"src/helpers.jl\")")
+
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
         "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
@@ -195,7 +194,7 @@ multi_custom_derivatives <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
-  JuliaCall::julia_eval("include(\"src/helpers.jl\")")
+
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
         "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
@@ -264,7 +263,7 @@ ode_model <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
-  JuliaCall::julia_eval("include(\"src/helpers.jl\")")
+
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
     cat("Model performance may be improved by scaling the data through transformation or relativization.",
         "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")

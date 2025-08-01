@@ -1,14 +1,14 @@
 Package: emude
 Title: Environmental Modeling with Universal Dynamic Equations
-Version: 0.0.0.9000=
+Version: 0.0.0.9000
 Authors@R: c(
-    person("Zechariah D.", "Meunier", "zdmeunier@willamette.edu", role = c("cre", "aut"),
-    comment = c(ORCID = "0000-0001-7900-3041"))
-    person("Jack H.", "Buckner", "bucknejo@oregonstate.edu", role = c("aut"),
-    comment = c(ORCID = "0000-0001-8767-8583"))
-    person("Nathan", "Fitzpatrick", "nmf68@hawaii.edu", role = c("aut"),
-    comment = c(ORCID = "0009-0001-6631-2846"))
-    person("Jorge", "Arroyo-Esquivel", "arroyoesquiveljorge@gmail.com", role = c("aut"),
+    person(given = "Zechariah D.", family ="Meunier", email="zdmeunier@willamette.edu", role = c("cre", "aut"),
+    comment = c(ORCID = "0000-0001-7900-3041")),
+    person(given ="Jack H.", family ="Buckner", email="bucknejo@oregonstate.edu", role = c("aut"),
+    comment = c(ORCID = "0000-0001-8767-8583")),
+    person(given ="Nathan", family ="Fitzpatrick", email="nmf68@hawaii.edu", role = c("aut"),
+    comment = c(ORCID = "0009-0001-6631-2846")),
+    person(given ="Jorge", family ="Arroyo-Esquivel", email ="arroyoesquiveljorge@gmail.com", role = c("aut"),
     comment = c(ORCID = "0000-0003-4399-954X"))
     )
 Description: This R package is intended for users who want to apply state-space
@@ -17,6 +17,9 @@ Description: This R package is intended for users who want to apply state-space
     algorithms in Julia on the back-end. It also leverages enhanced plotting
     features in 'ggplot2' to create publication-ready figures.
 License: use_gpl3_license()
+Imports:
+  JuliaCall,
+  ggplot2
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2

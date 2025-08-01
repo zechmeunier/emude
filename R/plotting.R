@@ -1,4 +1,5 @@
-defaulttheme <- ggplot2::theme(axis.title = element_text(size = 11, color = "black"),
+#' @importFrom ggplot2 theme
+defaulttheme <- theme(axis.title = element_text(size = 11, color = "black"),
                       axis.text = element_text(size = 9, color ="black"),
                       axis.ticks = element_line(color = "black"),
                       panel.background = element_blank(),
@@ -13,12 +14,12 @@ defaulttheme <- ggplot2::theme(axis.title = element_text(size = 11, color = "bla
 #' Series Plot
 #'
 #' Plot observations as points and model predictions as lines in a time series
-#'
+#' @import ggplot2
 #' @param observations DataFrame of observed data to use to create the plot
 #' @param x description
 #' @param y description
 #' @param group description
-#' @param predictions
+#' @param predictions description
 #' @return description
 #' @export
 series_plot <- function(
@@ -28,7 +29,7 @@ series_plot <- function(
     group,
     predictions = NULL
 ){
-  p <- ggplot2::ggplot(data = observations,
+  p <- ggplot(data = observations,
               aes(x = {{x}}, y = {{y}}, group = {{group}}, color = {{group}})) +
     geom_point() +
     defaulttheme
@@ -58,6 +59,7 @@ series_plot <- function(
 #' @param predictions description
 #' @return description
 #' @export
+#' @import ggplot2
 phase_plane_2D <- function(
     observations,
     names,
