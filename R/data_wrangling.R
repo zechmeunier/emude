@@ -6,7 +6,9 @@
 #'
 #' @return Vector of column maxima, with length equal to the number of columns
 #'
-#' @example colmax(mat = X)
+#' @examples
+#' X <- matrix(data=seq(1,100), nrow = 20, ncol = 5)
+#' colmax(mat = X)
 #'
 #' @export
 colmax <- function(mat) {
@@ -21,7 +23,9 @@ colmax <- function(mat) {
 #'
 #' @return Vector of column minima, with length equal to the number of columns
 #'
-#' @example colmin(mat = X)
+#' @examples
+#' X <- matrix(data=seq(1,100), nrow = 20, ncol = 5)
+#' colmax(mat = X)
 #'
 #' @export
 colmin <- function(mat) {

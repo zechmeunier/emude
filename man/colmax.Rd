@@ -15,3 +15,8 @@ Vector of column maxima, with length equal to the number of columns
 \description{
 \code{colmax()} calculates the maximum (highest) value per column.
 }
+\examples{
+X <- matrix(data=seq(1,100), nrow = 20, ncol = 5)
+colmax(mat = X)
+
+}
