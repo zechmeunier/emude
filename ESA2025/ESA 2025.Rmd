@@ -54,8 +54,8 @@ We will work with two different versions of the lynx-hare time series. The first
 The MacLulich (1937) dataset records the number of pelts in the thousands, while the Leigh (1968) dataset records the raw number of pelts. Both datasets have large variances, so we will apply the **emude functions** `rel_colmax` and `rel_minmax` as two possible methods for rescaling.
 
 ```{r}
-lynxhare1 <- read.csv("./not_yet_vignettes/MacLulich 1937.csv")
-lynxhare2 <- read.csv("./not_yet_vignettes/Leigh 1968.csv")
+lynxhare1 <- read.csv("MacLulich 1937.csv")
+lynxhare2 <- read.csv("Leigh 1968.csv")
 #perform relativization by column maximum
 lynxhare1_rel <- rel_colmax(lynxhare1, time_column_name = "Year")
 lynxhare2_rel <- rel_colmax(lynxhare2, time_column_name = "Year")
@@ -234,7 +234,7 @@ train_UDE(model_2)
 ```{r}
 NODE1 <- NODE(data = lynxhare1, time_column_name = "Year")
 train_UDE(NODE1)
-cv_results <- cross_validation(model = NODE1, k = 4, path = "./tst/cv_test.csv")
+cv_results <- cross_validation(model = NODE1, k = 4, path = "../tst/cv_test2.csv")
 ```
 
 
