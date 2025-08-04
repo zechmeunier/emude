@@ -211,7 +211,7 @@ for (i in 1:6){
 }
 ```
 
-
+## Custom Derivatives
 
 ```{r}
 
@@ -232,7 +232,7 @@ train_UDE(model_2)
 ```
 
 ```{r}
-cross_validation(model = NODE1_rel, k = 5)
+cv_results <- cross_validation(model = model_2, k = 5)
 ```
 
 
