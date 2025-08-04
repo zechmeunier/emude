@@ -48,8 +48,7 @@ cross_validation <- function(
   JuliaCall::julia_assign("loss_options",loss_options)
   JuliaCall::julia_assign("optim_options",optim_options)
   JuliaCall::julia_eval(paste0("function training!(model) ",
-                               "train!(",
-                               "model=", model,
+                               "train!(", model,
                                ",loss_function=","\"", loss_function, "\"",
                                ",optimizer=","\"", optimizer,"\"",
                                ",regularization_weight=", regularization_weight,
@@ -60,9 +59,9 @@ cross_validation <- function(
 
   print(julia_eval("import.Pkg;Pkg.status(\"UniversalDiffEq\")"))
   JuliaCall::julia_eval(paste0("cv_data = UniversalDiffEq.leave_future_out(",
-                               "model=", model,
+                               model,
                                ",training!",
-                               ",k=", k,
+                               ",", k,
                                ",path=", path,")"),
                         need_return = "R")
   print("Done! :)")
