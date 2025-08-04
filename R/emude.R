@@ -16,6 +16,7 @@ emude_setup <- function() {
   JuliaCall::julia_install_package_if_needed("Random")
   JuliaCall::julia_install_package_if_needed("DiffEqFlux")
   JuliaCall::julia_install_package_if_needed("DataFrames")
+  JuliaCall::julia_install_package_if_needed("JSON")
   JuliaCall::julia_library("UniversalDiffEq")
   JuliaCall::julia_library("ComponentArrays")
   JuliaCall::julia_library("Lux")
