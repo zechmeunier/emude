@@ -15,10 +15,18 @@ library(ModelMetrics)
 library(tidyverse)
 ```
 
+Try with absolute filepath
+```{r}
+julia_setup(JULIA_HOME = "C:\\Users\\zdmeu\\.julia\\juliaup\\julia-1.11.4+0.x64.w64.mingw32\\bin")
+julia_library("UniversalDiffEq")
+```
+
+
+
 Set up Julia with local filepath
 
 ```{r}
-julia_setup(JULIA_HOME = "/Applications/Julia-1.10.app/Contents/Resources/julia/bin")
+julia_setup(JULIA_HOME = "/Applications/Julia-1.11.app/Contents/Resources/julia/bin")
 julia_library("UniversalDiffEq")
 ```
 
@@ -45,8 +53,8 @@ We will work with two different versions of the lynx-hare time series. The first
 The MacLulich (1937) dataset records the number of pelts in the thousands, while the Leigh (1968) dataset records the raw number of pelts. Both datasets have large variances, so we will apply the **emude functions** `rel_colmax` and `rel_minmax` as two possible methods for rescaling.
 
 ```{r}
-lynxhare1 <- read.csv("MacLulich 1937.csv")
-lynxhare2 <- read.csv("Leigh 1968.csv")
+lynxhare1 <- read.csv("./not_yet_vignettes/MacLulich 1937.csv")
+lynxhare2 <- read.csv("./not_yet_vignettes/Leigh 1968.csv")
 #perform relativization by column maximum
 lynxhare1_rel <- rel_colmax(lynxhare1, time_column_name = "Year")
 lynxhare2_rel <- rel_colmax(lynxhare2, time_column_name = "Year")
@@ -124,30 +132,30 @@ Then we'll train these models and make one-step-ahead predictions based on the o
 ```{r}
 # raw data, no rescaling
 NODE1 <- NODE(data = lynxhare1, time_column_name = "Year")
-train(NODE1)
-NODEpredictions1 <- predict_ude(NODE1, test_data = lynxhare1)
+train_UDE(NODE1)
+NODEpredictions1 <- predict_UDE(NODE1, test_data = lynxhare1)
 
 NODE2 <- NODE(data = lynxhare2, time_column_name = "Year")
-train(NODE2)
-NODEpredictions2 <- predict_ude(NODE2, test_data = lynxhare2)
+train_UDE(NODE2)
+NODEpredictions2 <- predict_UDE(NODE2, test_data = lynxhare2)
 
 # relativization by column maximum
 NODE1_rel <- NODE(data = lynxhare1_rel, time_column_name = "Year")
-train(NODE1_rel)
-NODEpredictions1_rel <- predict_ude(NODE1_rel, test_data = lynxhare1_rel)
+train_UDE(NODE1_rel)
+NODEpredictions1_rel <- predict_UDE(NODE1_rel, test_data = lynxhare1_rel)
 
 NODE2_rel <- NODE(data = lynxhare2_rel, time_column_name = "Year")
-train(NODE2_rel)
-NODEpredictions2_rel <- predict_ude(NODE2_rel, test_data = lynxhare2_rel)
+train_UDE(NODE2_rel)
+NODEpredictions2_rel <- predict_UDE(NODE2_rel, test_data = lynxhare2_rel)
 
 # min-max normalization
 NODE1_norm <- NODE(data = lynxhare1_norm, time_column_name = "Year")
-train(NODE1_norm)
-NODEpredictions1_norm <- predict_ude(NODE1_norm, test_data = lynxhare1_norm)
+train_UDE(NODE1_norm)
+NODEpredictions1_norm <- predict_UDE(NODE1_norm, test_data = lynxhare1_norm)
 
 NODE2_norm <- NODE(data = lynxhare2_norm, time_column_name = "Year")
-train(NODE2_norm)
-NODEpredictions2_norm <- predict_ude(NODE2_norm, test_data = lynxhare2_norm)
+train_UDE(NODE2_norm)
+NODEpredictions2_norm <- predict_UDE(NODE2_norm, test_data = lynxhare2_norm)
 ```
 
 ### One-step-ahead Predictions
@@ -219,7 +227,7 @@ model_2 <- custom_derivatives(data=lynxhare1_rel, derivs = derivs,
                             hidden_units = 10, time_column_name = "Year"
 )
 
-train(model_2)
+train_UDE(model_2)
 ```
 
 

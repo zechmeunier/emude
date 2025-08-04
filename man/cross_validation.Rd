@@ -2,7 +2,7 @@
 % Please edit documentation in R/model_analysis.R
 \name{cross_validation}
 \alias{cross_validation}
-\title{Cross Validation}
+\title{Leave-future-out cross-validation}
 \usage{
 cross_validation(
   model,
@@ -17,24 +17,48 @@ cross_validation(
 )
 }
 \arguments{
-\item{model}{description}
+\item{model}{The UDE model to be tested with cross-validation.}
 
-\item{k}{description}
+\item{k}{The number of folds for cross-validation. The default is 10 and the
+recommended minimum number is 3.}
 
-\item{loss_function}{description}
+\item{loss_function}{Missing description in Julia}
 
-\item{optimizer}{description}
+\item{optimizer}{Missing description in Julia}
 
-\item{regularization_weight}{description}
+\item{regularization_weight}{Missing description in Julia}
 
-\item{verbose}{description}
+\item{verbose}{Missing description in Julia}
 
-\item{loss_options}{description}
+\item{loss_options}{Missing description in Julia}
 
-\item{optim_options}{description}
+\item{optim_options}{Missing description in Julia}
 
-\item{path}{description}
+\item{path}{File path for saving .csv files containing the raw testing data
+and forecasts for each fold.}
+}
+\value{
+Several data frames.
 }
 \description{
-description
+\code{cross_validation()} runs leave-future-out cross-validation on the UDE model
+using a training routine with \emph{k}-folds. The function returns three data
+frames:
+}
+\details{
+\itemize{
+\item The first contains an estimate of the mean absolute error of the
+forecasts and associated standard error as a function of the forecast horizon
+(1 to \emph{k} time steps into the future).
+\item The second and third are returned in a
+named tuple with two elements \code{horizon_by_var} and \code{raw}. The data frame
+\code{horizon_by_var} contains the forecasting errors separated by variable
+and the data frame \code{raw} contains the raw testing and forecasting data. If
+the model is trained on multiple time series, the named tuple will include a
+third data frame \code{horizon_by_var_by_series}.
+}
+}
+\examples{
+print(x)
+
 }
