@@ -38,8 +38,8 @@
 #' X <- data.frame("time" = seq(1,40),
 #'                 "speciesA" = rpois(40,20),
 #'                 "speciesB" = rpois(40,40))
-#' model <- NODE(data = X, time_column_name = "time")
-#' cv_results <- cross_validation(model = model, k = 5)
+#' X_model <- NODE(data = X, time_column_name = "time")
+#' cv_results <- cross_validation(model = X_model, k = 5)
 #'
 cross_validation <- function(
     model,
@@ -73,7 +73,7 @@ cross_validation <- function(
                                  model,
                                  ",training!",
                                  ",", k,
-                                 ",path=", path,")"),
+                                 ",path=", "\"", path,"\")"),
                           need_return = "R")
   print("Done! :)")
   return(cv_results)
