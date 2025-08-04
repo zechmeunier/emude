@@ -232,7 +232,7 @@ train_UDE(model_2)
 ```
 
 ```{r}
-cv_results <- cross_validation(model = model_2, k = 5)
+cv_results <- cross_validation(model = NODE1, k = 10)
 ```
 
 
