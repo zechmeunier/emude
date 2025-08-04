@@ -15,10 +15,18 @@ library(ModelMetrics)
 library(tidyverse)
 ```
 
+Try with absolute filepath
+```{r}
+julia_setup(JULIA_HOME = "C:\\Users\\zdmeu\\.julia\\juliaup\\julia-1.11.4+0.x64.w64.mingw32\\bin")
+julia_library("UniversalDiffEq")
+```
+
+
+
 Set up Julia with local filepath
 
 ```{r}
-julia_setup(JULIA_HOME = "/Applications/Julia-1.10.app/Contents/Resources/julia/bin")
+julia_setup(JULIA_HOME = "/Applications/Julia-1.11.app/Contents/Resources/julia/bin")
 julia_library("UniversalDiffEq")
 ```
 
