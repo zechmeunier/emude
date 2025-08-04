@@ -64,7 +64,7 @@ cross_validation <- function(
                                  model,
                                  ",training!",
                                  ",", k,
-                                 ",path=", path,")[1]"),
+                                 ",path=", path,")"),
                           need_return = "R")
   print("Done! :)")
   return(cv_results)
