@@ -10,6 +10,7 @@ output: html_document
 Load dependencies
 
 ```{r}
+library(emude)
 library(JuliaCall)
 library(ModelMetrics)
 library(tidyverse)

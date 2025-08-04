@@ -41,7 +41,7 @@ cross_validation <- function(
     verbose = TRUE,
     loss_options = list(),
     optim_options = list(),
-    path = "Null")
+    path = "nothing")
 
 {
   verbose <- ifelse(verbose,"true","false")
