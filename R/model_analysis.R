@@ -61,7 +61,7 @@ cross_validation <- function(
   print(julia_eval("import.Pkg;Pkg.status(\"UniversalDiffEq\")"))
   JuliaCall::julia_eval(paste0("cv_data = UniversalDiffEq.leave_future_out(",
                                "model=", model,
-                               ",training!,",
+                               ",training!",
                                ",k=", k,
                                ",path=", path,")"),
                         need_return = "R")
