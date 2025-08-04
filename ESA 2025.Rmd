@@ -19,6 +19,7 @@ Try with absolute filepath
 ```{r}
 julia_setup(JULIA_HOME = "C:\\Users\\zdmeu\\.julia\\juliaup\\julia-1.11.4+0.x64.w64.mingw32\\bin")
 julia_library("UniversalDiffEq")
+emude_setup()
 ```
 
 
