@@ -58,14 +58,14 @@ cross_validation <- function(
                                "end"))
 
   print(julia_eval("import.Pkg;Pkg.status(\"UniversalDiffEq\")"))
-  cv_data <- as.data.frame(
+  cv_results <- list()
+  cv_results <-
     JuliaCall::julia_eval(paste0("leave_future_out(",
                                  model,
                                  ",training!",
                                  ",", k,
-                                 ",path=", path,")"),
+                                 ",path=", path,")[1]"),
                           need_return = "R")
-  )
   print("Done! :)")
-  return(cv_data)
+  return(cv_results)
 }
