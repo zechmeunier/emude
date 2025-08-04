@@ -42,10 +42,10 @@ Several data frames.
 }
 \description{
 \code{cross_validation()} runs leave-future-out cross-validation on the UDE model
-using a training routine with \emph{k}-folds. The function returns three data
-frames:
+using a training routine with \emph{k}-folds.
 }
 \details{
+The function returns three data frames:
 \itemize{
 \item The first contains an estimate of the mean absolute error of the
 forecasts and associated standard error as a function of the forecast horizon

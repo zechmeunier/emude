@@ -1,9 +1,9 @@
 #' Leave-future-out cross-validation
 #'
 #' `cross_validation()` runs leave-future-out cross-validation on the UDE model
-#' using a training routine with *k*-folds. The function returns three data
-#' frames:
+#' using a training routine with *k*-folds.
 #'
+#' The function returns three data frames:
 #' - The first contains an estimate of the mean absolute error of the
 #' forecasts and associated standard error as a function of the forecast horizon
 #' (1 to *k* time steps into the future).
@@ -47,11 +47,24 @@ cross_validation <- function(
   verbose <- ifelse(verbose,"true","false")
   JuliaCall::julia_assign("loss_options",loss_options)
   JuliaCall::julia_assign("optim_options",optim_options)
+  JuliaCall::julia_eval(paste0("function training!(model) ",
+                               "train!(",
+                               "model=", model,
+                               ",loss_function=","\"", loss_function, "\"",
+                               ",optimizer=","\"", optimizer,"\"",
+                               ",regularization_weight=", regularization_weight,
+                               ",verbose=", verbose,
+                               ",loss_options=NamedTuple(loss_options)",
+                               ",optim_options=NamedTuple(optim_options))",
+                               "end"))
 
   print(julia_eval("import.Pkg;Pkg.status(\"UniversalDiffEq\")"))
-  JuliaCall::julia_eval(paste0("cv_data=UniversalDiffEq.leave_future_out(",model,", training!, ", k,")"),
-             need_return = "R")
+  JuliaCall::julia_eval(paste0("cv_data = UniversalDiffEq.leave_future_out(",
+                               "model=", model,
+                               ",training!,",
+                               ",k=", k,
+                               ",path=", path,")"),
+                        need_return = "R")
   print("Done! :)")
   return(cv_data)
 }
-

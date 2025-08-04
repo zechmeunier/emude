@@ -1,13 +1,15 @@
 #' Train the UDE
 #'
-#' `train_UDE` trains the UDE model on the training data provided, with several
+#' `train_UDE()` trains the UDE model on the training data provided, with several
 #'  options for the loss function and optimization algorithm (see `loss_function`
 #'  and `optimizer` below). These methods trade off between accuracy, stability,
 #'  and computing time. Their performance may also be related to the
 #'  characteristics of the training data. For additional details see the
-#'  [Julia package documentation](https://jack-h-buckner.github.io/UniversalDiffEq.jl/dev/TrainingRoutines/)
+#'  [Julia package documentation](https://jack-h-buckner.github.io/UniversalDiffEq.jl/dev/TrainingRoutines/).
 #'
-#' @param model description
+#' @param model A UDE model created with one of the model constructor functions:
+#' `NODE()`, `multi_NODE()`, `custom_derivatives()`, or `multi_custom_derivatives()`.
+#'
 #' @param loss_function One of five possible loss functions:
 #' - `conditional likelihood` for a state-space training process with joint
 #' likelihoods (it needs to be renamed in UniversalDiffEq.jl).

@@ -15,7 +15,8 @@ train_UDE(
 )
 }
 \arguments{
-\item{model}{description}
+\item{model}{A UDE model created with one of the model constructor functions:
+\code{NODE()}, \code{multi_NODE()}, \code{custom_derivatives()}, or \code{multi_custom_derivatives()}.}
 
 \item{loss_function}{One of five possible loss functions:
 \itemize{
@@ -53,10 +54,10 @@ because it is the fastest method, but it is \strong{not} the most accurate.
 description
 }
 \description{
-\code{train_UDE} trains the UDE model on the training data provided, with several
+\code{train_UDE()} trains the UDE model on the training data provided, with several
 options for the loss function and optimization algorithm (see \code{loss_function}
 and \code{optimizer} below). These methods trade off between accuracy, stability,
 and computing time. Their performance may also be related to the
 characteristics of the training data. For additional details see the
-\href{https://jack-h-buckner.github.io/UniversalDiffEq.jl/dev/TrainingRoutines/}{Julia package documentation}
+\href{https://jack-h-buckner.github.io/UniversalDiffEq.jl/dev/TrainingRoutines/}{Julia package documentation}.
 }
