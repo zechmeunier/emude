@@ -17,7 +17,27 @@ train_UDE(
 \arguments{
 \item{model}{description}
 
-\item{loss_function}{description}
+\item{loss_function}{One of five possible loss functions:
+\itemize{
+\item \verb{conditional likelihood} for a state-space training process with joint
+likelihoods (it needs to be renamed in UniversalDiffEq.jl).
+\item \verb{marginal likelihood} for a state-space training process with marginal
+likelihoods.
+\item \verb{derivative matching} for a fast, two-step training process. First, a
+smoothing function is fit to the data using a spline regression. Then, the UDE
+model is trained by comparing the derivatives of the smoothing functions to
+the derivatives predicted by the right-hand side of the UDE. It is the default
+because it is the fastest method, but it is \strong{not} the most accurate.
+\item \code{shooting}
+\item \verb{multiple shooting}
+}\tabular{llll}{
+   Loss Function \tab Discrete Model \tab Continuous Model \tab Speed \cr
+   Conditional likelihood \tab Yes \tab Yes \tab Moderate \cr
+   Marginal likelihood \tab Yes \tab Yes \tab Slow \cr
+   Derivative matching \tab No \tab Yes \tab Fast \cr
+   Shooting \tab No \tab Yes \tab Moderate \cr
+   Multiple shooting \tab No \tab Yes \tab Moderate \cr
+}}
 
 \item{optimizer}{description}
 
@@ -33,5 +53,10 @@ train_UDE(
 description
 }
 \description{
-\code{train_UDE} trains the UDE model on the training data provided, with customizable options for training.
+\code{train_UDE} trains the UDE model on the training data provided, with several
+options for the loss function and optimization algorithm (see \code{loss_function}
+and \code{optimizer} below). These methods trade off between accuracy, stability,
+and computing time. Their performance may also be related to the
+characteristics of the training data. For additional details see the
+\href{https://jack-h-buckner.github.io/UniversalDiffEq.jl/dev/TrainingRoutines/}{Julia package documentation}
 }

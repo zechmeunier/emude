@@ -42,15 +42,21 @@ Several data frames.
 }
 \description{
 \code{cross_validation()} runs leave-future-out cross-validation on the UDE model
-using a training routine with \strong{k}-folds. The function returns three data
-frames. The first contains an estimate of the mean absolute error of the
+using a training routine with \emph{k}-folds. The function returns three data
+frames:
+}
+\details{
+\itemize{
+\item The first contains an estimate of the mean absolute error of the
 forecasts and associated standard error as a function of the forecast horizon
-(1 to \strong{k} time steps into the future). The second and third are returned in a
+(1 to \emph{k} time steps into the future).
+\item The second and third are returned in a
 named tuple with two elements \code{horizon_by_var} and \code{raw}. The data frame
 \code{horizon_by_var} contains the forecasting errors separated by variable
 and the data frame \code{raw} contains the raw testing and forecasting data. If
 the model is trained on multiple time series, the named tuple will include a
 third data frame \code{horizon_by_var_by_series}.
+}
 }
 \examples{
 print(x)
