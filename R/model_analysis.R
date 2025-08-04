@@ -15,7 +15,7 @@
 #' @param regularization_weight The regularization weight for CV.
 #' For more details, see \code{\link{train_UDE}}.
 #' @param verbose Logical (`TRUE` or `FALSE`) for printing the training loss values
-#' after each interation. Currently not returning even when `TRUE`.
+#' after each iteration. Currently not returning even when `TRUE`.
 #' @param loss_options Loss function options for CV.
 #' For more details, see \code{\link{train_UDE}}.
 #' @param optim_options Optimizer options for CV.
@@ -35,9 +35,9 @@
 #' @export
 #'
 #' @examples
-#' X <- data.frame("time" = rep(seq(1,10),4),
-#'                 "speciesA" = rpois(40,2),
-#'                 "speciesB" = rpois(40,3))
+#' X <- data.frame("time" = seq(1,40),
+#'                 "speciesA" = rpois(40,20),
+#'                 "speciesB" = rpois(40,40))
 #' model <- NODE(data = X, time_column_name = "time")
 #' cv_results <- cross_validation(model = model, k = 5)
 #'

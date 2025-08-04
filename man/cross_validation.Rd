@@ -34,7 +34,7 @@ For more details, see \code{\link{train_UDE}}.}
 For more details, see \code{\link{train_UDE}}.}
 
 \item{verbose}{Logical (\code{TRUE} or \code{FALSE}) for printing the training loss values
-after each interation. Currently not returning even when \code{TRUE}.}
+after each iteration. Currently not returning even when \code{TRUE}.}
 
 \item{loss_options}{Loss function options for CV.
 For more details, see \code{\link{train_UDE}}.}
@@ -63,9 +63,9 @@ a third data frame \code{horizon_by_var_by_series}.
 using a training routine with \emph{k}-folds.
 }
 \examples{
-X <- data.frame("time" = rep(seq(1,10),4),
-                "speciesA" = rpois(40,2),
-                "speciesB" = rpois(40,3))
+X <- data.frame("time" = seq(1,40),
+                "speciesA" = rpois(40,20),
+                "speciesB" = rpois(40,40))
 model <- NODE(data = X, time_column_name = "time")
 cv_results <- cross_validation(model = model, k = 5)
 
