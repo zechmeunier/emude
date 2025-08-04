@@ -2,18 +2,22 @@
 % Please edit documentation in R/load_save_models.R
 \name{load_julia_model_weights}
 \alias{load_julia_model_weights}
-\title{Load Julia Model Weights}
+\title{Load the Julia model weights}
 \usage{
 load_julia_model_weights(model, file)
 }
 \arguments{
-\item{model}{description}
+\item{model}{User-defined model containing the weights, biases, and other parameters.}
 
-\item{file}{description}
+\item{file}{File path from which to read the model parameters. Files are saved in JSON format.}
 }
 \value{
-description
+A data frame containing the parameters from the trained model.
 }
 \description{
-Description here
+Loads the weights and other parameters of the process model from Julia
+}
+\examples{
+print(x)
+
 }
