@@ -20,7 +20,7 @@
 #' For more details, see \code{\link{train_UDE}}.
 #' @param optim_options Optimizer options for CV.
 #' For more details, see \code{\link{train_UDE}}.
-#' @param path File path for saving .csv files containing the raw testing data
+#' @param path File path for saving a .csv file containing the raw testing data
 #' and forecasts for each fold.
 #'
 #' @return The function returns a list with two elements:
@@ -59,7 +59,7 @@ cross_validation <- function(
   JuliaCall::julia_eval(paste0("function training!(model) ",
                                "train!(", model,
                                ",loss_function=","\"", loss_function, "\"",
-                               ",optimizer=","\"", optimizer,"\"",
+                               ",optimizer=","\"", optimizer, "\"",
                                ",regularization_weight=", regularization_weight,
                                ",verbose=", verbose,
                                ",loss_options=NamedTuple(loss_options)",
@@ -73,7 +73,7 @@ cross_validation <- function(
                                  model,
                                  ",training!",
                                  ",", k,
-                                 ",path=", "\"", path,"\")"),
+                                 ",path=", "\"", path, "\")"),
                           need_return = "R")
   print("Done! :)")
   return(cv_results)

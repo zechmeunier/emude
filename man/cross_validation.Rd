@@ -42,7 +42,7 @@ For more details, see \code{\link{train_UDE}}.}
 \item{optim_options}{Optimizer options for CV.
 For more details, see \code{\link{train_UDE}}.}
 
-\item{path}{File path for saving .csv files containing the raw testing data
+\item{path}{File path for saving a .csv file containing the raw testing data
 and forecasts for each fold.}
 }
 \value{
@@ -66,7 +66,7 @@ using a training routine with \emph{k}-folds.
 X <- data.frame("time" = seq(1,40),
                 "speciesA" = rpois(40,20),
                 "speciesB" = rpois(40,40))
-model <- NODE(data = X, time_column_name = "time")
-cv_results <- cross_validation(model = model, k = 5)
+X_model <- NODE(data = X, time_column_name = "time")
+cv_results <- cross_validation(model = X_model, k = 5)
 
 }
