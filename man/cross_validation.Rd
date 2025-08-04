@@ -17,48 +17,56 @@ cross_validation(
 )
 }
 \arguments{
-\item{model}{The UDE model to be tested with cross-validation.}
+\item{model}{The UDE model to be tested with cross-validation (CV).}
 
-\item{k}{The number of folds for cross-validation. The default is 10 and the
-recommended minimum number is 3.}
+\item{k}{The number of folds for CV going back \emph{k} time steps. That is, a 5-fold
+CV will sequentially validate the final 5 time steps. The default is 10 and
+the recommended minimum number is 3. Fewer folds will perform faster but won't
+validate as much of the time series.}
 
-\item{loss_function}{Missing description in Julia}
+\item{loss_function}{The loss function for CV.
+For more details, see \code{\link{train_UDE}}.}
 
-\item{optimizer}{Missing description in Julia}
+\item{optimizer}{The optimization algorithm for CV.
+For more details, see \code{\link{train_UDE}}.}
 
-\item{regularization_weight}{Missing description in Julia}
+\item{regularization_weight}{The regularization weight for CV.
+For more details, see \code{\link{train_UDE}}.}
 
-\item{verbose}{Missing description in Julia}
+\item{verbose}{Logical (\code{TRUE} or \code{FALSE}) for printing the training loss values
+after each interation. Currently not returning even when \code{TRUE}.}
 
-\item{loss_options}{Missing description in Julia}
+\item{loss_options}{Loss function options for CV.
+For more details, see \code{\link{train_UDE}}.}
 
-\item{optim_options}{Missing description in Julia}
+\item{optim_options}{Optimizer options for CV.
+For more details, see \code{\link{train_UDE}}.}
 
 \item{path}{File path for saving .csv files containing the raw testing data
 and forecasts for each fold.}
 }
 \value{
-Several data frames.
+The function returns a list with two elements:
+\itemize{
+\item The first contains an estimate of the mean absolute error (MAE) of the
+forecasts and associated standard error as a function of the forecast horizon
+(1 to \emph{k} time steps into the future).
+\item The second contains two elements: \code{horizon_by_var} and \code{raw}. The data frame
+\code{horizon_by_var} contains the forecasting errors separated by variable
+and the data frame \code{raw} contains the raw testing and forecasting data. If
+the model is trained on multiple time series, the second element will also include
+a third data frame \code{horizon_by_var_by_series}.
+}
 }
 \description{
 \code{cross_validation()} runs leave-future-out cross-validation on the UDE model
 using a training routine with \emph{k}-folds.
 }
-\details{
-The function returns three data frames:
-\itemize{
-\item The first contains an estimate of the mean absolute error of the
-forecasts and associated standard error as a function of the forecast horizon
-(1 to \emph{k} time steps into the future).
-\item The second and third are returned in a
-named tuple with two elements \code{horizon_by_var} and \code{raw}. The data frame
-\code{horizon_by_var} contains the forecasting errors separated by variable
-and the data frame \code{raw} contains the raw testing and forecasting data. If
-the model is trained on multiple time series, the named tuple will include a
-third data frame \code{horizon_by_var_by_series}.
-}
-}
 \examples{
-print(x)
+X <- data.frame("time" = rep(seq(1,10),4),
+                "speciesA" = rpois(40,2),
+                "speciesB" = rpois(40,3))
+model <- NODE(data = X, time_column_name = "time")
+cv_results <- cross_validation(model = model, k = 5)
 
 }

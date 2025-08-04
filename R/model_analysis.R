@@ -3,34 +3,43 @@
 #' `cross_validation()` runs leave-future-out cross-validation on the UDE model
 #' using a training routine with *k*-folds.
 #'
-#' The function returns three data frames:
-#' - The first contains an estimate of the mean absolute error of the
-#' forecasts and associated standard error as a function of the forecast horizon
-#' (1 to *k* time steps into the future).
-#' - The second and third are returned in a
-#' named tuple with two elements `horizon_by_var` and `raw`. The data frame
-#' `horizon_by_var` contains the forecasting errors separated by variable
-#' and the data frame `raw` contains the raw testing and forecasting data. If
-#' the model is trained on multiple time series, the named tuple will include a
-#' third data frame `horizon_by_var_by_series`.
-#'
-#' @param model The UDE model to be tested with cross-validation.
-#' @param k The number of folds for cross-validation. The default is 10 and the
-#' recommended minimum number is 3.
-#' @param loss_function Missing description in Julia
-#' @param optimizer Missing description in Julia
-#' @param regularization_weight Missing description in Julia
-#' @param verbose Missing description in Julia
-#' @param loss_options Missing description in Julia
-#' @param optim_options Missing description in Julia
+#' @param model The UDE model to be tested with cross-validation (CV).
+#' @param k The number of folds for CV going back *k* time steps. That is, a 5-fold
+#' CV will sequentially validate the final 5 time steps. The default is 10 and
+#' the recommended minimum number is 3. Fewer folds will perform faster but won't
+#' validate as much of the time series.
+#' @param loss_function The loss function for CV.
+#' For more details, see \code{\link{train_UDE}}.
+#' @param optimizer The optimization algorithm for CV.
+#' For more details, see \code{\link{train_UDE}}.
+#' @param regularization_weight The regularization weight for CV.
+#' For more details, see \code{\link{train_UDE}}.
+#' @param verbose Logical (`TRUE` or `FALSE`) for printing the training loss values
+#' after each interation. Currently not returning even when `TRUE`.
+#' @param loss_options Loss function options for CV.
+#' For more details, see \code{\link{train_UDE}}.
+#' @param optim_options Optimizer options for CV.
+#' For more details, see \code{\link{train_UDE}}.
 #' @param path File path for saving .csv files containing the raw testing data
 #' and forecasts for each fold.
 #'
-#' @return Several data frames.
+#' @return The function returns a list with two elements:
+#' - The first contains an estimate of the mean absolute error (MAE) of the
+#' forecasts and associated standard error as a function of the forecast horizon
+#' (1 to *k* time steps into the future).
+#' - The second contains two elements: `horizon_by_var` and `raw`. The data frame
+#' `horizon_by_var` contains the forecasting errors separated by variable
+#' and the data frame `raw` contains the raw testing and forecasting data. If
+#' the model is trained on multiple time series, the second element will also include
+#' a third data frame `horizon_by_var_by_series`.
 #' @export
 #'
 #' @examples
-#' print(x)
+#' X <- data.frame("time" = rep(seq(1,10),4),
+#'                 "speciesA" = rpois(40,2),
+#'                 "speciesB" = rpois(40,3))
+#' model <- NODE(data = X, time_column_name = "time")
+#' cv_results <- cross_validation(model = model, k = 5)
 #'
 cross_validation <- function(
     model,
