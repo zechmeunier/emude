@@ -30,9 +30,12 @@ predictions. Can be adjusted with additional \code{ggplot2} functions.
 \code{series_plot()} creates a time series figure with observations as points and
 model predictions as lines.
 }
+\details{
+As with \code{ggplot2} aesthetics, do not enclose the column names in quotes.
+}
 \examples{
 df <- data.frame("time" = rep(seq(1,100),4),
                  "species" = c(rep("A",100),rep("B",100),rep("C",100),rep("D",100)),
                  "abundance" = rpois(400,40))
-series_plot(observations = df, x = "time", y = "abundance", group = "species")
+series_plot(observations = df, x = time, y = abundance, group = species)
 }

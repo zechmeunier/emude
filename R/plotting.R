@@ -34,13 +34,17 @@ defaulttheme <- theme(axis.title = element_text(size = 11, color = "black"),
 #'
 #' @return A `ggplot2` figure showing the time series of observations and model
 #' predictions. Can be adjusted with additional `ggplot2` functions.
+#'
+#' @details
+#' As with `ggplot2` aesthetics, do not enclose the column names in quotes.
+#'
 #' @export
 #'
 #' @examples
 #' df <- data.frame("time" = rep(seq(1,100),4),
 #'                  "species" = c(rep("A",100),rep("B",100),rep("C",100),rep("D",100)),
 #'                  "abundance" = rpois(400,40))
-#' series_plot(observations = df, x = "time", y = "abundance", group = "species")
+#' series_plot(observations = df, x = time, y = abundance, group = species)
 series_plot <- function(
     observations,
     x,
@@ -90,14 +94,18 @@ series_plot <- function(
 #'
 #' @return A `ggplot2` figure showing the phase plane of observations and model
 #' predictions. Can be adjusted with additional `ggplot2` functions.
+#'
+#' @details
+#' As with `ggplot2` aesthetics, do not enclose the column names in quotes.
+#'
 #' @export
 #'
 #' @examples
 #' df <- data.frame("time" = rep(seq(1,100),4),
 #'                  "species" = c(rep("A",100),rep("B",100),rep("C",100),rep("D",100)),
-#'                  "abundance" = rpois(400,40))
-#' phase_plane_2D(observations = df, names = "species", values = "abundance",
-#'                x = "A", y = "B")
+#'                  "abundance" = c(rpois(200,40),rpoise(200,10))
+#' phase_plane_2D(observations = df, names = species, values = abundance,
+#'                x = A, y = B)
 phase_plane_2D <- function(
     observations,
     names,

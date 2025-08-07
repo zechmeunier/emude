@@ -31,10 +31,13 @@ predictions. Can be adjusted with additional \code{ggplot2} functions.
 state variables co-occur at each time point. Observations are plotted as points
 and model predictions as lines.
 }
+\details{
+As with \code{ggplot2} aesthetics, do not enclose the column names in quotes.
+}
 \examples{
 df <- data.frame("time" = rep(seq(1,100),4),
                  "species" = c(rep("A",100),rep("B",100),rep("C",100),rep("D",100)),
-                 "abundance" = rpois(400,40))
-phase_plane_2D(observations = df, names = "species", values = "abundance",
-               x = "A", y = "B")
+                 "abundance" = c(rpois(200,40),rpoise(200,10))
+phase_plane_2D(observations = df, names = species, values = abundance,
+               x = A, y = B)
 }
