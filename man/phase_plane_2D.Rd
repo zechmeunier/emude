@@ -2,26 +2,39 @@
 % Please edit documentation in R/plotting.R
 \name{phase_plane_2D}
 \alias{phase_plane_2D}
-\title{Phase Plane 2D}
+\title{Plot two-dimensional phase plane}
 \usage{
 phase_plane_2D(observations, names, values, x, y, predictions = NULL)
 }
 \arguments{
-\item{observations}{description}
+\item{observations}{A data frame of observed values over time.}
 
-\item{names}{description}
+\item{names}{The column containing the identifier for the response variable
+(e.g., series or species name).}
 
-\item{values}{description}
+\item{values}{The column containing the values for the response variable (e.g.,
+species abundances).}
 
-\item{x}{description}
+\item{x}{The state variable to be displayed on the x-axis.}
 
-\item{y}{description}
+\item{y}{The state variable to be displayed on the y-axis.}
 
-\item{predictions}{description}
+\item{predictions}{A data frame of predicted values over time, with column
+names matching the column names of \code{observations}. Optional.}
 }
 \value{
-description
+A \code{ggplot2} figure showing the time series of observations and model
+predictions. Can be adjusted with additional \code{ggplot2} functions.
 }
 \description{
-Plot observations as points and model predictions as lines in a 2D phase plane
+\code{phase_plane_2D()} creates a two-dimensional phase plane showing how the two
+state variables co-occur at each time point. Observations are plotted as points
+and model predictions as lines.
+}
+\examples{
+df <- data.frame("time" = rep(seq(1,100),4),
+                 "species" = c(rep("A",100),rep("B",100),rep("C",100),rep("D",100)),
+                 "abundance" = rpois(400,40))
+phase_plane_2D(observations = df, names = "species", values = "abundance",
+               x = "A", y = "B")
 }

@@ -2,24 +2,36 @@
 % Please edit documentation in R/plotting.R
 \name{series_plot}
 \alias{series_plot}
-\title{Series Plot}
+\title{Plot time series}
 \usage{
 series_plot(observations, x, y, group, predictions = NULL)
 }
 \arguments{
-\item{observations}{DataFrame of observed data to use to create the plot}
+\item{observations}{A data frame of observed values over time.}
 
-\item{x}{description}
+\item{x}{The column containing the values for the time variable (e.g., days).}
 
-\item{y}{description}
+\item{y}{The column containing the values for the response variable (e.g.,
+species abundances).}
 
-\item{group}{description}
+\item{group}{The column containing the identifier for the response variable
+(e.g., series or species name). Also defaults to the color scheme, but this
+can be adjusted with user-defined call to \code{aes(color = variable)}.}
 
-\item{predictions}{description}
+\item{predictions}{A data frame of predicted values over time, with column
+names matching the column names of \code{observations}. Optional.}
 }
 \value{
-description
+A \code{ggplot2} figure showing the time series of observations and model
+predictions. Can be adjusted with additional \code{ggplot2} functions.
 }
 \description{
-Plot observations as points and model predictions as lines in a time series
+\code{series_plot()} creates a time series figure with observations as points and
+model predictions as lines.
+}
+\examples{
+df <- data.frame("time" = rep(seq(1,100),4),
+                 "species" = c(rep("A",100),rep("B",100),rep("C",100),rep("D",100)),
+                 "abundance" = rpois(400,40))
+series_plot(observations = df, x = "time", y = "abundance", group = "species")
 }
