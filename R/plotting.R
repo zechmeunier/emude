@@ -1,3 +1,4 @@
+#' @importFrom ggplot2 theme
 defaulttheme <- theme(axis.title = element_text(size = 11, color = "black"),
                       axis.text = element_text(size = 9, color ="black"),
                       axis.ticks = element_line(color = "black"),
@@ -17,6 +18,7 @@ defaulttheme <- theme(axis.title = element_text(size = 11, color = "black"),
 #' model predictions as lines.
 #'
 #' @import ggplot2
+#' @import dplyr
 #'
 #' @param observations A data frame of observed values over time.
 #' @param x The column containing the values for the time variable (e.g., days).
@@ -71,6 +73,7 @@ series_plot <- function(
 #' and model predictions as lines.
 #'
 #' @import ggplot2
+#' @import dplyr
 #'
 #' @param observations A data frame of observed values over time.
 #' @param names The column containing the identifier for the response variable
@@ -82,7 +85,7 @@ series_plot <- function(
 #' @param predictions A data frame of predicted values over time, with column
 #' names matching the column names of `observations`. Optional.
 #'
-#' @return A `ggplot2` figure showing the time series of observations and model
+#' @return A `ggplot2` figure showing the phase plane of observations and model
 #' predictions. Can be adjusted with additional `ggplot2` functions.
 #' @export
 #'

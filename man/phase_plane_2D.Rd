@@ -23,7 +23,7 @@ species abundances).}
 names matching the column names of \code{observations}. Optional.}
 }
 \value{
-A \code{ggplot2} figure showing the time series of observations and model
+A \code{ggplot2} figure showing the phase plane of observations and model
 predictions. Can be adjusted with additional \code{ggplot2} functions.
 }
 \description{
