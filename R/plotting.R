@@ -19,11 +19,13 @@ defaulttheme <- theme(axis.title = element_text(size = 11, color = "black"),
 #'
 #' @import ggplot2
 #' @import dplyr
+#' @import tidyr
 #'
 #' @param observations A data frame of observed values over time.
-#' @param x The column containing the values for the time variable (e.g., days).
-#' @param y The column containing the values for the response variable (e.g.,
-#' species abundances).
+#' @param x The column in `observations` containing the values for the time
+#' variable (e.g., days), which will be displayed on the x-axis.
+#' @param y The column in `observations` containing the values for the response
+#' variable (e.g., species abundances), which will be displayed on the y-axis.
 #' @param group The column containing the identifier for the response variable
 #' (e.g., series or species name). Also defaults to the color scheme, but this
 #' can be adjusted with user-defined call to `aes(color = variable)`.
@@ -74,12 +76,13 @@ series_plot <- function(
 #'
 #' @import ggplot2
 #' @import dplyr
+#' @import tidyr
 #'
 #' @param observations A data frame of observed values over time.
-#' @param names The column containing the identifier for the response variable
-#' (e.g., series or species name).
-#' @param values The column containing the values for the response variable (e.g.,
-#' species abundances).
+#' @param names The column in `observations` containing the identifier for the
+#' response variable (e.g., series or species name).
+#' @param values The column in `observations` containing the values for the
+#' response variable (e.g., species abundances).
 #' @param x The state variable to be displayed on the x-axis.
 #' @param y The state variable to be displayed on the y-axis.
 #' @param predictions A data frame of predicted values over time, with column

@@ -9,10 +9,11 @@ series_plot(observations, x, y, group, predictions = NULL)
 \arguments{
 \item{observations}{A data frame of observed values over time.}
 
-\item{x}{The column containing the values for the time variable (e.g., days).}
+\item{x}{The column in \code{observations} containing the values for the time
+variable (e.g., days), which will be displayed on the x-axis.}
 
-\item{y}{The column containing the values for the response variable (e.g.,
-species abundances).}
+\item{y}{The column in \code{observations} containing the values for the response
+variable (e.g., species abundances), which will be displayed on the y-axis.}
 
 \item{group}{The column containing the identifier for the response variable
 (e.g., series or species name). Also defaults to the color scheme, but this

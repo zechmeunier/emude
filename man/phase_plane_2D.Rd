@@ -9,11 +9,11 @@ phase_plane_2D(observations, names, values, x, y, predictions = NULL)
 \arguments{
 \item{observations}{A data frame of observed values over time.}
 
-\item{names}{The column containing the identifier for the response variable
-(e.g., series or species name).}
+\item{names}{The column in \code{observations} containing the identifier for the
+response variable (e.g., series or species name).}
 
-\item{values}{The column containing the values for the response variable (e.g.,
-species abundances).}
+\item{values}{The column in \code{observations} containing the values for the
+response variable (e.g., species abundances).}
 
 \item{x}{The state variable to be displayed on the x-axis.}
 
