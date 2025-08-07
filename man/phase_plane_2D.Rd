@@ -39,5 +39,5 @@ df <- data.frame("time" = rep(seq(1,100),4),
                  "species" = c(rep("A",100),rep("B",100),rep("C",100),rep("D",100)),
                  "abundance" = c(rpois(200,40),rpois(200,10)))
 phase_plane_2D(observations = df, names = species, values = abundance,
-               x = A, y = C) + labs(x =  "Species A", y = "Species C")
+               x = A, y = C) + ggplot2::labs(x =  "Species A", y = "Species C")
 }
