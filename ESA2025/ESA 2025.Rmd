@@ -128,7 +128,10 @@ We will create six NODE models, one each for:
 
 Then we'll train these models and make one-step-ahead predictions based on the original, relativized, and rescaled data frames.
 
+Instead of going through the rescaling with predict_UDE, do it with the cross-validation function, then
+Then use the best one from cross-validation as the train_UDE and predict_UDE.
 
+define the nodes, use cross-validation on all of them, then train and predict on the best one
 
 ```{r}
 # raw data, no rescaling
