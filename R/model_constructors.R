@@ -31,8 +31,14 @@
 #' added to the loss function is either the absolute value of the sum of
 #' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
 #' default of "L2" should be used.
-#' @param l Extrapolation parameter for forecasting.
-#' @param extrap_rho Extrapolation parameter for forecasting.
+#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
+#' Small values lead to fast decay and the extrapolation reverts to the prior mean
+#' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
+#' stays similar to the last trend for a longer period.
+#' @param extrap_rho Extrapolation marginal SD parameter for forecasting.
+#' `extrap_rho` controls the magnitude of the extrapolation. Small values lead to
+#' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
 #' @param uid A string that serves as a unique identifier to save the
@@ -91,7 +97,6 @@ NODE <- function(
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }
-
   return(paste0("julia_model_",uid))
 }
 
@@ -132,8 +137,14 @@ NODE <- function(
 #' added to the loss function is either the absolute value of the sum of
 #' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
 #' default of "L2" should be used.
-#' @param l Extrapolation parameter for forecasting.
-#' @param extrap_rho Extrapolation parameter for forecasting.
+#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
+#' Small values lead to fast decay and the extrapolation reverts to the prior mean
+#' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
+#' stays similar to the last trend for a longer period.
+#' @param extrap_rho Extrapolation marginal SD parameter for forecasting.
+#' `extrap_rho` controls the magnitude of the extrapolation. Small values lead to
+#' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
 #' @param uid A string that serves as a unique identifier to save the
@@ -195,7 +206,6 @@ multi_NODE <- function(
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }
-
   return(paste0("julia_model_",uid))
 }
 
@@ -205,7 +215,7 @@ multi_NODE <- function(
 #' @param data A data frame of observed state variables over time.
 #' @param derivs A user-defined function of the form `derivs(u,nn,p,t)` where
 #' `u` stores the value of the state variables, `nn` stores the neural network
-#' outputs,`p` stores the model parameters, and `t` is time. The function should
+#' outputs, `p` stores the model parameters, and `t` is time. The function should
 #' save each ODE to `du[i]`, where `i` is an index for each time derivative.
 #' @param initial_parameters A named list containing the model parameters stored
 #' in `p`.
@@ -233,8 +243,14 @@ multi_NODE <- function(
 #' added to the loss function is either the absolute value of the sum of
 #' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
 #' default of "L2" should be used.
-#' @param l Extrapolation parameter for forecasting.
-#' @param extrap_rho Extrapolation parameter for forecasting.
+#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
+#' Small values lead to fast decay and the extrapolation reverts to the prior mean
+#' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
+#' stays similar to the last trend for a longer period.
+#' @param extrap_rho Extrapolation marginal SD parameter for forecasting.
+#' `extrap_rho` controls the magnitude of the extrapolation. Small values lead to
+#' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
 #' @param uid A string that serves as a unique identifier to save the
@@ -312,17 +328,16 @@ custom_derivatives <- function(
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }
-
   return(paste0("julia_model_",uid))
 }
 
 
-#' Define a custom derivatives UDE with multiple time seriess
+#' Define a custom derivatives UDE with multiple time series
 #'
 #' @param data A data frame of observed state variables over time.
 #' @param derivs A user-defined function of the form `derivs(u,nn,p,t)` where
 #' `u` stores the value of the state variables, `nn` stores the neural network
-#' outputs,`p` stores the model parameters, and `t` is time. The function should
+#' outputs, `p` stores the model parameters, and `t` is time. The function should
 #' save each ODE to `du[i]`, where `i` is an index for each time derivative.
 #' @param initial_parameters A named list containing the model parameters stored
 #' in `p`.
@@ -352,8 +367,14 @@ custom_derivatives <- function(
 #' added to the loss function is either the absolute value of the sum of
 #' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
 #' default of "L2" should be used.
-#' @param l Extrapolation parameter for forecasting.
-#' @param extrap_rho Extrapolation parameter for forecasting.
+#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
+#' Small values lead to fast decay and the extrapolation reverts to the prior mean
+#' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
+#' stays similar to the last trend for a longer period.
+#' @param extrap_rho Extrapolation marginal SD parameter for forecasting.
+#' `extrap_rho` controls the magnitude of the extrapolation. Small values lead to
+#' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
 #' @param uid A string that serves as a unique identifier to save the
@@ -369,7 +390,7 @@ multi_custom_derivatives <- function(
     derivs,
     initial_parameters,
     covariates = NULL,
-    neural_network_inputs = 1,
+    neural_network_inputs = c(1),
     neural_network_outputs = 1,
     hidden_units = 10,
     time_column_name = "time",
@@ -438,12 +459,12 @@ multi_custom_derivatives <- function(
 }
 
 
-#' Title
+#' Define a custom derivatives model with no neural network
 #'
 #' @param data A data frame of observed state variables over time.
 #' @param derivs A user-defined function of the form `derivs(u,nn,p,t)` where
 #' `u` stores the value of the state variables, `nn` stores the neural network
-#' outputs,`p` stores the model parameters, and `t` is time. The function should
+#' outputs, `p` stores the model parameters, and `t` is time. The function should
 #' save each ODE to `du[i]`, where `i` is an index for each time derivative.
 #' @param initial_parameters A named list containing the model parameters stored
 #' in `p`.
@@ -461,15 +482,14 @@ multi_custom_derivatives <- function(
 #' function. The observation weight controls how closely the state estimates
 #' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
 #' correspond to datasets with larger amounts of observation error and vice versa.
-#' @param reg_weight Weight \eqn{\lambda} of the regularization penalty term in the loss
-#' function.
-#' @param reg_type Type of regularization used to mitigate overfitting.
-#' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
-#' added to the loss function is either the absolute value of the sum of
-#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
-#' default of "L2" should be used.
-#' @param l Extrapolation parameter for forecasting.
-#' @param extrap_rho Extrapolation parameter for forecasting.
+#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
+#' Small values lead to fast decay and the extrapolation reverts to the prior mean
+#' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
+#' stays similar to the last trend for a longer period.
+#' @param extrap_rho Extrapolation marginal SD parameter for forecasting.
+#' `extrap_rho` controls the magnitude of the extrapolation. Small values lead to
+#' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
 #' @param uid A string that serves as a unique identifier to save the
@@ -488,9 +508,7 @@ ode_model <- function(
     time_column_name = "time",
     proc_weight = 1.0,
     obs_weight = 1.0,
-    reg_weight = 10^-6,
-    reg_type = "L2",
-    l = 0.25,
+    l = 10^3,
     extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
@@ -523,8 +541,6 @@ ode_model <- function(
                                  "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
-                                 ",reg_weight=",reg_weight,
-                                 ",reg_type=\"",reg_type,"\"",
                                  ",l=",l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
@@ -534,8 +550,6 @@ ode_model <- function(
                                  "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
-                                 ",reg_weight=",reg_weight,
-                                 ",reg_type=\"",reg_type,"\"",
                                  ",l=",l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")

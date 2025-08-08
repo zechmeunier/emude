@@ -29,7 +29,7 @@ custom_derivatives(
 
 \item{derivs}{A user-defined function of the form \code{derivs(u,nn,p,t)} where
 \code{u} stores the value of the state variables, \code{nn} stores the neural network
-outputs,\code{p} stores the model parameters, and \code{t} is time. The function should
+outputs, \code{p} stores the model parameters, and \code{t} is time. The function should
 save each ODE to \code{du[i]}, where \code{i} is an index for each time derivative.}
 
 \item{initial_parameters}{A named list containing the model parameters stored
@@ -68,9 +68,15 @@ added to the loss function is either the absolute value of the sum of
 coefficients (L1) or the squared sum of coefficients (L2). Generally, the
 default of "L2" should be used.}
 
-\item{l}{Extrapolation parameter for forecasting.}
+\item{l}{Extrapolation length scale parameter for forecasting. \code{l} controls
+how quickly correlations decay with distance between points (i.e., how wiggly the function is).
+Small values lead to fast decay and the extrapolation reverts to the prior mean
+quickly beyond the observed data. Large values lead to slow decay and the extrapolation
+stays similar to the last trend for a longer period.}
 
-\item{extrap_rho}{Extrapolation parameter for forecasting.}
+\item{extrap_rho}{Extrapolation marginal SD parameter for forecasting.
+\code{extrap_rho} controls the magnitude of the extrapolation. Small values lead to
+narrow confidence intervals, large values lead to wide confidence intervals.}
 
 \item{bayesian}{Logical (\code{TRUE} or \code{FALSE}) for whether or not the UDE is a
 Bayesian UDE.}
