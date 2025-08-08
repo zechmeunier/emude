@@ -212,6 +212,14 @@ multi_NODE <- function(
 
 #' Define a custom derivatives UDE with one time series
 #'
+#' `custom_derivatives()` constructs a universal differential equation (UDE) model
+#' based on known functional forms in a user-defined derivatives function `derivs`.
+#' These models embed neural networks in the right-hand side of a system of differential equations
+#' \deqn{\frac{du}{dt}=f(u_t,x_t,t,NN(u_t,x_t);\theta)},
+#' where \eqn{u_t} is a vector of state variables, \eqn{x_t} is a vector of covariates,
+#' \eqn{t} is time, \eqn{NN} is the output layer of a neural network, and
+#' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
+#'
 #' @param data A data frame of observed state variables over time.
 #' @param derivs A user-defined function of the form `derivs(u,nn,p,t)` where
 #' `u` stores the value of the state variables, `nn` stores the neural network
@@ -333,6 +341,15 @@ custom_derivatives <- function(
 
 
 #' Define a custom derivatives UDE with multiple time series
+#'
+#' `multi_custom_derivatives()` constructs a universal differential equation (UDE) model
+#' for multiple time series
+#' based on known functional forms in a user-defined derivatives function `derivs`.
+#' These models embed neural networks in the right-hand side of a system of differential equations
+#' \deqn{\frac{du}{dt}=f(u_{i,t},x_{i,t},i,t,NN(u_{i,t},x_{i,t});\theta)},
+#' where \eqn{u_t} is a vector of state variables, \eqn{x_t} is a vector of covariates,
+#' \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
+#' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
 #'
 #' @param data A data frame of observed state variables over time.
 #' @param derivs A user-defined function of the form `derivs(u,nn,p,t)` where
@@ -461,6 +478,9 @@ multi_custom_derivatives <- function(
 
 #' Define a custom derivatives model with no neural network
 #'
+#' `ode_model()` constructs an ordinary differential equation (ODE) model. It
+#' does not train a neural network and can be used as a null model.
+#'
 #' @param data A data frame of observed state variables over time.
 #' @param derivs A user-defined function of the form `derivs(u,nn,p,t)` where
 #' `u` stores the value of the state variables, `nn` stores the neural network
@@ -495,7 +515,7 @@ multi_custom_derivatives <- function(
 #' @param uid A string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
-#' @return Not sure yet
+#' @return An untrained ODE model containing all the defined parameters.
 #' @export
 #'
 #' @examples

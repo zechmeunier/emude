@@ -65,10 +65,11 @@ Bayesian UDE.}
 model into Julia. It is not recommended to modify this parameter.}
 }
 \value{
-Not sure yet
+An untrained ODE model containing all the defined parameters.
 }
 \description{
-Define a custom derivatives model with no neural network
+\code{ode_model()} constructs an ordinary differential equation (ODE) model. It
+does not train a neural network and can be used as a null model.
 }
 \examples{
 print("test")
