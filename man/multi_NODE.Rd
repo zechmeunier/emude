@@ -2,7 +2,7 @@
 % Please edit documentation in R/model_constructors.R
 \name{multi_NODE}
 \alias{multi_NODE}
-\title{Define a NODE model with multiple time seriess}
+\title{Define a NODE model with multiple time series}
 \usage{
 multi_NODE(
   data,
@@ -16,7 +16,7 @@ multi_NODE(
   reg_weight = 10^-6,
   reg_type = "L2",
   l = 0.25,
-  extrap_rho = 0,
+  extrap_rho = 0.1,
   bayesian = FALSE,
   uid = gsub(x = format(Sys.time(), "\%Y\%m\%d\%H\%M\%OS6"), pattern = "[.]", replacement
     = "")
@@ -50,7 +50,7 @@ function. The observation weight controls how closely the state estimates
 \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
 correspond to datasets with larger amounts of observation error and vice versa.}
 
-\item{reg_weight}{Weight \eqn{\lambda} of the regularization error in the loss
+\item{reg_weight}{Weight \eqn{\lambda} of the regularization penalty term in the loss
 function.}
 
 \item{reg_type}{Type of regularization used to mitigate overfitting.
@@ -66,14 +66,20 @@ default of "L2" should be used.}
 \item{bayesian}{Logical (\code{TRUE} or \code{FALSE}) for whether or not the UDE is a
 Bayesian UDE.}
 
-\item{uid}{A string that serves as a unique identifier to save the NODE
+\item{uid}{A string that serves as a unique identifier to save the
 model into Julia. It is not recommended to modify this parameter.}
 }
 \value{
 An untrained NODE model containing all the defined parameters.
 }
 \description{
-Define a NODE model with multiple time seriess
+\code{multi_NODE()} constructs a neural ordinary differential equation (NODE) model
+for multiple time series. NODEs use neural networks to learn unknown
+nonlinear relationships from time series data. \code{multi_NODE()} builds
+a continuous-time UDE for state variables \eqn{u_t} and covariates \eqn{x_t}
+in series \eqn{i} using a neural network, with weights \eqn{w} and
+biases \eqn{b}, to represent the right-hand side of the differential equation
+\deqn{\frac{du}{dt} = NN(u_{i,t},x_{i,t};w,b)}
 }
 \examples{
 print("test")

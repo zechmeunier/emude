@@ -2,10 +2,10 @@
 #'
 #' `NODE()` constructs a neural ordinary differential equation (NODE) model. NODEs
 #' use neural networks to learn unknown nonlinear relationships from time series
-#' data. `NODE()` builds a continuous-time UDE for state variables \eqn{u} using a neural
-#' network, with weights \eqn{w} and biases \eqn{b}, to represent the right-hand side
-#' of the differential equation
-#' \deqn{\frac{du}{dt} = NN(u;w,b)}
+#' data. `NODE()` builds a continuous-time UDE for state variables \eqn{u_t} and
+#' covariates \eqn{x_t} using a neural network, with weights \eqn{w} and
+#' biases \eqn{b}, to represent the right-hand side of the differential equation
+#' \deqn{\frac{du}{dt} = NN(u_t,x_t;w,b)}
 #'
 #' @param data A data frame of observed state variables over time.
 #' @param covariates A data frame of observed covariates (e.g., environmental
@@ -24,7 +24,7 @@
 #' function. The observation weight controls how closely the state estimates
 #' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
 #' correspond to datasets with larger amounts of observation error and vice versa.
-#' @param reg_weight Weight \eqn{\lambda} of the regularization error in the loss
+#' @param reg_weight Weight \eqn{\lambda} of the regularization penalty term in the loss
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
@@ -35,7 +35,7 @@
 #' @param extrap_rho Extrapolation parameter for forecasting.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the NODE
+#' @param uid A string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return An untrained NODE model containing all the defined parameters.
@@ -55,7 +55,7 @@ NODE <- function(
     reg_weight = 10^-6,
     reg_type = "L2",
     l = 0.25,
-    extrap_rho = 0.0,
+    extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
@@ -96,7 +96,15 @@ NODE <- function(
 }
 
 
-#' Define a NODE model with multiple time seriess
+#' Define a NODE model with multiple time series
+#'
+#' `multi_NODE()` constructs a neural ordinary differential equation (NODE) model
+#' for multiple time series. NODEs use neural networks to learn unknown
+#' nonlinear relationships from time series data. `multi_NODE()` builds
+#' a continuous-time UDE for state variables \eqn{u_t} and covariates \eqn{x_t}
+#' in series \eqn{i} using a neural network, with weights \eqn{w} and
+#' biases \eqn{b}, to represent the right-hand side of the differential equation
+#' \deqn{\frac{du}{dt} = NN(u_{i,t},x_{i,t};w,b)}
 #'
 #' @param data A data frame of observed state variables over time.
 #' @param covariates A data frame of observed covariates (e.g., environmental
@@ -117,7 +125,7 @@ NODE <- function(
 #' function. The observation weight controls how closely the state estimates
 #' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
 #' correspond to datasets with larger amounts of observation error and vice versa.
-#' @param reg_weight Weight \eqn{\lambda} of the regularization error in the loss
+#' @param reg_weight Weight \eqn{\lambda} of the regularization penalty term in the loss
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
@@ -128,7 +136,7 @@ NODE <- function(
 #' @param extrap_rho Extrapolation parameter for forecasting.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the NODE
+#' @param uid A string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return An untrained NODE model containing all the defined parameters.
@@ -148,7 +156,7 @@ multi_NODE <- function(
     reg_weight = 10^-6,
     reg_type = "L2",
     l = 0.25,
-    extrap_rho = 0.0,
+    extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
@@ -218,7 +226,7 @@ multi_NODE <- function(
 #' function. The observation weight controls how closely the state estimates
 #' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
 #' correspond to datasets with larger amounts of observation error and vice versa.
-#' @param reg_weight Weight \eqn{\lambda} of the regularization error in the loss
+#' @param reg_weight Weight \eqn{\lambda} of the regularization penalty term in the loss
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
@@ -229,10 +237,10 @@ multi_NODE <- function(
 #' @param extrap_rho Extrapolation parameter for forecasting.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the NODE
+#' @param uid A string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
-#' @return A custom derivatives UDE model containing all the defined parameters.
+#' @return An untrained custom derivatives UDE model containing all the defined parameters.
 #' @export
 #'
 #' @examples
@@ -251,7 +259,7 @@ custom_derivatives <- function(
     reg_weight = 10^-6,
     reg_type = "L2",
     l = 0.25,
-    extrap_rho = 0.0,
+    extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
@@ -337,7 +345,7 @@ custom_derivatives <- function(
 #' function. The observation weight controls how closely the state estimates
 #' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
 #' correspond to datasets with larger amounts of observation error and vice versa.
-#' @param reg_weight Weight \eqn{\lambda} of the regularization error in the loss
+#' @param reg_weight Weight \eqn{\lambda} of the regularization penalty term in the loss
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
@@ -348,10 +356,10 @@ custom_derivatives <- function(
 #' @param extrap_rho Extrapolation parameter for forecasting.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the NODE
+#' @param uid A string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
-#' @return A custom derivatives UDE model containing all the defined parameters.
+#' @return An untrained custom derivatives UDE model containing all the defined parameters.
 #' @export
 #'
 #' @examples
@@ -371,7 +379,7 @@ multi_custom_derivatives <- function(
     reg_weight = 10^-6,
     reg_type = "L2",
     l = 0.25,
-    extrap_rho = 0.0,
+    extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
@@ -453,7 +461,7 @@ multi_custom_derivatives <- function(
 #' function. The observation weight controls how closely the state estimates
 #' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
 #' correspond to datasets with larger amounts of observation error and vice versa.
-#' @param reg_weight Weight \eqn{\lambda} of the regularization error in the loss
+#' @param reg_weight Weight \eqn{\lambda} of the regularization penalty term in the loss
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
@@ -464,7 +472,7 @@ multi_custom_derivatives <- function(
 #' @param extrap_rho Extrapolation parameter for forecasting.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the NODE
+#' @param uid A string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return Not sure yet
@@ -483,7 +491,7 @@ ode_model <- function(
     reg_weight = 10^-6,
     reg_type = "L2",
     l = 0.25,
-    extrap_rho = 0.0,
+    extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){

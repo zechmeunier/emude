@@ -15,7 +15,7 @@ ode_model(
   reg_weight = 10^-6,
   reg_type = "L2",
   l = 0.25,
-  extrap_rho = 0,
+  extrap_rho = 0.1,
   bayesian = FALSE,
   uid = gsub(x = format(Sys.time(), "\%Y\%m\%d\%H\%M\%OS6"), pattern = "[.]", replacement
     = "")
@@ -50,7 +50,7 @@ function. The observation weight controls how closely the state estimates
 \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
 correspond to datasets with larger amounts of observation error and vice versa.}
 
-\item{reg_weight}{Weight \eqn{\lambda} of the regularization error in the loss
+\item{reg_weight}{Weight \eqn{\lambda} of the regularization penalty term in the loss
 function.}
 
 \item{reg_type}{Type of regularization used to mitigate overfitting.
@@ -66,7 +66,7 @@ default of "L2" should be used.}
 \item{bayesian}{Logical (\code{TRUE} or \code{FALSE}) for whether or not the UDE is a
 Bayesian UDE.}
 
-\item{uid}{A string that serves as a unique identifier to save the NODE
+\item{uid}{A string that serves as a unique identifier to save the
 model into Julia. It is not recommended to modify this parameter.}
 }
 \value{
