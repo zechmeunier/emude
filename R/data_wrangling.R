@@ -36,11 +36,12 @@ colmin <- function(df) {
 
 #' Relativize data frame by its column maxima
 #'
-#' `rel_colmax()` relativizes a data frame by the maximum values per column. It will exclude the specified time and series columns.
+#' `rel_colmax()` relativizes a data frame by the maximum values per column.
+#' It will exclude the specified time and series columns.
 #'
+#' @param df A data frame with any dimensions containing `time_column_name`, `series_column_name`, and observations.
 #' @param time_column_name The column that contains the time data, indicating when the observations were made.
 #' @param series_column_name The column that contains the series data, indicating the identifying information for the observations.
-#' @param df A data frame with any dimensions containing `time_column_name`, `series_column_name`, and observations.
 #'
 #' @return A data frame scaled so that values are proportions of the maximum value per column.
 #'
@@ -67,11 +68,12 @@ rel_colmax <- function(df, time_column_name = "time", series_column_name = "seri
 
 #' Relativize data frame by its column maxima and minima
 #'
-#' `rel_minmax()` relativizes a data frame by the maximum and minimum values per column. It will exclude the specified time and series columns.
+#' `rel_minmax()` relativizes a data frame by the maximum and minimum values per
+#' column. It will exclude the specified time and series columns.
 #'
+#' @param df A data frame with any dimensions containing `time_column_name`, `series_column_name`, and observations.
 #' @param time_column_name The column that contains the time data, indicating when the observations were made.
 #' @param series_column_name The column that contains the series data, indicating the identifying information for the observations.
-#' @param df A data frame with any dimensions containing `time_column_name`, `series_column_name`, and observations.
 #'
 #' @return A data frame scaled so that minimum and maximum values per column are 0 and 1, respectively.
 #'

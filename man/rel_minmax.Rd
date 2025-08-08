@@ -17,7 +17,8 @@ rel_minmax(df, time_column_name = "time", series_column_name = "series")
 A data frame scaled so that minimum and maximum values per column are 0 and 1, respectively.
 }
 \description{
-\code{rel_minmax()} relativizes a data frame by the maximum and minimum values per column. It will exclude the specified time and series columns.
+\code{rel_minmax()} relativizes a data frame by the maximum and minimum values per
+column. It will exclude the specified time and series columns.
 }
 \examples{
 X <- data.frame("time" = rep(seq(1,10),4),

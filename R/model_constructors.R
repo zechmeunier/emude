@@ -1,4 +1,49 @@
-#'@export
+#' Define a NODE model with one time series
+#'
+#' `NODE()` constructs a neural ordinary differential equation (NODE) model. NODEs
+#' use neural networks to learn unknown nonlinear relationships from time series
+#' data. `NODE()` builds a continuous-time UDE for state variables \eqn{u} using a neural
+#' network, with weights \eqn{w} and biases \eqn{b}, to represent the right-hand side
+#' of the differential equation
+#' \deqn{\frac{du}{dt} = NN(u;w,b)}
+#'
+#' @param data A data frame of observed state variables over time.
+#' @param covariates A data frame of observed covariates (e.g., environmental
+#' conditions) over time. This data frame must have the same column
+#' name for time as the primary dataset, but the time points do not need to
+#' match because the values of the covariates between time points included in
+#' the data frame `covariates` are interpolated using a linear spline. Optional.
+#' @param time_column_name The column in `data` and `covariates` that contains
+#' the time data, indicating when the observations were made.
+#' @param hidden_units Number of neurons in the single hidden layer.
+#' @param seed Fixed random seed for repeatable results.
+#' @param proc_weight Weight of the process error term \eqn{\nu_t} in the loss
+#' function. The process weight controls how closely the model predictions
+#' match the state estimates \eqn{\hat{u}_t}.
+#' @param obs_weight Weight of the observation error term \eqn{\epsilon_t} in the loss
+#' function. The observation weight controls how closely the state estimates
+#' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
+#' correspond to datasets with larger amounts of observation error and vice versa.
+#' @param reg_weight Weight \eqn{\lambda} of the regularization error in the loss
+#' function.
+#' @param reg_type Type of regularization used to mitigate overfitting.
+#' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
+#' added to the loss function is either the absolute value of the sum of
+#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' default of "L2" should be used.
+#' @param l Extrapolation parameter for forecasting.
+#' @param extrap_rho Extrapolation parameter for forecasting.
+#' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
+#' Bayesian UDE.
+#' @param uid A string that serves as a unique identifier to save the NODE
+#' model into Julia. It is not recommended to modify this parameter.
+#'
+#' @return An untrained NODE model containing all the defined parameters.
+#'
+#' @export
+#'
+#' @examples
+#' print("test")
 NODE <- function(
     data,
     covariates = NULL,
@@ -22,35 +67,75 @@ NODE <- function(
   JuliaCall::julia_assign("data_julia",convert_column_types(data))
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=", model_type,
-                      "(data_julia,time_column_name=\"",time_column_name,"\"",
-                      ",hidden_units=",hidden_units,
-                      ",seed=",seed,
-                      ",proc_weight=",proc_weight,
-                      ",obs_weight=",obs_weight,
-                      ",reg_weight=",reg_weight,
-                      ",reg_type=\"",reg_type,"\"",
-                      ",l=",l,
-                      ",extrap_rho=",extrap_rho,")"),
-               need_return = "Julia")
+                                 "(data_julia,time_column_name=\"",time_column_name,"\"",
+                                 ",hidden_units=",hidden_units,
+                                 ",seed=",seed,
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
   }else{
     JuliaCall::julia_assign("covariates_julia",covariates)
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                      "(data_julia,covariates_julia,time_column_name=\"",time_column_name,"\"",
-                      ",hidden_units=",hidden_units,
-                      ",seed=",seed,
-                      ",proc_weight=",proc_weight,
-                      ",obs_weight=",obs_weight,
-                      ",reg_weight=",reg_weight,
-                      ",reg_type=\"",reg_type,"\"",
-                      ",l=",l,
-                      ",extrap_rho=",extrap_rho,")"),
-               need_return = "Julia")
+                                 "(data_julia,covariates_julia,time_column_name=\"",time_column_name,"\"",
+                                 ",hidden_units=",hidden_units,
+                                 ",seed=",seed,
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
   }
 
   return(paste0("julia_model_",uid))
 }
 
-#'@export
+
+#' Define a NODE model with multiple time seriess
+#'
+#' @param data A data frame of observed state variables over time.
+#' @param covariates A data frame of observed covariates (e.g., environmental
+#' conditions) over time. This data frame must have the same column
+#' name for time as the primary dataset, but the time points do not need to
+#' match because the values of the covariates between time points included in
+#' the data frame `covariates` are interpolated using a linear spline. Optional.
+#' @param time_column_name The column in `data` and `covariates` that contains
+#' the time data, indicating when the observations were made.
+#' @param series_column_name The column in `data` and `covariates` that contains
+#' the series data, indicating the identifying information for the observations.
+#' @param hidden_units Number of neurons in the single hidden layer.
+#' @param seed Fixed random seed for repeatable results.
+#' @param proc_weight Weight of the process error term \eqn{\nu_t} in the loss
+#' function. The process weight controls how closely the model predictions
+#' match the state estimates \eqn{\hat{u}_t}.
+#' @param obs_weight Weight of the observation error term \eqn{\epsilon_t} in the loss
+#' function. The observation weight controls how closely the state estimates
+#' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
+#' correspond to datasets with larger amounts of observation error and vice versa.
+#' @param reg_weight Weight \eqn{\lambda} of the regularization error in the loss
+#' function.
+#' @param reg_type Type of regularization used to mitigate overfitting.
+#' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
+#' added to the loss function is either the absolute value of the sum of
+#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' default of "L2" should be used.
+#' @param l Extrapolation parameter for forecasting.
+#' @param extrap_rho Extrapolation parameter for forecasting.
+#' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
+#' Bayesian UDE.
+#' @param uid A string that serves as a unique identifier to save the NODE
+#' model into Julia. It is not recommended to modify this parameter.
+#'
+#' @return An untrained NODE model containing all the defined parameters.
+#' @export
+#'
+#' @examples
+#' print("test")
 multi_NODE <- function(
     data,
     covariates = NULL,
@@ -76,37 +161,82 @@ multi_NODE <- function(
   JuliaCall::julia_assign("data_julia",convert_column_types(data))
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                      "(data_julia,time_column_name=\"",time_column_name,"\"",
-                      ",series_column_name=\"",series_column_name,"\"",
-                      ",hidden_units=",hidden_units,
-                      ",seed=",seed,
-                      ",proc_weight=",proc_weight,
-                      ",obs_weight=",obs_weight,
-                      ",reg_weight=",reg_weight,
-                      ",reg_type=\"",reg_type,"\"",
-                      ",l=",l,
-                      ",extrap_rho=",extrap_rho,")"),
-               need_return = "Julia")
+                                 "(data_julia,time_column_name=\"",time_column_name,"\"",
+                                 ",series_column_name=\"",series_column_name,"\"",
+                                 ",hidden_units=",hidden_units,
+                                 ",seed=",seed,
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
   }else{
     JuliaCall::julia_assign("covariates_julia",covariates)
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                      "(data_julia,covariates_julia,time_column_name=\"",time_column_name,"\"",
-                      ",series_column_name=\"",series_column_name,"\"",
-                      ",hidden_units=",hidden_units,
-                      ",seed=",seed,
-                      ",proc_weight=",proc_weight,
-                      ",obs_weight=",obs_weight,
-                      ",reg_weight=",reg_weight,
-                      ",reg_type=\"",reg_type,"\"",
-                      ",l=",l,
-                      ",extrap_rho=",extrap_rho,")"),
-               need_return = "Julia")
+                                 "(data_julia,covariates_julia,time_column_name=\"",time_column_name,"\"",
+                                 ",series_column_name=\"",series_column_name,"\"",
+                                 ",hidden_units=",hidden_units,
+                                 ",seed=",seed,
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
   }
 
   return(paste0("julia_model_",uid))
 }
 
-#'@export
+
+#' Define a custom derivatives UDE with one time series
+#'
+#' @param data A data frame of observed state variables over time.
+#' @param derivs A user-defined function of the form `derivs(u,nn,p,t)` where
+#' `u` stores the value of the state variables, `nn` stores the neural network
+#' outputs,`p` stores the model parameters, and `t` is time. The function should
+#' save each ODE to `du[i]`, where `i` is an index for each time derivative.
+#' @param initial_parameters A named list containing the model parameters stored
+#' in `p`.
+#' @param covariates A data frame of observed covariates (e.g., environmental
+#' conditions) over time. This data frame must have the same column
+#' name for time as the primary dataset, but the time points do not need to
+#' match because the values of the covariates between time points included in
+#' the data frame `covariates` are interpolated using a linear spline. Optional.
+#' @param neural_network_inputs The number of input nodes of the neural network.
+#' @param neural_network_outputs The number of output nodes of the neural network.
+#' @param hidden_units Number of neurons in the single hidden layer.
+#' @param time_column_name The column in `data` and `covariates` that contains
+#' the time data, indicating when the observations were made.
+#' @param proc_weight Weight of the process error term \eqn{\nu_t} in the loss
+#' function. The process weight controls how closely the model predictions
+#' match the state estimates \eqn{\hat{u}_t}.
+#' @param obs_weight Weight of the observation error term \eqn{\epsilon_t} in the loss
+#' function. The observation weight controls how closely the state estimates
+#' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
+#' correspond to datasets with larger amounts of observation error and vice versa.
+#' @param reg_weight Weight \eqn{\lambda} of the regularization error in the loss
+#' function.
+#' @param reg_type Type of regularization used to mitigate overfitting.
+#' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
+#' added to the loss function is either the absolute value of the sum of
+#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' default of "L2" should be used.
+#' @param l Extrapolation parameter for forecasting.
+#' @param extrap_rho Extrapolation parameter for forecasting.
+#' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
+#' Bayesian UDE.
+#' @param uid A string that serves as a unique identifier to save the NODE
+#' model into Julia. It is not recommended to modify this parameter.
+#'
+#' @return A custom derivatives UDE model containing all the defined parameters.
+#' @export
+#'
+#' @examples
+#' print("test")
 custom_derivatives <- function(
     data,
     derivs,
@@ -154,31 +284,78 @@ custom_derivatives <- function(
 
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                      "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
-                      ",proc_weight=",proc_weight,
-                      ",obs_weight=",obs_weight,
-                      ",reg_weight=",reg_weight,
-                      ",reg_type=\"",reg_type,"\"",
-                      ",l=",l,
-                      ",extrap_rho=",extrap_rho,")"),
-               need_return = "Julia")
+                                 "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
   }else{
     JuliaCall::julia_assign("covariates_julia",covariates)
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                      "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
-                      ",proc_weight=",proc_weight,
-                      ",obs_weight=",obs_weight,
-                      ",reg_weight=",reg_weight,
-                      ",reg_type=\"",reg_type,"\"",
-                      ",l=",l,
-                      ",extrap_rho=",extrap_rho,")"),
-               need_return = "Julia")
+                                 "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
   }
 
   return(paste0("julia_model_",uid))
 }
 
-#'@export
+
+#' Define a custom derivatives UDE with multiple time seriess
+#'
+#' @param data A data frame of observed state variables over time.
+#' @param derivs A user-defined function of the form `derivs(u,nn,p,t)` where
+#' `u` stores the value of the state variables, `nn` stores the neural network
+#' outputs,`p` stores the model parameters, and `t` is time. The function should
+#' save each ODE to `du[i]`, where `i` is an index for each time derivative.
+#' @param initial_parameters A named list containing the model parameters stored
+#' in `p`.
+#' @param covariates A data frame of observed covariates (e.g., environmental
+#' conditions) over time. This data frame must have the same column
+#' name for time as the primary dataset, but the time points do not need to
+#' match because the values of the covariates between time points included in
+#' the data frame `covariates` are interpolated using a linear spline. Optional.
+#' @param neural_network_inputs The number of input nodes of the neural network.
+#' @param neural_network_outputs The number of output nodes of the neural network.
+#' @param hidden_units Number of neurons in the single hidden layer.
+#' @param time_column_name The column in `data` and `covariates` that contains
+#' the time data, indicating when the observations were made.
+#' @param series_column_name The column in `data` and `covariates` that contains
+#' the series data, indicating the identifying information for the observations.
+#' @param proc_weight Weight of the process error term \eqn{\nu_t} in the loss
+#' function. The process weight controls how closely the model predictions
+#' match the state estimates \eqn{\hat{u}_t}.
+#' @param obs_weight Weight of the observation error term \eqn{\epsilon_t} in the loss
+#' function. The observation weight controls how closely the state estimates
+#' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
+#' correspond to datasets with larger amounts of observation error and vice versa.
+#' @param reg_weight Weight \eqn{\lambda} of the regularization error in the loss
+#' function.
+#' @param reg_type Type of regularization used to mitigate overfitting.
+#' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
+#' added to the loss function is either the absolute value of the sum of
+#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' default of "L2" should be used.
+#' @param l Extrapolation parameter for forecasting.
+#' @param extrap_rho Extrapolation parameter for forecasting.
+#' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
+#' Bayesian UDE.
+#' @param uid A string that serves as a unique identifier to save the NODE
+#' model into Julia. It is not recommended to modify this parameter.
+#'
+#' @return A custom derivatives UDE model containing all the defined parameters.
+#' @export
+#'
+#' @examples
+#' print("test")
 multi_custom_derivatives <- function(
     data,
     derivs,
@@ -227,32 +404,74 @@ multi_custom_derivatives <- function(
 
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                      "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
-                      ",series_column_name=\"",series_column_name,"\"",
-                      ",proc_weight=",proc_weight,
-                      ",obs_weight=",obs_weight,
-                      ",reg_weight=",reg_weight,
-                      ",reg_type=\"",reg_type,"\"",
-                      ",l=",l,
-                      ",extrap_rho=",extrap_rho,")"),
-               need_return = "Julia")
+                                 "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 ",series_column_name=\"",series_column_name,"\"",
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
   }else{
     JuliaCall::julia_assign("covariates_julia",covariates)
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                      "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
-                      ",series_column_name=\"",series_column_name,"\"",
-                      ",proc_weight=",proc_weight,
-                      ",obs_weight=",obs_weight,
-                      ",reg_weight=",reg_weight,
-                      ",reg_type=\"",reg_type,"\"",
-                      ",l=",l,
-                      ",extrap_rho=",extrap_rho,")"),
-               need_return = "Julia")
+                                 "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 ",series_column_name=\"",series_column_name,"\"",
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
   }
   return(paste0("julia_model_",uid))
 }
 
-#'@export
+
+#' Title
+#'
+#' @param data A data frame of observed state variables over time.
+#' @param derivs A user-defined function of the form `derivs(u,nn,p,t)` where
+#' `u` stores the value of the state variables, `nn` stores the neural network
+#' outputs,`p` stores the model parameters, and `t` is time. The function should
+#' save each ODE to `du[i]`, where `i` is an index for each time derivative.
+#' @param initial_parameters A named list containing the model parameters stored
+#' in `p`.
+#' @param covariates A data frame of observed covariates (e.g., environmental
+#' conditions) over time. This data frame must have the same column
+#' name for time as the primary dataset, but the time points do not need to
+#' match because the values of the covariates between time points included in
+#' the data frame `covariates` are interpolated using a linear spline. Optional.
+#' @param time_column_name The column in `data` and `covariates` that contains
+#' the time data, indicating when the observations were made.
+#' @param proc_weight Weight of the process error term \eqn{\nu_t} in the loss
+#' function. The process weight controls how closely the model predictions
+#' match the state estimates \eqn{\hat{u}_t}.
+#' @param obs_weight Weight of the observation error term \eqn{\epsilon_t} in the loss
+#' function. The observation weight controls how closely the state estimates
+#' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
+#' correspond to datasets with larger amounts of observation error and vice versa.
+#' @param reg_weight Weight \eqn{\lambda} of the regularization error in the loss
+#' function.
+#' @param reg_type Type of regularization used to mitigate overfitting.
+#' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
+#' added to the loss function is either the absolute value of the sum of
+#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' default of "L2" should be used.
+#' @param l Extrapolation parameter for forecasting.
+#' @param extrap_rho Extrapolation parameter for forecasting.
+#' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
+#' Bayesian UDE.
+#' @param uid A string that serves as a unique identifier to save the NODE
+#' model into Julia. It is not recommended to modify this parameter.
+#'
+#' @return Not sure yet
+#' @export
+#'
+#' @examples
+#' print("test")
 ode_model <- function(
     data,
     derivs,
@@ -293,25 +512,25 @@ ode_model <- function(
 
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                      "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
-                      ",proc_weight=",proc_weight,
-                      ",obs_weight=",obs_weight,
-                      ",reg_weight=",reg_weight,
-                      ",reg_type=\"",reg_type,"\"",
-                      ",l=",l,
-                      ",extrap_rho=",extrap_rho,")"),
-               need_return = "Julia")
+                                 "(data_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
   }else{
     JuliaCall::julia_assign("covariates_julia",covariates)
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                      "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
-                      ",proc_weight=",proc_weight,
-                      ",obs_weight=",obs_weight,
-                      ",reg_weight=",reg_weight,
-                      ",reg_type=\"",reg_type,"\"",
-                      ",l=",l,
-                      ",extrap_rho=",extrap_rho,")"),
-               need_return = "Julia")
+                                 "(data_julia,covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
   }
   return(paste0("julia_model_",uid))
 }

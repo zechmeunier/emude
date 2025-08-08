@@ -17,7 +17,8 @@ rel_colmax(df, time_column_name = "time", series_column_name = "series")
 A data frame scaled so that values are proportions of the maximum value per column.
 }
 \description{
-\code{rel_colmax()} relativizes a data frame by the maximum values per column. It will exclude the specified time and series columns.
+\code{rel_colmax()} relativizes a data frame by the maximum values per column.
+It will exclude the specified time and series columns.
 }
 \examples{
 X <- data.frame("time" = rep(seq(1,10),4),
