@@ -83,26 +83,29 @@ cross_validation <- function(
 #' Get the right hand side of the UDE model
 #'
 #' `get_right_hand_side()` creates and R function that returns the right-hand-side
-#' of the UDE model given the state u, time t and if included in the model covariates
+#' of the UDE model given the time t, state u, and if included in the model covariates
 #' X.
 #'
 #' @param model The UDE model to evaluate.
 #'
 #' @return a function that returns the value of the ode model. The function will
 #' require different arguments depending on the UDE model. If the UDE does not have
-#' covariates then the right-hand-side function will take two arguments (u,t), where
+#' covariates then the right-hand-side function will take two arguments (t,u), where
 #' us is a vector with the value of the state variables and t is time. If covariates
-#' are used then the arguments are (u,x,t) where x is a vector of the covariates.
+#' are used then the arguments are (t,u,X) where X is a vector of the covariates.
 #' @export
 #'
 #' @examples
 #' NODE_model <- NODE(data=data)
 #' train(NODE_model)
 #' rhs <- get_right_hand_side(NODE_model)
-#' u <- c(1,2)
+#' u <- c(1.1,2)
 #' t <- 0.0
 #' rhs(u,t) # evaluates
-#'
+#' # Simulate solutions of UDE model with deSolve
+#' library(deSolve)
+#' ode(y=as.u, times = seq(0,10.0,0.2), parms = c(),
+#'    func = function(t,u,pars){list(rhs(t,u))}, method = "lsoda")
 get_right_hand_side <- function(model){
 
   JuliaCall::julia_eval(
@@ -113,7 +116,7 @@ get_right_hand_side <- function(model){
 
   if(as.character(covars) != "DataFrames.DataFrame"){
     print("Models without covarites requires two arguments the state u and time t")
-    rhs <- function(u,t){
+    rhs <- function(t,u){
       JuliaCall::julia_assign("u",u)
       JuliaCall::julia_assign("t",t)
       JuliaCall::julia_eval(
@@ -122,7 +125,7 @@ get_right_hand_side <- function(model){
     }
   }else{
     print("Models with covarites requires three arguments the state u, covariates x and time t")
-    rhs <- function(u,x,t){
+    rhs <- function(t,u,x){
       JuliaCall::julia_assign("u",u)
       JuliaCall::julia_assign("x",x)
       JuliaCall::julia_assign("t",t)
