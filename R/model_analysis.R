@@ -78,3 +78,59 @@ cross_validation <- function(
   print("Done! :)")
   return(cv_results)
 }
+
+
+#' Get the right hand side of the UDE model
+#'
+#' `get_right_hand_side()` creates and R function that returns the right-hand-side
+#' of the UDE model given the state u, time t and if included in the model covariates
+#' X.
+#'
+#' @param model The UDE model to evaluate.
+#'
+#' @return a function that returns the value of the ode model. The function will
+#' require different arguments depending on the UDE model. If the UDE does not have
+#' covariates then the right-hand-side function will take two arguments (u,t), where
+#' us is a vector with the value of the state variables and t is time. If covariates
+#' are used then the arguments are (u,x,t) where x is a vector of the covariates.
+#' @export
+#'
+#' @examples
+#' NODE_model <- NODE(data=data)
+#' train(NODE_model)
+#' rhs <- get_right_hand_side(NODE_model)
+#' u <- c(1,2)
+#' t <- 0.0
+#' rhs(u,t) # evaluates
+#'
+get_right_hand_side <- function(model){
+
+  JuliaCall::julia_eval(
+    paste0("rhs_",model,"=get_right_hand_side(",model,")")
+    )
+
+  covars = JuliaCall::julia_eval(paste0("typeof(",model, ".X", ")"), need_return = "R")
+
+  if(as.character(covars) != "DataFrames.DataFrame"){
+    print("Models without covarites requires two arguments the state u and time t")
+    rhs <- function(u,t){
+      JuliaCall::julia_assign("u",u)
+      JuliaCall::julia_assign("t",t)
+      JuliaCall::julia_eval(
+        paste0("rhs_",model, "(u,t)"),
+        need_return = "R")
+    }
+  }else{
+    print("Models with covarites requires three arguments the state u, covariates x and time t")
+    rhs <- function(u,x,t){
+      JuliaCall::julia_assign("u",u)
+      JuliaCall::julia_assign("x",x)
+      JuliaCall::julia_assign("t",t)
+      JuliaCall::julia_eval(
+        paste0("rhs_",model, "(u,x,t)"),
+        need_return = "R")
+    }
+  }
+  return(rhs)
+}
+

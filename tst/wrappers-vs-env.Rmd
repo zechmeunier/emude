@@ -9,10 +9,12 @@ julia_setup(JULIA_HOME = '/Applications/Julia-1.10.app/Contents/Resources/julia/
 library(tidyverse)
 library(JuliaCall)
 setwd("../")
-source("src/emude.R")
-source("src/model_constructors.R")
-source("src/model_testing.R")
-source("src/training_functions.R")
+source("R/emude.R")
+source("R/model_constructors.R")
+source("R/model_testing.R")
+source("R/training_functions.R")
+source("R/helpers.R")
+source("R/model_analysis.R")
 ```
 
 ```{r}
@@ -22,30 +24,29 @@ julia_library("UniversalDiffEq")
 
 
 ```{r}
-data = tibble(
-"series" = c(1.0,1.0,1.0,1.0,1.0,2.0,2.0,2.0,2.0,2.0),
-"t" = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0), "x" = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0) , "y" = c(2.0,4.0,8.0,16.0,32.0,64.0,128.0,256.0,512.0,1024.0)/1000
+data = data.frame(
+t = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0), 
+x = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0) , 
+y = c(2.0,4.0,8.0,16.0,32.0,64.0,128.0,256.0,512.0,1024.0)/1000
 )
+X= data.frame(
+  t = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0),
+  X = rnorm(10))
+
+NODE_model <- NODE(data=data)
+rhs <- get_right_hand_side(NODE_model)
+u <- c(1,2)
+t <- 0.0
+rhs(u,t)
+```
+
+```{r}
 
 
-# model <- custom_derivatives(data=data, derivs = "./derivs_from_r.jl",
-#                             initial_parameters = list(r=0.5, b=0.5),
-#                             neural_network_inputs = c(1),
-#                             neural_network_outputs = 1,
-#                             hidden_units = 10, time_column_name = "t")
-                            
-                            
-model <- multi_custom_derivatives(data=data, derivs = "./derivs_from_r.jl",
-                            initial_parameters = list(r=0.5, b=0.5),
-                            neural_network_inputs = c(1),
-                            neural_network_outputs = 1,
-                            hidden_units = 10, time_column_name = "t"
-)
-
-#NODE_model <- NODE(data=data, hidden_units = 10, time_column_name = "t")
 ```
 ```{r}
-train(model, "shooting", loss_options = list(d = 2))
+rhs(c(1,2),0.0)
+
 ```
 
 ```{r}
