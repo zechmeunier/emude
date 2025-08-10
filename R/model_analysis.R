@@ -115,7 +115,7 @@ get_right_hand_side <- function(model){
   covars = JuliaCall::julia_eval(paste0("typeof(",model, ".X", ")"), need_return = "R")
 
   if(as.character(covars) != "DataFrames.DataFrame"){
-    print("Models without covarites requires two arguments the state u and time t")
+    print("Returning ODE of form: function(t,u)")
     rhs <- function(t,u){
       JuliaCall::julia_assign("u",u)
       JuliaCall::julia_assign("t",t)
@@ -124,7 +124,7 @@ get_right_hand_side <- function(model){
         need_return = "R")
     }
   }else{
-    print("Models with covarites requires three arguments the state u, covariates x and time t")
+    print("Returning ODE of form: function(t,u,x)")
     rhs <- function(t,u,x){
       JuliaCall::julia_assign("u",u)
       JuliaCall::julia_assign("x",x)
