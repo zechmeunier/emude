@@ -63,10 +63,10 @@ a third data frame \code{horizon_by_var_by_series}.
 using a training routine with \emph{k}-folds.
 }
 \examples{
-X <- data.frame("time" = seq(1,40),
+df <- data.frame("time" = seq(1,40),
                 "speciesA" = rpois(40,20),
                 "speciesB" = rpois(40,40))
-X_model <- NODE(data = X, time_column_name = "time")
-cv_results <- cross_validation(model = X_model, k = 5)
+NODE_model <- NODE(data = df, time_column_name = "time")
+cv_results <- cross_validation(model = NODE_model, k = 5)
 
 }

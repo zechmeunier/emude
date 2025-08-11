@@ -35,11 +35,11 @@
 #' @export
 #'
 #' @examples
-#' X <- data.frame("time" = seq(1,40),
+#' df <- data.frame("time" = seq(1,40),
 #'                 "speciesA" = rpois(40,20),
 #'                 "speciesB" = rpois(40,40))
-#' X_model <- NODE(data = X, time_column_name = "time")
-#' cv_results <- cross_validation(model = X_model, k = 5)
+#' NODE_model <- NODE(data = df, time_column_name = "time")
+#' cv_results <- cross_validation(model = NODE_model, k = 5)
 #'
 cross_validation <- function(
     model,
@@ -94,10 +94,14 @@ cross_validation <- function(
 #' `u` is a vector with the value of the state variables and `t` is time. If covariates
 #' are used, then the arguments are `(t,u,X)`, where `X` is a vector of the covariates.
 #' @export
+#' @import deSolve
 #'
 #' @examples
-#' NODE_model <- NODE(data=data)
-#' train(NODE_model)
+#' df <- data.frame("time" = seq(1,40),
+#'                 "speciesA" = rpois(40,20),
+#'                 "speciesB" = rpois(40,40))
+#' NODE_model <- NODE(data = df, time_column_name = "time")
+#' train_UDE(NODE_model)
 #' rhs <- get_right_hand_side(NODE_model)
 #' u <- c(1.1,2)
 #' t <- 0.0

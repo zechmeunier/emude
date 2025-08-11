@@ -22,8 +22,11 @@ of the UDE model given the time \code{t}, state \code{u}, and covariates \code{X
 in the model.
 }
 \examples{
-NODE_model <- NODE(data=data)
-train(NODE_model)
+df <- data.frame("time" = seq(1,40),
+                "speciesA" = rpois(40,20),
+                "speciesB" = rpois(40,40))
+NODE_model <- NODE(data = df, time_column_name = "time")
+train_UDE(NODE_model)
 rhs <- get_right_hand_side(NODE_model)
 u <- c(1.1,2)
 t <- 0.0
