@@ -31,7 +31,7 @@ emude_setup()
 
 We will work with two different versions of the lynx-hare time series. The first spanning 1845--1935 was documented by Duncan A. MacLulich in his book *Fluctuations in the Numbers of the Varying Hare (Lepus americanus)* published in 1937. The second spanning 1847--1903 was documented by Egbert G. Leigh, Jr. in Table III of his chapter entitled "The Ecological Role of Volterra's Equations" in the book *Some Mathematical Problems in Biology* published in 1968.
 
-The MacLulich (1937) dataset records the number of pelts in the thousands, while the Leigh (1968) dataset records the raw number of pelts. Both datasets have large variances, so we will apply the **emude functions** `rel_colmax` and `rel_minmax` as two possible methods for rescaling.
+The MacLulich (1937) dataset records the number of pelts in the thousands, while the Leigh (1968) dataset records the raw number of pelts. Both datasets have large variances, so we will apply the **emude functions** `rel_colmax()` and `rel_minmax()` as two possible methods for rescaling.
 
 ```{r}
 lynxhare1 <- read.csv("MacLulich 1937.csv")
@@ -68,7 +68,7 @@ ggplot(data = lynxhare) +
 
 An excellent correspondence for the hare counts and a fairly good correspondence for the lynx counts.
 
-Next we will plot the two time series using the **emude function** `series_plot`. This leverages ggplot functionality but it expects long-format data, so we need to pivot the joined data frame longer and do some additional data wrangling before plotting.
+Next we will plot the two time series using the **emude function** `series_plot()`. This leverages ggplot functionality but it expects long-format data, so we need to pivot the joined data frame longer and do some additional data wrangling before plotting.
 
 ```{r}
 ?series_plot()
@@ -99,7 +99,7 @@ series_plot(observations = lynxhare_long,
 
 ## Training and Testing Split
 
-As in many machine learning applications, we should split our data into training and testing sets. A good rule of thumb is an 80%/20% split between training and testing data. Given that our two datasets are 91 and 57 years in length, we split the data accordingly.
+As in many machine learning applications, we should split our data into training and testing sets. A good rule of thumb is an 80%/20% split between training and testing data. Given that our two datasets are 91 and 57 years in length, our splits are 72/19 years and 46/11 years, respectively.
 
 ```{r}
 # List of datasets to split
@@ -145,16 +145,15 @@ lynxhare2_norm_test  <- splits$lynxhare2_norm$test
 
 ## Neural Ordinary Differential Equation (NODE)
 
-Now we will use scientific machine learning methods to model our time series. The first method is called a neural ordinary differential equation (NODE), which uses an artificial neural network to learn unknown nonlinear relationships. The NODE model employs a neural network with weights $w$ and biases $b$ to represent the right-hand side of a system of ODEs with state variables $u_t$ and optional covariates $X_t$:
+Now we will use scientific machine learning (SciML) methods to model our time series. The first method is called a neural ordinary differential equation (NODE), which uses an artificial neural network to learn unknown nonlinear relationships. The NODE model employs a neural network with weights $w$ and biases $b$ to represent the right-hand side of a system of ODEs with state variables $u_t$ and optional covariates $X_t$:
 
 $$
 \frac{du}{dt} = NN(u_t,X_t;w,b)
 $$
 
+### Model Creation, Cross-Validation, and Training
 
-### Model Cross-Validation and Training
-
-We will use the **emude function** `NODE` to create six NODE models, one each for:
+We will use the **emude function** `NODE()` to create six NODE models, one each for:
 
 -   datasets 1 and 2 with raw abundances (note the warnings)
 -   datasets 1 and 2 with populations relativized by column maximum
@@ -176,7 +175,7 @@ NODE1_norm <- NODE(data = lynxhare1_norm_train, time_column_name = "Year")
 NODE2_norm <- NODE(data = lynxhare2_norm_train, time_column_name = "Year")
 ```
 
-Next, we'll perform leave-future-out cross-validation (cv) with the **emude function** `cross_validation` for all six models. You can write the results to a file path, but we will just save them in our environment and then wrangle the output into a data frame.
+Next, we'll perform leave-future-out cross-validation (cv) with the **emude function** `cross_validation()` for all six models. You can write the results to a file path, but we will just save them in our environment and then wrangle the output into a data frame.
 
 ```{r}
 ?cross_validation()
@@ -221,8 +220,7 @@ ggplot(data = filter(cv_results, model %in% c("NODE1_rel","NODE1_norm",
   theme_bw()
 ```
 
-
-Based on the second plot, the normalization produced less error than the relativization for dataset 1, but the relativization was better for dataset 2.  We'll focus on the `NODE1_norm` and `NODE2_rel` models for training and one-step ahead predictions. We'll perform this step using the **emude functions** `train_UDE` and `predict_UDE`.
+Based on the second plot, the normalization produced less error than the relativization for dataset 1, but the relativization was better for dataset 2. We'll focus on the `NODE1_norm` and `NODE2_rel` models for training and one-step ahead predictions. We'll perform this step using the **emude functions** `train_UDE()` and `predict_UDE()`.
 
 ```{r}
 ?train_UDE
@@ -239,7 +237,7 @@ NODE2_predictions <- predict_UDE(NODE2_rel, test_data = lynxhare2_rel_test)
 
 To standardize our assessment of model performance across the two time series, we will calculate the normalized root mean squared error $NRMSE = \frac{1}{\bar{y}} \sqrt{ \frac{1}{n} \sum_{i=1}^n (\hat{y}_i-y_i)^2}$.
 
-Then, we'll pivot the observations and predictions to long-format data frames. Finally, we will plot the observed data as points and the predictions as lines using the **emude function** `series_plot`.
+Then, we'll pivot the observations and predictions to long-format data frames. Finally, we will plot the observed data as points and the predictions as lines using the **emude function** `series_plot()`.
 
 ```{r}
 observations <- list(lynxhare1_norm, lynxhare2_rel)
@@ -285,21 +283,53 @@ for (i in 1:2){
 
 More training data makes better models!
 
+### Model Analysis
+
 ```{r}
 NODE1_rhs <- get_right_hand_side(NODE1_norm)
 u <- c(1.1,2)
 t <- 0.0
 NODE1_rhs(u,t) # evaluates
 # Simulate solutions of UDE model with deSolve
-library(deSolve)
 ode(y=as.u, times = seq(0,10.0,0.2), parms = c(),
    func = function(t,u,pars){list(NODE1_rhs(t,u))}, method = "lsoda")
 ```
 
-
 ## Custom Derivatives
 
+The second SciML method is called a universal differential equation (UDE), which embeds an artificial neural network inside a system of ODEs to learn unknown nonlinear relationships. The UDE model employs a neural network with parameters $\theta$ and a known function $f$ to represent the right-hand side of a system of ODEs with state variables $u_t$ and optional covariates $X_t$:
+
+$$
+\frac{du}{dt}=f(u_t,X_t,t,NN(u_t,X_t);\theta)
+$$
+
+### Model Creation, Cross-Validation, and Training
+
+We will use the **emude function** `custom_derivatives()` and our user-defined `derivs` function to create six UDE models, as before:
+
+-   datasets 1 and 2 with raw abundances (note the warnings)
+-   datasets 1 and 2 with populations relativized by column maximum
+-   datasets 1 and 2 with populations rescaled by min-max normalization
+
+In this case, `derivs` is modeled after the Lotka-Volterra predator-prey model:
+
+-   $H$ number of prey (hares)
+-   $L$ number of predators (lynx)
+-   $\alpha$ prey's per capita growth rate
+-   $\beta$ effect of the presence of predators on the prey's death rate
+-   $\gamma$ predator's per capita death rate
+-   $\delta$ effect of the presence of prey on the predator's growth rate
+
+$$
+\frac{dH}{dt} = \alpha H - \beta LH
+$$
+
+$$
+\frac{dL}{dt} = \delta LH - \gamma L
+$$
+
 ```{r}
+?custom_derivatives()
 
 derivs <- function(u,nn,p,t){
   du1 = p$r*u[1] - nn[1]
@@ -315,10 +345,4 @@ model_2 <- custom_derivatives(data=lynxhare1_rel, derivs = derivs,
 )
 
 train_UDE(model_2)
-```
-
-```{r}
-NODE1 <- NODE(data = lynxhare1, time_column_name = "Year")
-train_UDE(NODE1)
-cv_results <- cross_validation(model = NODE1, k = 4, path = "../tst/cv_test2.csv")
 ```
