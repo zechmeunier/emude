@@ -82,7 +82,7 @@ An untrained NODE model containing all the defined parameters.
 \code{multi_NODE()} constructs a neural ordinary differential equation (NODE) model
 for multiple time series. NODEs use neural networks to learn unknown
 nonlinear relationships from time series data. \code{multi_NODE()} builds
-a continuous-time UDE for state variables \eqn{u_t} and covariates \eqn{x_t}
+a continuous-time UDE for state variables \eqn{u_t} and covariates \eqn{X_t}
 in series \eqn{i} using a neural network, with weights \eqn{w} and
 biases \eqn{b}, to represent the right-hand side of the differential equation
 \deqn{\frac{du}{dt} = NN(u_{i,t},x_{i,t};w,b)}

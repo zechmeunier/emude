@@ -1,4 +1,4 @@
-#' Leave-future-out cross-validation
+#' Perform leave-future-out cross-validation
 #'
 #' `cross_validation()` runs leave-future-out cross-validation on the UDE model
 #' using a training routine with *k*-folds.
@@ -80,19 +80,19 @@ cross_validation <- function(
 }
 
 
-#' Get the right hand side of the UDE model
+#' Get the right-hand side of the UDE model
 #'
-#' `get_right_hand_side()` creates and R function that returns the right-hand-side
-#' of the UDE model given the time t, state u, and if included in the model covariates
-#' X.
+#' `get_right_hand_side()` creates an R function that returns the right-hand side
+#' of the UDE model given the time `t`, state `u`, and covariates `X` if included
+#' in the model.
 #'
 #' @param model The UDE model to evaluate.
 #'
-#' @return a function that returns the value of the ode model. The function will
+#' @return A function that returns the value of the ODE model. The function will
 #' require different arguments depending on the UDE model. If the UDE does not have
-#' covariates then the right-hand-side function will take two arguments (t,u), where
-#' us is a vector with the value of the state variables and t is time. If covariates
-#' are used then the arguments are (t,u,X) where X is a vector of the covariates.
+#' covariates, then the right-hand side function will take two arguments `(t,u)`, where
+#' `u` is a vector with the value of the state variables and `t` is time. If covariates
+#' are used, then the arguments are `(t,u,X)`, where `X` is a vector of the covariates.
 #' @export
 #'
 #' @examples
@@ -110,7 +110,7 @@ get_right_hand_side <- function(model){
 
   JuliaCall::julia_eval(
     paste0("rhs_",model,"=get_right_hand_side(",model,")")
-    )
+  )
 
   covars = JuliaCall::julia_eval(paste0("typeof(",model, ".X", ")"), need_return = "R")
 
@@ -136,4 +136,3 @@ get_right_hand_side <- function(model){
   }
   return(rhs)
 }
-

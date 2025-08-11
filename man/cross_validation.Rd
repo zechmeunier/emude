@@ -2,7 +2,7 @@
 % Please edit documentation in R/model_analysis.R
 \name{cross_validation}
 \alias{cross_validation}
-\title{Leave-future-out cross-validation}
+\title{Perform leave-future-out cross-validation}
 \usage{
 cross_validation(
   model,

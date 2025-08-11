@@ -97,7 +97,7 @@ for multiple time series
 based on known functional forms in a user-defined derivatives function \code{derivs}.
 These models embed neural networks in the right-hand side of a system of differential equations
 \deqn{\frac{du}{dt}=f(u_{i,t},x_{i,t},i,t,NN(u_{i,t},x_{i,t});\theta)},
-where \eqn{u_t} is a vector of state variables, \eqn{x_t} is a vector of covariates,
+where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
 \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
 \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
 }

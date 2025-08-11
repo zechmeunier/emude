@@ -78,9 +78,9 @@ An untrained NODE model containing all the defined parameters.
 \code{NODE()} constructs a neural ordinary differential equation (NODE) model. NODEs
 use neural networks to learn unknown nonlinear relationships from time series
 data. \code{NODE()} builds a continuous-time UDE for state variables \eqn{u_t} and
-covariates \eqn{x_t} using a neural network, with weights \eqn{w} and
+covariates \eqn{X_t} using a neural network, with weights \eqn{w} and
 biases \eqn{b}, to represent the right-hand side of the differential equation
-\deqn{\frac{du}{dt} = NN(u_t,x_t;w,b)}
+\deqn{\frac{du}{dt} = NN(u_t,X_t;w,b)}
 }
 \examples{
 print("test")
