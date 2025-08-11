@@ -235,7 +235,11 @@ NODE2_predictions <- predict_UDE(NODE2_rel, test_data = lynxhare2_rel_test)
 
 ### One-step-ahead Predictions
 
-To standardize our assessment of model performance across the two time series, we will calculate the normalized root mean squared error $NRMSE = \frac{1}{\bar{y}} \sqrt{ \frac{1}{n} \sum_{i=1}^n (\hat{y}_i-y_i)^2}$.
+To standardize our assessment of model performance across the two time series, we will calculate the normalized root mean squared error (NRMSE).
+
+$$
+NRMSE = \frac{1}{\bar{y}} \sqrt{ \frac{1}{n} \sum_{i=1}^n (\hat{y}_i-y_i)^2}
+$$
 
 Then, we'll pivot the observations and predictions to long-format data frames. Finally, we will plot the observed data as points and the predictions as lines using the **emude function** `series_plot()`.
 
@@ -281,18 +285,18 @@ for (i in 1:2){
 }
 ```
 
-More training data makes better models!
+More training data make better models!
 
 ### Model Analysis
 
 ```{r}
-NODE1_rhs <- get_right_hand_side(NODE1_norm)
-u <- c(1.1,2)
-t <- 0.0
-NODE1_rhs(u,t) # evaluates
+#NODE1_rhs <- get_right_hand_side(NODE1_norm)
+#u <- c(1.1,2)
+#t <- 0.0
+#NODE1_rhs(u,t) # evaluates
 # Simulate solutions of UDE model with deSolve
-ode(y=as.u, times = seq(0,10.0,0.2), parms = c(),
-   func = function(t,u,pars){list(NODE1_rhs(t,u))}, method = "lsoda")
+#ode(y=as.u, times = seq(0,10.0,0.2), parms = c(),
+#   func = function(t,u,pars){list(NODE1_rhs(t,u))}, method = "lsoda")
 ```
 
 ## Custom Derivatives
@@ -321,11 +325,11 @@ In this case, `derivs` is modeled after the Lotka-Volterra predator-prey model:
 -   $\delta$ effect of the presence of prey on the predator's growth rate
 
 $$
-\frac{dH}{dt} = \alpha H - \beta LH
+\frac{dH}{dt} = \alpha H - \beta HL
 $$
 
 $$
-\frac{dL}{dt} = \delta LH - \gamma L
+\frac{dL}{dt} = \delta HL - \gamma L
 $$
 
 ```{r}
