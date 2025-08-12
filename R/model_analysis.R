@@ -50,7 +50,7 @@ cross_validation <- function(
     verbose = TRUE,
     loss_options = list(),
     optim_options = list(),
-    path = "nothing")
+    path = NULL)
 
 {
   verbose <- ifelse(verbose,"true","false")
@@ -68,13 +68,24 @@ cross_validation <- function(
 
   print(julia_eval("import.Pkg;Pkg.status(\"UniversalDiffEq\")"))
   cv_results <- list()
-  cv_results <-
-    JuliaCall::julia_eval(paste0("leave_future_out(",
-                                 model,
-                                 ",training!",
-                                 ",", k,
-                                 ",path=", "\"", path, "\")"),
-                          need_return = "R")
+
+  if(!is.null(path)) {
+    cv_results <-
+      JuliaCall::julia_eval(paste0("leave_future_out(",
+                                   model,
+                                   ",training!",
+                                   ",", k,
+                                   ",path=", "\"", path, "\")"),
+                            need_return = "R")
+  }
+  else {
+    cv_results <-
+      JuliaCall::julia_eval(paste0("leave_future_out(",
+                                   model,
+                                   ",training!",
+                                   ",", k),
+                            need_return = "R")
+  }
   print("Done! :)")
   return(cv_results)
 }
