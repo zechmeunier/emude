@@ -16,8 +16,8 @@ Vector of column maxima, with length equal to the number of columns.
 \code{colmax()} calculates the maximum (highest) value per column.
 }
 \examples{
-X <- data.frame("speciesA" = rpois(40,2),
-                "speciesB" = rpois(40,3))
-colmax(df = X)
+df <- data.frame("speciesA" = rpois(40,2),
+                 "speciesB" = rpois(40,3))
+colmax(df = df)
 
 }

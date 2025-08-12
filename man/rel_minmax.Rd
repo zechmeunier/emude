@@ -21,10 +21,10 @@ A data frame scaled so that minimum and maximum values per column are 0 and 1, r
 column. It will exclude the specified time and series columns.
 }
 \examples{
-X <- data.frame("time" = rep(seq(1,10),4),
-                "transect" = c(rep(1,10),rep(2,10),rep(3,10),rep(4,10)),
-                "speciesA" = rpois(40,2),
-                "speciesB" = rpois(40,3))
-rel_colmax(X, time_column_name = "time", series_column_name = "transect")
+df <- data.frame("time" = rep(seq(1,10),4),
+                 "transect" = c(rep(1,10),rep(2,10),rep(3,10),rep(4,10)),
+                 "speciesA" = rpois(40,2),
+                 "speciesB" = rpois(40,3))
+rel_colmax(df, time_column_name = "time", series_column_name = "transect")
 
 }

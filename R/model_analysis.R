@@ -1,7 +1,7 @@
 #' Perform leave-future-out cross-validation
 #'
 #' `cross_validation()` runs leave-future-out cross-validation on the UDE model
-#' using a training routine with *k*-folds.
+#' using a training routine with *k* folds.
 #'
 #' @param model The UDE model to be tested with cross-validation (CV).
 #' @param k The number of folds for CV going back *k* time steps. That is, a 5-fold
@@ -36,8 +36,8 @@
 #'
 #' @examples
 #' df <- data.frame("time" = seq(1,40),
-#'                 "speciesA" = rpois(40,20),
-#'                 "speciesB" = rpois(40,40))
+#'                  "speciesA" = rpois(40,20),
+#'                  "speciesB" = rpois(40,40))
 #' NODE_model <- NODE(data = df, time_column_name = "time")
 #' cv_results <- cross_validation(model = NODE_model, k = 5)
 #'

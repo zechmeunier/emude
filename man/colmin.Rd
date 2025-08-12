@@ -16,8 +16,8 @@ Vector of column minima, with length equal to the number of columns.
 \code{colmin()} calculates the minimum (lowest) value per column.
 }
 \examples{
-X <- data.frame("speciesA" = rpois(40,2),
-                "speciesB" = rpois(40,3))
-colmax(df = X)
+df <- data.frame("speciesA" = rpois(40,2),
+                 "speciesB" = rpois(40,3))
+colmax(df = df)
 
 }
