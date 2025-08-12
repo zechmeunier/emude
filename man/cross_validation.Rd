@@ -13,7 +13,7 @@ cross_validation(
   verbose = TRUE,
   loss_options = list(),
   optim_options = list(),
-  path = "nothing"
+  path = NULL
 )
 }
 \arguments{
