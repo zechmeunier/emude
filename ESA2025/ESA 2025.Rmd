@@ -175,7 +175,7 @@ NODE1_norm <- NODE(data = lynxhare1_norm_train, time_column_name = "Year")
 NODE2_norm <- NODE(data = lynxhare2_norm_train, time_column_name = "Year")
 ```
 
-Next, we'll perform leave-future-out cross-validation (cv) with the **emude function** `cross_validation()` for all six models. You can write the results to a file path, but we will just save them in our environment and then wrangle the output into a data frame.
+Next, we'll perform leave-future-out cross-validation (CV) with the **emude function** `cross_validation()` for all six models. You can write the results to a file path, but we will just save them in our environment and then wrangle the output into a data frame.
 
 ```{r}
 ?cross_validation()
@@ -371,10 +371,10 @@ UDE2_norm <- custom_derivatives(data = lynxhare2_norm_train,
                                 time_column_name = "Year")
 ```
 
-As for the NODE models, we'll perform leave-future-out cross-validation (cv) with the **emude function** `cross_validation()` for all six models. This time, try writing the results to a file path using the `path` argument.
+As for the NODE models, we'll perform leave-future-out CV with the **emude function** `cross_validation()` for all six models. This time, try writing the results to a file path using the `path` argument.
 
 ```{r}
-UDE1_cv <- cross_validation(model = UDE1)
+UDE1_cv <- cross_validation(model = UDE1) #use the path argument
 UDE2_cv <- cross_validation(model = UDE2)
 UDE1_rel_cv <- cross_validation(model = UDE1_rel)
 UDE2_rel_cv <- cross_validation(model = UDE2_rel)

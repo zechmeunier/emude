@@ -566,7 +566,7 @@ NODE2_rel &lt;- NODE(data = lynxhare2_rel_train, time_column_name = &quot;Year&q
 # min-max normalization
 NODE1_norm &lt;- NODE(data = lynxhare1_norm_train, time_column_name = &quot;Year&quot;)
 NODE2_norm &lt;- NODE(data = lynxhare2_norm_train, time_column_name = &quot;Year&quot;)</code></pre>
-<p>Next, we’ll perform leave-future-out cross-validation (cv) with the
+<p>Next, we’ll perform leave-future-out cross-validation (CV) with the
 <strong>emude function</strong> <code>cross_validation()</code> for all
 six models. You can write the results to a file path, but we will just
 save them in our environment and then wrangle the output into a data
@@ -694,7 +694,7 @@ for (i in 1:2){
                        labels = c(&quot;Hare&quot;,&quot;Lynx&quot;),
                        values = c(&quot;dodgerblue&quot;,&quot;firebrick&quot;)) +
     labs(subtitle = subtitles[i])
-  
+  # create phase plane
   plot2 &lt;- phase_plane_2D(observations = obs_long, predictions = preds_long,
                           names = Species, values = Population,
                           x = Hare, y = Lynx) +
@@ -788,12 +788,11 @@ UDE2_norm &lt;- custom_derivatives(data = lynxhare2_norm_train,
                                 derivs = derivs,
                                 initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
                                 time_column_name = &quot;Year&quot;)</code></pre>
-<p>As for the NODE models, we’ll perform leave-future-out
-cross-validation (cv) with the <strong>emude function</strong>
-<code>cross_validation()</code> for all six models. This time, try
-writing the results to a file path using the <code>path</code>
-argument.</p>
-<pre class="r"><code>UDE1_cv &lt;- cross_validation(model = UDE1)</code></pre>
+<p>As for the NODE models, we’ll perform leave-future-out CV with the
+<strong>emude function</strong> <code>cross_validation()</code> for all
+six models. This time, try writing the results to a file path using the
+<code>path</code> argument.</p>
+<pre class="r"><code>UDE1_cv &lt;- cross_validation(model = UDE1) #use the path argument</code></pre>
 <pre><code>## NULL
 ## [1] &quot;Done! :)&quot;</code></pre>
 <pre class="r"><code>UDE2_cv &lt;- cross_validation(model = UDE2)</code></pre>
@@ -884,7 +883,7 @@ for (i in 1:2){
   preds_long &lt;- pivot_longer(data = preds, cols = c(Hare, Lynx),
                              names_to = &quot;Species&quot;, values_to = &quot;Population&quot;)
   
-  # create plots and add NRMSE values for model fit
+  # create series plots and add NRMSE values for model fit
   plot1 &lt;- series_plot(observations = obs_long, predictions = preds_long,
                        x = Year, y = Population, group = Species) + 
     annotate(geom = &quot;text&quot;, hjust = 1,
@@ -896,7 +895,7 @@ for (i in 1:2){
                        labels = c(&quot;Hare&quot;,&quot;Lynx&quot;),
                        values = c(&quot;dodgerblue&quot;,&quot;firebrick&quot;)) +
     labs(subtitle = subtitles[i])
-  
+  # create phase plane
   plot2 &lt;- phase_plane_2D(observations = obs_long, predictions = preds_long,
                           names = Species, values = Population,
                           x = Hare, y = Lynx) +
