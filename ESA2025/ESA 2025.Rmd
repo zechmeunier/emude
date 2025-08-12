@@ -187,7 +187,7 @@ NODE2_rel_cv <- cross_validation(model = NODE2_rel)
 NODE1_norm_cv <- cross_validation(model = NODE1_norm)
 NODE2_norm_cv <- cross_validation(model = NODE2_norm)
 
-combined_results <- list(
+NODE_combined_results <- list(
   NODE1 = NODE1_cv[[1]],
   NODE2 = NODE2_cv[[1]],
   NODE1_rel = NODE1_rel_cv[[1]],
@@ -196,23 +196,26 @@ combined_results <- list(
   NODE2_norm = NODE2_norm_cv[[1]]
 )
 
-cv_results <- bind_rows(combined_results, .id = "model")
+NODE_cv_results <- bind_rows(NODE_combined_results, .id = "model")
 ```
 
 Now we can compare our models for the original and rescaled datasets using the cross-validation results. Note that the mean absolute error of the original data is much higher because it was not rescaled, but that doesn't make it worse.
 
 ```{r}
 # All results as separate panels
-ggplot(data = cv_results,
+ggplot(data = NODE_cv_results,
        aes(x = horizon, y = mean_absolute_error)) +
+  geom_ribbon(aes(ymin = mean_absolute_error-standard_error_of_MAE,
+                  ymax = mean_absolute_error+standard_error_of_MAE),
+              alpha = 0.2) +
   geom_point() +
   geom_line() +
   scale_x_continuous(name = "Forecast horizon (yr)", breaks = seq(1,10,1)) +
   facet_wrap(~model, scales = "free_y")
 
 # Only the rescaled results on one panel
-ggplot(data = filter(cv_results, model %in% c("NODE1_rel","NODE1_norm",
-                                              "NODE2_rel","NODE2_norm")), 
+ggplot(data = filter(NODE_cv_results, model %in% c("NODE1_rel","NODE1_norm",
+                                                   "NODE2_rel","NODE2_norm")), 
        aes(x = horizon, y = mean_absolute_error, color = model)) +
   geom_point() +
   geom_line() +
@@ -223,8 +226,8 @@ ggplot(data = filter(cv_results, model %in% c("NODE1_rel","NODE1_norm",
 Based on the second plot, the normalization produced less error than the relativization for dataset 1, but the relativization was better for dataset 2. We'll focus on the `NODE1_norm` and `NODE2_rel` models for training and one-step ahead predictions. We'll perform this step using the **emude functions** `train_UDE()` and `predict_UDE()`.
 
 ```{r}
-?train_UDE
-?predict_UDE
+?train_UDE()
+?predict_UDE()
 
 train_UDE(NODE1_norm)
 NODE1_predictions <- predict_UDE(NODE1_norm, test_data = lynxhare1_norm_test)
@@ -241,14 +244,16 @@ $$
 NRMSE = \frac{1}{\bar{y}} \sqrt{ \frac{1}{n} \sum_{i=1}^n (\hat{y}_i-y_i)^2}
 $$
 
-Then, we'll pivot the observations and predictions to long-format data frames. Finally, we will plot the observed data as points and the predictions as lines using the **emude function** `series_plot()`.
+Then, we'll pivot the observations and predictions to long-format data frames. Finally, we will plot the observed data as points and the predictions as lines using the **emude functions** `series_plot()` and `phase_plane_2D()`.
 
 ```{r}
+?phase_plane_2D()
+
 observations <- list(lynxhare1_norm, lynxhare2_rel)
 testsets <- list(lynxhare1_norm_test, lynxhare2_rel_test)
 predictions <- list(NODE1_predictions, NODE2_predictions)
-subtitles <- c("Dataset 1, min-max normalization",
-               "Dataset 2, relativization by column max")
+subtitles <- c("Dataset 1, min-max normalization, NODE model",
+               "Dataset 2, relativization by column max, NODE model")
 
 for (i in 1:2){
   obs <- observations[[i]]
@@ -269,8 +274,8 @@ for (i in 1:2){
                              names_to = "Species", values_to = "Population")
   
   # create plots and add NRMSE values for model fit
-  plot <- series_plot(observations = obs_long, predictions = preds_long,
-                      x = Year, y = Population, group = Species) + 
+  plot1 <- series_plot(observations = obs_long, predictions = preds_long,
+                       x = Year, y = Population, group = Species) + 
     annotate(geom = "text", hjust = 1,
              x = max(obs_long$Year, preds_long$Year),
              y = max(obs_long$Population, preds_long$Population) * 0.95,
@@ -280,24 +285,18 @@ for (i in 1:2){
                        labels = c("Hare","Lynx"),
                        values = c("dodgerblue","firebrick")) +
     labs(subtitle = subtitles[i])
+  # create phase plane
+  plot2 <- phase_plane_2D(observations = obs_long, predictions = preds_long,
+                          names = Species, values = Population,
+                          x = Hare, y = Lynx) +
+    labs(subtitle = subtitles[i])
   
-  print(plot)
+  print(plot1)
+  print(plot2)
 }
 ```
 
 More training data make better models!
-
-### Model Analysis
-
-```{r}
-#NODE1_rhs <- get_right_hand_side(NODE1_norm)
-#u <- c(1.1,2)
-#t <- 0.0
-#NODE1_rhs(u,t) # evaluates
-# Simulate solutions of UDE model with deSolve
-#ode(y=as.u, times = seq(0,10.0,0.2), parms = c(),
-#   func = function(t,u,pars){list(NODE1_rhs(t,u))}, method = "lsoda")
-```
 
 ## Custom Derivatives
 
@@ -333,20 +332,151 @@ $$
 $$
 
 ```{r}
-?custom_derivatives()
-
 derivs <- function(u,nn,p,t){
   du1 = p$r*u[1] - nn[1]
   du2 = p$theta*nn[1] - p$m*u[2]
   return(c(du1,du2))
 }
 
-model_2 <- custom_derivatives(data=lynxhare1_rel, derivs = derivs,
-                            initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
-                            neural_network_inputs = c(1),
-                            neural_network_outputs = 1,
-                            hidden_units = 10, time_column_name = "Year"
+?custom_derivatives()
+
+# raw data, no rescaling
+UDE1 <- custom_derivatives(data = lynxhare1_train,
+                           derivs = derivs,
+                           initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
+                           time_column_name = "Year")
+UDE2 <- custom_derivatives(data = lynxhare2_train,
+                           derivs = derivs,
+                           initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
+                           time_column_name = "Year")
+
+# relativization by column maximum
+UDE1_rel <- custom_derivatives(data = lynxhare1_rel_train,
+                               derivs = derivs,
+                               initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
+                               time_column_name = "Year")
+UDE2_rel <- custom_derivatives(data = lynxhare2_rel_train,
+                               derivs = derivs,
+                               initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
+                               time_column_name = "Year")
+
+# min-max normalization
+UDE1_norm <- custom_derivatives(data = lynxhare1_norm_train,
+                                derivs = derivs,
+                                initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
+                                time_column_name = "Year")
+UDE2_norm <- custom_derivatives(data = lynxhare2_norm_train,
+                                derivs = derivs,
+                                initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
+                                time_column_name = "Year")
+```
+
+As for the NODE models, we'll perform leave-future-out cross-validation (cv) with the **emude function** `cross_validation()` for all six models. This time, try writing the results to a file path using the `path` argument.
+
+```{r}
+UDE1_cv <- cross_validation(model = UDE1)
+UDE2_cv <- cross_validation(model = UDE2)
+UDE1_rel_cv <- cross_validation(model = UDE1_rel)
+UDE2_rel_cv <- cross_validation(model = UDE2_rel)
+UDE1_norm_cv <- cross_validation(model = UDE1_norm)
+UDE2_norm_cv <- cross_validation(model = UDE2_norm)
+
+UDE_combined_results <- list(
+  UDE1 = UDE1_cv[[1]],
+  UDE2 = UDE2_cv[[1]],
+  UDE1_rel = UDE1_rel_cv[[1]],
+  UDE2_rel = UDE2_rel_cv[[1]],
+  UDE1_norm = UDE1_norm_cv[[1]],
+  UDE2_norm = UDE2_norm_cv[[1]]
 )
 
-train_UDE(model_2)
+UDE_cv_results <- bind_rows(UDE_combined_results, .id = "model")
 ```
+
+Let's again compare our models for the original and rescaled datasets using the cross-validation results. Note that the mean absolute error of the original data is much higher because it was not rescaled, but that doesn't make it worse.
+
+```{r}
+# All results as separate panels
+ggplot(data = UDE_cv_results,
+       aes(x = horizon, y = mean_absolute_error)) +
+  geom_ribbon(aes(ymin = mean_absolute_error-standard_error_of_MAE,
+                  ymax = mean_absolute_error+standard_error_of_MAE),
+              alpha = 0.2) +
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(name = "Forecast horizon (yr)", breaks = seq(1,10,1)) +
+  facet_wrap(~model, scales = "free_y")
+
+# Only the rescaled results on one panel
+ggplot(data = filter(UDE_cv_results, model %in% c("UDE1_rel","UDE1_norm",
+                                                  "UDE2_rel","UDE2_norm")), 
+       aes(x = horizon, y = mean_absolute_error, color = model)) +
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(name = "Forecast horizon (yr)", breaks = seq(1,10,1)) +
+  theme_bw()
+```
+
+Based on the second plot, the best models are `UDE1_rel` and `UDE2_norm` models. We'll use these for training and one-step ahead predictions. As before, we'll perform this step using the **emude functions** `train_UDE()` and `predict_UDE()`.
+
+```{r}
+train_UDE(UDE1_rel)
+UDE1_predictions <- predict_UDE(UDE1_rel, test_data = lynxhare1_rel_test)
+
+train_UDE(UDE2_norm)
+UDE2_predictions <- predict_UDE(UDE2_norm, test_data = lynxhare2_norm_test)
+```
+
+### One-step-ahead Predictions
+
+```{r}
+observations <- list(lynxhare1_rel, lynxhare2_norm)
+testsets <- list(lynxhare1_rel_test, lynxhare2_norm_test)
+predictions <- list(UDE1_predictions, UDE2_predictions)
+subtitles <- c("Dataset 1, relativization by column max, UDE model",
+               "Dataset 2, min-max normalization, UDE model")
+
+for (i in 1:2){
+  obs <- observations[[i]]
+  tst <- testsets[[i]]
+  preds <- predictions[[i]]
+  
+  # calculate the NRMSE separately for each species, removing the first row because the one-step-head predictions do not include the first year
+  hareNRMSE = round(rmse(actual = tst[-1,"Hare"],
+                         predicted = preds[,"Hare"])/mean(tst[-1,"Hare"]), 2)
+  lynxNRMSE = round(rmse(actual = tst[-1,"Lynx"],
+                         predicted = preds[,"Lynx"])/mean(tst[-1,"Lynx"]), 2)
+  
+  # pivot columns longer for plotting
+  obs_long <- pivot_longer(data = obs, cols = c(Hare, Lynx),
+                           names_to = "Species", values_to = "Population")
+  
+  preds_long <- pivot_longer(data = preds, cols = c(Hare, Lynx),
+                             names_to = "Species", values_to = "Population")
+  
+  # create series plots and add NRMSE values for model fit
+  plot1 <- series_plot(observations = obs_long, predictions = preds_long,
+                       x = Year, y = Population, group = Species) + 
+    annotate(geom = "text", hjust = 1,
+             x = max(obs_long$Year, preds_long$Year),
+             y = max(obs_long$Population, preds_long$Population) * 0.95,
+             label = paste0("Hare NRMSE = ", hareNRMSE, "\n",
+                            "Lynx NRMSE = ", lynxNRMSE)) +
+    scale_color_manual(name = "",
+                       labels = c("Hare","Lynx"),
+                       values = c("dodgerblue","firebrick")) +
+    labs(subtitle = subtitles[i])
+  # create phase plane
+  plot2 <- phase_plane_2D(observations = obs_long, predictions = preds_long,
+                          names = Species, values = Population,
+                          x = Hare, y = Lynx) +
+    labs(subtitle = subtitles[i])
+  
+  print(plot1)
+  print(plot2)
+}
+```
+
+Here, more training data and known information about predator-prey dynamics make better models!
+
+As a trade-off for having this structural information about predator-prey dynamics, let's switch our training and testing split from 80/20 to 50/50 and see how the model performs. Jump back to line 116, and then re-run the custom derivatives code chunks!
