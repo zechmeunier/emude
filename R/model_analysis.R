@@ -83,7 +83,7 @@ cross_validation <- function(
       JuliaCall::julia_eval(paste0("leave_future_out(",
                                    model,
                                    ",training!",
-                                   ",", k),
+                                   ",", k, ")"),
                             need_return = "R")
   }
   print("Done! :)")
