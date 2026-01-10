@@ -7,7 +7,7 @@
 train_UDE(
   model,
   loss_function = "derivative matching",
-  optimizer = "ADAM",
+  optimizer = "Adam",
   regularization_weight = 0,
   verbose = TRUE,
   loss_options = list(),
@@ -20,44 +20,99 @@ train_UDE(
 
 \item{loss_function}{One of five possible loss functions:
 \itemize{
-\item \verb{conditional likelihood} for a state-space training process with joint
-likelihoods (it needs to be renamed in UniversalDiffEq.jl).
-\item \verb{marginal likelihood} for a state-space training process with marginal
-likelihoods.
-\item \verb{derivative matching} for a fast, two-step training process. First, a
+\item \verb{joint likelihood} for a state-space training process calculating the joint likelihood
+of the data given the state estimates and point estimates of the parameters.
+User can supply the values of observation error and process error in the
+\code{loss_options} argument.
+\item \verb{marginal likelihood} for a state-space training process calculating the
+marginal likelihood of the observed data given point estimates of the parameters.
+This method accounts for uncertainty over the estimated states, but is much slower.
+User can supply the values of observation error and process error in the
+\code{loss_options} argument.
+\item \verb{derivative matching} for a non-state-space training process with two steps. First, a
 smoothing function is fit to the data using a spline regression. Then, the UDE
 model is trained by comparing the derivatives of the smoothing functions to
 the derivatives predicted by the right-hand side of the UDE. It is the default
-because it is the fastest method, but it is \strong{not} the most accurate.
-\item \code{shooting}
-\item \verb{multiple shooting}
+because it is the fastest method, but it is \strong{not} always the most accurate.
+\item \code{shooting} for a non-state-space training process that simulates a solution
+to the ODE model over the full length of the training set with smooth changes
+over time. It has difficulty escaping local minimum solutions of datasets
+with oscillations. This method is not suitable for chaotic dynamics because of
+the sensitivity of the simulation trajectories to the initial conditions and model parameters.
+\item \verb{multiple shooting} for a non-state-space training process that simulates solutions
+over smaller sections of the dataset and avoids the local minimum solutions
+that hinder the performance of the shooting loss function.
 }\tabular{llll}{
-   Loss Function \tab Discrete Model \tab Continuous Model \tab Speed \cr
-   Conditional likelihood \tab Yes \tab Yes \tab Moderate \cr
+   \strong{Loss Function} \tab \strong{Discrete Model} \tab \strong{Continuous Model} \tab \strong{Speed} \cr
+   Joint likelihood \tab Yes \tab Yes \tab Moderate \cr
    Marginal likelihood \tab Yes \tab Yes \tab Slow \cr
    Derivative matching \tab No \tab Yes \tab Fast \cr
    Shooting \tab No \tab Yes \tab Moderate \cr
    Multiple shooting \tab No \tab Yes \tab Moderate \cr
 }}
 
-\item{optimizer}{description}
+\item{optimizer}{One of two possible optimization algorithms:
+\itemize{
+\item \code{Adam} optimization is a stochastic gradient descent method that is based on
+adaptive estimation of first moment (mean) and second moment (variance). It
+works well with large datasets and complex models because it uses memory
+efficiently and adapts the learning rate for each parameter automatically.
+\item \code{BFGS} optimization uses a second-order information approximation to minimize
+the loss function. This method can result in overfitting if the neural network
+is not sufficiently regularized.
+}}
 
-\item{verbose}{description}
+\item{regularization_weight}{Weight given to the L2 regularization penalty term,
+which reduces overfitting of the model to training data. The default is 0, and
+suggested weights range from \eqn{10^{-4}} to \eqn{10^4} in order of magnitude increments.}
 
-\item{loss_options}{description}
+\item{verbose}{Returns the value of the loss function for each run in Julia.
+Currently does not return anything in the R package.}
 
-\item{optim_options}{description}
+\item{loss_options}{Optional settings for loss function tuning, with specific
+hyperparameters for each loss function:
+\itemize{
+\item \verb{joint likelihood} and \verb{marginal likelihood} have hyperparameters \code{process_error}
+and \code{observation_error}. The user can supply a decimal, a vector of length \eqn{n},
+or a positive definite \eqn{n \times n} matrix. If a decimal is provided, the error matrix
+will use that value along the diagonal and set all covariance terms to zero.
+If a vector is provided, it will be used as the diagonal of the matrix with all
+other terms equal to zero, and if a matrix is provided, it will be used as the
+full error covariance matrix. Note that if only one hyperparameter is provided,
+it needs to be followed or preceded by a comma (e.g., \code{loss_options = list(process_error = 0.025,)}).
+\item \verb{derivative matching} has hyperparameters \code{d} and \code{remove_ends}. The
+hyperparameter \code{d} sets the number of degrees of freedom used by
+the curve-fitting model. The \code{remove_ends} hyperparameter allows data
+points from the beginning and end of the dataset to be excluded from the loss
+function. The default value is zero (no observations are excluded), but the
+smoothing curves might fit poorly near the beginning and end of some datasets.
+Note that if only one hyperparameter is provided, it needs to be followed or preceded
+by a comma (e.g., \code{loss_options = list(d = 12,)}).
+\item \code{shooting} has no optional hyperparameters.
+\item \verb{multiple shooting} has hyperparameter \code{pred_length}. This hyperparameter is the number
+of data points spanned by each prediction interval. The default value is 5.
+}}
 
-\item{regularization}{description}
+\item{optim_options}{Optional settings for optimization algorithm tuning, with specific
+hyperparameters for each optimization algorithm:
+\itemize{
+\item \code{Adam} has hyperparameters \code{step_size} and \code{max_iter}. The defaults for these
+hyperparameters are set to values that perform well with each loss function.
+Increasing the maximum number of iterations \code{max_iter} often improves model fits.
+The beginning learning rate \code{step_size} controls how much model weights are
+adjusted with each iteration of the algorithm, but Adam adjusts this automatically.
+\item \code{BFGS} has hyperparameter \code{initial_step_norm} to approximate the initial inverse Hessian.
+}}
 }
 \value{
-description
+A trained UDE model.
 }
 \description{
 \code{train_UDE()} trains the UDE model on the training data provided, with several
 options for the loss function and optimization algorithm (see \code{loss_function}
-and \code{optimizer} below). These methods trade off between accuracy, stability,
+and \code{optimizer}). These methods trade off between accuracy, stability,
 and computing time. Their performance may also be related to the
-characteristics of the training data. For additional details see the
+characteristics of the training data and hyperparameters (see \code{loss_options}
+and \code{optim_options}). For additional details see the
 \href{https://jack-h-buckner.github.io/UniversalDiffEq.jl/dev/TrainingRoutines/}{Julia package documentation}.
 }
