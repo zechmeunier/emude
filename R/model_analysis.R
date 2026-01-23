@@ -116,7 +116,7 @@ cross_validation <- function(
 #' rhs <- get_right_hand_side(NODE_model)
 #' u <- c(1.1,2)
 #' t <- 0.0
-#' rhs(u,t) # evaluates
+#' rhs(t, u) # evaluates
 #' # Simulate solutions of UDE model with deSolve
 #' library(deSolve)
 #' ode(y=as.u, times = seq(0,10.0,0.2), parms = c(),
