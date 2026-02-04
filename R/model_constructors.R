@@ -304,19 +304,19 @@ custom_derivatives <- function(
   }
 
 
-  JuliaCall::julia_assign("p_julia",initial_parameters)
-  JuliaCall::julia_eval("p_julia = NamedTuple(p_julia)", need_return = "Julia")
+  JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
+  JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
 
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
-  JuliaCall::julia_assign("inputs",neural_network_inputs)
-  JuliaCall::julia_assign("outputs",neural_network_outputs)
-  JuliaCall::julia_assign("hidden_units",hidden_units)
+  JuliaCall::julia_assign(paste0("inputs_julia_",uid),neural_network_inputs)
+  JuliaCall::julia_assign(paste0("outputs_julia_",uid),neural_network_outputs)
+  JuliaCall::julia_assign(paste0("hidden_units_julia_",uid),hidden_units)
 
-  JuliaCall::julia_eval("deriv, parameters = build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
+  JuliaCall::julia_eval(paste0("deriv_",uid,", parameters_",uid," = build_custom_derivs_function_R(f_julia,p_julia_",uid,",inputs_julia_",uid,",hidden_units_julia_",uid,",outputs_julia_",uid,")"))
 
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,",deriv_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
@@ -327,7 +327,7 @@ custom_derivatives <- function(
   }else{
     JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",covariates_julia_",uid,",deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,",covariates_julia_",uid,",deriv_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
@@ -438,19 +438,19 @@ multi_custom_derivatives <- function(
   }
 
 
-  JuliaCall::julia_assign("p_julia",initial_parameters)
-  JuliaCall::julia_eval("p_julia = NamedTuple(p_julia)", need_return = "Julia")
+  JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
+  JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
 
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
-  JuliaCall::julia_assign("inputs",neural_network_inputs)
-  JuliaCall::julia_assign("outputs",neural_network_outputs)
-  JuliaCall::julia_assign("hidden_units",hidden_units)
+  JuliaCall::julia_assign(paste0("inputs_julia_",uid),neural_network_inputs)
+  JuliaCall::julia_assign(paste0("outputs_julia_",uid),neural_network_outputs)
+  JuliaCall::julia_assign(paste0("hidden_units_julia_",uid),hidden_units)
 
-  JuliaCall::julia_eval("deriv, parameters = build_multi_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)")
+  JuliaCall::julia_eval(paste0("deriv_",uid,", parameters_",uid," = build_multi_custom_derivs_function_R(f_julia,p_julia_",uid,",inputs_julia_",uid,",hidden_units_julia_",uid,",outputs_julia_",uid,")"))
 
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,",deriv_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
                                  ",series_column_name=\"",series_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
@@ -462,7 +462,7 @@ multi_custom_derivatives <- function(
   }else{
     JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid",covariates_julia_",uid,",deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid",covariates_julia_",uid,",deriv_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
                                  ",series_column_name=\"",series_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
@@ -549,16 +549,16 @@ ode_model <- function(
     JuliaCall::julia_eval(paste("f_julia = ", translated_function))
   }
 
-  JuliaCall::julia_assign("p_julia",initial_parameters)
-  JuliaCall::julia_eval("p_julia = NamedTuple(p_julia)", need_return = "Julia")
+  JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
+  JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
 
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
 
-  julia_model <- julia_eval("deriv, parameters = build_custom_ode(f_julia,p_julia,inputs,outputs)")
+  julia_model <- julia_eval(paste0("deriv_",uid,", parameters_",uid," = build_custom_ode(f_julia,p_julia_",uid,",inputs_julia_",uid,",outputs_julia_",uid,")"))
 
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,",deriv_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
                                  ",l=",l,
@@ -567,7 +567,7 @@ ode_model <- function(
   }else{
     JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",covariates_julia_",uid,",deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,",covariates_julia_",uid,",deriv_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
                                  ",l=",l,
