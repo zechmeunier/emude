@@ -462,7 +462,7 @@ multi_custom_derivatives <- function(
   }else{
     JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid",covariates_julia_",uid,",deriv_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,",covariates_julia_",uid,",deriv_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
                                  ",series_column_name=\"",series_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
