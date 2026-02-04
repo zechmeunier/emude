@@ -84,9 +84,9 @@ NODE <- function(
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
-    JuliaCall::julia_assign("covariates_julia",covariates)
+    JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",covariates_julia,time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,",covariates_julia_",uid,",time_column_name=\"",time_column_name,"\"",
                                  ",hidden_units=",hidden_units,
                                  ",seed=",seed,
                                  ",proc_weight=",proc_weight,
@@ -192,9 +192,9 @@ multi_NODE <- function(
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
-    JuliaCall::julia_assign("covariates_julia",covariates)
+    JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",covariates_julia,time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,",covariates_julia_",uid,",time_column_name=\"",time_column_name,"\"",
                                  ",series_column_name=\"",series_column_name,"\"",
                                  ",hidden_units=",hidden_units,
                                  ",seed=",seed,
@@ -325,9 +325,9 @@ custom_derivatives <- function(
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
-    JuliaCall::julia_assign("covariates_julia",covariates)
+    JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,",covariates_julia_",uid,",deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
@@ -460,9 +460,9 @@ multi_custom_derivatives <- function(
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
-    JuliaCall::julia_assign("covariates_julia",covariates)
+    JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid",covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid",covariates_julia_",uid,",deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                  ",series_column_name=\"",series_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
@@ -565,9 +565,9 @@ ode_model <- function(
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
-    JuliaCall::julia_assign("covariates_julia",covariates)
+    JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",covariates_julia,deriv,parameters,time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,",covariates_julia_",uid,",deriv,parameters,time_column_name=\"",time_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
                                  ",l=",l,
