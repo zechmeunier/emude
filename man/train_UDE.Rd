@@ -25,7 +25,7 @@ User can supply the values of observation error and process error in the
 \code{loss_options} argument.
 \item \verb{marginal likelihood} for a state-space training process calculating the
 marginal likelihood of the observed data given point estimates of the parameters.
-This method accounts for uncertainty over the estimated states, but is much slower.
+This method accounts for uncertainty over the estimated states but is much slower.
 User can supply the values of observation error and process error in the
 \code{loss_options} argument.
 \item \verb{derivative matching} for a non-state-space training process with two steps. First, a
@@ -74,16 +74,17 @@ or a positive definite \eqn{n \times n} matrix. If a decimal is provided, the er
 will use that value along the diagonal and set all covariance terms to zero.
 If a vector is provided, it will be used as the diagonal of the matrix with all
 other terms equal to zero, and if a matrix is provided, it will be used as the
-full error covariance matrix. Note that if only one hyperparameter is provided,
-it needs to be followed or preceded by a comma (e.g., \code{loss_options = list(process_error = 0.025,)}).
+full error covariance matrix. Note that neither, one, or both hyperparameters may be
+specified. For example, \code{loss_options = list(process_error = 0.025)} or
+\code{loss_options = list(process_error = 0.025, observation_error = 0.01)}.
 \item \verb{derivative matching} has hyperparameters \code{d} and \code{remove_ends}. The
 hyperparameter \code{d} sets the number of degrees of freedom used by
 the curve-fitting model. The \code{remove_ends} hyperparameter allows data
 points from the beginning and end of the dataset to be excluded from the loss
 function. The default value is zero (no observations are excluded), but the
 smoothing curves might fit poorly near the beginning and end of some datasets.
-Note that if only one hyperparameter is provided, it needs to be followed or preceded
-by a comma (e.g., \code{loss_options = list(d = 12,)}).
+Note that neither, one, or both hyperparameters may be specified. For example,
+\code{loss_options = list(d = 12)} or \code{loss_options = list(d = 12, remove_ends = 1)}.
 \item \code{shooting} has no optional hyperparameters.
 \item \verb{multiple shooting} has hyperparameter \code{pred_length}. This hyperparameter is the number
 of data points spanned by each prediction interval. The default value is 5.

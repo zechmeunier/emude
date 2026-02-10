@@ -18,7 +18,7 @@
 #' `loss_options` argument.
 #' - `marginal likelihood` for a state-space training process calculating the
 #' marginal likelihood of the observed data given point estimates of the parameters.
-#' This method accounts for uncertainty over the estimated states, but is much slower.
+#' This method accounts for uncertainty over the estimated states but is much slower.
 #' User can supply the values of observation error and process error in the
 #' `loss_options` argument.
 #' - `derivative matching` for a non-state-space training process with two steps. First, a
@@ -62,16 +62,17 @@
 #' will use that value along the diagonal and set all covariance terms to zero.
 #' If a vector is provided, it will be used as the diagonal of the matrix with all
 #' other terms equal to zero, and if a matrix is provided, it will be used as the
-#' full error covariance matrix. Note that if only one hyperparameter is provided,
-#' it needs to be followed or preceded by a comma (e.g., `loss_options = list(process_error = 0.025,)`).
+#' full error covariance matrix. Note that neither, one, or both hyperparameters may be
+#' specified. For example, `loss_options = list(process_error = 0.025)` or
+#' `loss_options = list(process_error = 0.025, observation_error = 0.01)`.
 #' - `derivative matching` has hyperparameters `d` and `remove_ends`. The
 #' hyperparameter `d` sets the number of degrees of freedom used by
 #' the curve-fitting model. The `remove_ends` hyperparameter allows data
 #' points from the beginning and end of the dataset to be excluded from the loss
 #' function. The default value is zero (no observations are excluded), but the
 #' smoothing curves might fit poorly near the beginning and end of some datasets.
-#' Note that if only one hyperparameter is provided, it needs to be followed or preceded
-#' by a comma (e.g., `loss_options = list(d = 12,)`).
+#' Note that neither, one, or both hyperparameters may be specified. For example,
+#' `loss_options = list(d = 12)` or `loss_options = list(d = 12, remove_ends = 1)`.
 #' - `shooting` has no optional hyperparameters.
 #' - `multiple shooting` has hyperparameter `pred_length`. This hyperparameter is the number
 #' of data points spanned by each prediction interval. The default value is 5.
@@ -99,8 +100,7 @@ train_UDE <- function(
   }
   if(loss_function == "marginal likelihood" &&
      (is.null(loss_options) || !is.numeric(loss_options$observation_error))){
-    warning("No value of observation error supplied for training.",
-            "Using the default value of 0.1 for observation error, which may be inappropriate for your data.\n")
+    warning("No value of observation error supplied for training. Using the default value of 0.1 for observation error, which may be inappropriate for your data.\n")
   }
   if(optimizer == "Adam"){
     optimizer <- "ADAM"
