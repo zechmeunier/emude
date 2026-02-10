@@ -9,7 +9,6 @@ train_UDE(
   loss_function = "derivative matching",
   optimizer = "Adam",
   regularization_weight = 0,
-  verbose = TRUE,
   loss_options = list(),
   optim_options = list()
 )
@@ -66,9 +65,6 @@ is not sufficiently regularized.
 which reduces overfitting of the model to training data. The default is 0, and
 suggested weights range from \eqn{10^{-4}} to \eqn{10^4} in order of magnitude increments.}
 
-\item{verbose}{Returns the value of the loss function for each run in Julia.
-Currently does not return anything in the R package.}
-
 \item{loss_options}{Optional settings for loss function tuning, with specific
 hyperparameters for each loss function:
 \itemize{
@@ -96,9 +92,9 @@ of data points spanned by each prediction interval. The default value is 5.
 \item{optim_options}{Optional settings for optimization algorithm tuning, with specific
 hyperparameters for each optimization algorithm:
 \itemize{
-\item \code{Adam} has hyperparameters \code{step_size} and \code{max_iter}. The defaults for these
+\item \code{Adam} has hyperparameters \code{step_size} and \code{maxiter}. The defaults for these
 hyperparameters are set to values that perform well with each loss function.
-Increasing the maximum number of iterations \code{max_iter} often improves model fits.
+Increasing the maximum number of iterations \code{maxiter} often improves model fits.
 The beginning learning rate \code{step_size} controls how much model weights are
 adjusted with each iteration of the algorithm, but Adam adjusts this automatically.
 \item \code{BFGS} has hyperparameter \code{initial_step_norm} to approximate the initial inverse Hessian.

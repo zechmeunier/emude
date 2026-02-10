@@ -54,8 +54,6 @@
 #' @param regularization_weight Weight given to the L2 regularization penalty term,
 #' which reduces overfitting of the model to training data. The default is 0, and
 #' suggested weights range from \eqn{10^{-4}} to \eqn{10^4} in order of magnitude increments.
-#' @param verbose Returns the value of the loss function for each run in Julia.
-#' Currently does not return anything in the R package.
 #' @param loss_options Optional settings for loss function tuning, with specific
 #' hyperparameters for each loss function:
 #' - `joint likelihood` and `marginal likelihood` have hyperparameters `process_error`
@@ -79,9 +77,9 @@
 #' of data points spanned by each prediction interval. The default value is 5.
 #' @param optim_options Optional settings for optimization algorithm tuning, with specific
 #' hyperparameters for each optimization algorithm:
-#' - `Adam` has hyperparameters `step_size` and `max_iter`. The defaults for these
+#' - `Adam` has hyperparameters `step_size` and `maxiter`. The defaults for these
 #' hyperparameters are set to values that perform well with each loss function.
-#' Increasing the maximum number of iterations `max_iter` often improves model fits.
+#' Increasing the maximum number of iterations `maxiter` often improves model fits.
 #' The beginning learning rate `step_size` controls how much model weights are
 #' adjusted with each iteration of the algorithm, but Adam adjusts this automatically.
 #' - `BFGS` has hyperparameter `initial_step_norm` to approximate the initial inverse Hessian.
@@ -92,7 +90,6 @@ train_UDE <- function(
     loss_function = "derivative matching",
     optimizer = "Adam",
     regularization_weight = 0.0,
-    verbose = TRUE,
     loss_options = list(),
     optim_options = list())
 

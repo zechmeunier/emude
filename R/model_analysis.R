@@ -14,8 +14,6 @@
 #' For more details, see \code{\link{train_UDE}}.
 #' @param regularization_weight The regularization weight for CV.
 #' For more details, see \code{\link{train_UDE}}.
-#' @param verbose Logical (`TRUE` or `FALSE`) for printing the training loss values
-#' after each iteration. Currently not returning even when `TRUE`.
 #' @param loss_options Loss function options for CV.
 #' For more details, see \code{\link{train_UDE}}.
 #' @param optim_options Optimizer options for CV.
@@ -47,7 +45,6 @@ cross_validation <- function(
     loss_function = "derivative matching",
     optimizer = "ADAM",
     regularization_weight = 0.0,
-    verbose = TRUE,
     loss_options = list(),
     optim_options = list(),
     path = NULL)

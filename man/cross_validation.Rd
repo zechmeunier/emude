@@ -10,7 +10,6 @@ cross_validation(
   loss_function = "derivative matching",
   optimizer = "ADAM",
   regularization_weight = 0,
-  verbose = TRUE,
   loss_options = list(),
   optim_options = list(),
   path = NULL
@@ -32,9 +31,6 @@ For more details, see \code{\link{train_UDE}}.}
 
 \item{regularization_weight}{The regularization weight for CV.
 For more details, see \code{\link{train_UDE}}.}
-
-\item{verbose}{Logical (\code{TRUE} or \code{FALSE}) for printing the training loss values
-after each iteration. Currently not returning even when \code{TRUE}.}
 
 \item{loss_options}{Loss function options for CV.
 For more details, see \code{\link{train_UDE}}.}
