@@ -50,7 +50,6 @@ cross_validation <- function(
     path = NULL)
 
 {
-  verbose <- ifelse(verbose,"true","false")
   JuliaCall::julia_assign("loss_options",loss_options)
   JuliaCall::julia_assign("optim_options",optim_options)
   JuliaCall::julia_eval(paste0("function training!(model) ",
@@ -58,7 +57,7 @@ cross_validation <- function(
                                ",loss_function=","\"", loss_function, "\"",
                                ",optimizer=","\"", optimizer, "\"",
                                ",regularization_weight=", regularization_weight,
-                               ",verbose=", verbose,
+                               ",verbose=false",
                                ",loss_options=NamedTuple(loss_options)",
                                ",optim_options=NamedTuple(optim_options))",
                                "end"))
