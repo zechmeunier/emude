@@ -1,0 +1,163 @@
+---
+title: "emude at ESA 2025"
+author: "Zechariah Meunier"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+# Setup
+
+Load R package dependencies
+
+```{r}
+library(emude)
+library(JuliaCall)
+library(ModelMetrics)
+library(tidyverse)
+library(deSolve)
+```
+
+Set up Julia and emude
+
+```{r}
+# Change the file path to your Julia executable. Mind the slashes! 
+julia_setup(JULIA_HOME = "C:\\Users\\ccwar\\.julia\\juliaup\\julia-1.12.3+0.x64.w64.mingw32\\bin")
+emude_setup()
+```
+
+# Case Study: Canadian Lynx-Hare Predator-Prey Cycles
+
+## Data Exploration
+
+We will work with two different versions of the lynx-hare time series. The first spanning 1845--1935 was documented by Duncan A. MacLulich in his book *Fluctuations in the Numbers of the Varying Hare (Lepus americanus)* published in 1937. The second spanning 1847--1903 was documented by Egbert G. Leigh, Jr. in Table III of his chapter entitled "The Ecological Role of Volterra's Equations" in the book *Some Mathematical Problems in Biology* published in 1968.
+
+The MacLulich (1937) dataset records the number of pelts in the thousands, while the Leigh (1968) dataset records the raw number of pelts. Both datasets have large variances, so we will apply the **emude functions** `rel_colmax()` and `rel_minmax()` as two possible methods for rescaling.
+
+```{r}
+lynxhare1 <- read.csv("MacLulich 1937.csv")
+lynxhare2 <- read.csv("Leigh 1968.csv")
+#perform relativization by column maximum
+?rel_colmax()
+lynxhare1_rel <- rel_colmax(lynxhare1, time_column_name = "Year")
+
+```
+
+Given the different data sources, it is interesting to see how they differ. Here we perform a simple left join by year, and then plot the data points and simple linear regressions as compared to a 1:1 line.
+
+
+An excellent correspondence for the hare counts and a fairly good correspondence for the lynx counts.
+
+Next we will plot the two time series using the **emude function** `series_plot()`. This leverages ggplot functionality but it expects long-format data, so we need to pivot the joined data frame longer and do some additional data wrangling before plotting.
+
+
+## Training and Testing Split
+
+As in many machine learning applications, we should split our data into training and testing sets. A good rule of thumb is an 80%/20% split between training and testing data. Given that our two datasets are 91 and 57 years in length, our splits are 72/19 years and 46/11 years, respectively.
+
+```{r}
+# List of datasets to split
+datasets <- list(
+  lynxhare1_rel = lynxhare1_rel,
+  lynxhare1 = lynxhare1,
+  lynxhare2 = lynxhare2
+)
+
+# Function to split into train/test (80/20)
+split_data <- function(df, train_frac = 0.8) {
+  split_idx <- floor(train_frac * nrow(df))
+  train <- df[1:split_idx, ]
+  test  <- df[(split_idx + 1):nrow(df), ]
+  list(train = train, test = test)
+}
+
+# Apply splitting to each dataset
+splits <- lapply(datasets, split_data)
+
+
+lynxhare1_rel_train <- splits$lynxhare1_rel$train
+lynxhare1_rel_test  <- splits$lynxhare1_rel$test
+
+lynxhare1_train <- splits$lynxhare1$train
+lynxhare1_test  <- splits$lynxhare1$test
+
+lynxhare2_train <- splits$lynxhare2$train
+lynxhare2_test<- splits$lynxhare2$test
+
+```
+
+
+```{r}
+derivs <- function(u,nn,p,t){
+  du1 = p$r*u[1] - nn[1]
+  du2 = p$theta*nn[1] - p$m*u[2]
+  return(c(du1,du2))
+}
+
+
+# relativization by column maximum
+UDE1_rel <- custom_derivatives(data = lynxhare1_rel_train,
+                               derivs = derivs,
+                               initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
+                               time_column_name = "Year")
+
+UDE1 <- custom_derivatives(data = lynxhare1_train,
+                           derivs = derivs,
+                           initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
+                           time_column_name = "Year")
+```
+
+As for the NODE models, we'll perform leave-future-out CV with the **emude function** `cross_validation()` for all six models. This time, try writing the results to a file path using the `path` argument.
+
+Let's again compare our models for the original and rescaled datasets using the cross-validation results. Note that the mean absolute error of the original data is much higher because it was not rescaled, but that doesn't make it worse.
+
+
+Based on the second plot, the best models are `UDE1_rel` and `UDE2_norm` models. We'll use these for training and one-step ahead predictions. As before, we'll perform this step using the **emude functions** `train_UDE()` and `predict_UDE()`.
+
+```{r}
+train_UDE(UDE1_rel)
+UDE1_rel_predictions <- predict_UDE(UDE1_rel, test_data = lynxhare1_rel_test)
+
+train_UDE(UDE1)
+UDE1_predictions <- predict_UDE(UDE1, test_data = lynxhare1_test)
+```
+
+```{r}
+library(metR)
+
+obs = lynxhare1_rel
+preds = UDE1_rel_predictions
+model = UDE1_rel
+
+obs2 = lynxhare1
+preds2 = UDE1_predictions
+model = UDE1
+
+obs_long <- pivot_longer(data = obs, cols = c(Hare, Lynx),
+                           names_to = "Species", values_to = "Population")
+
+preds_long <- pivot_longer(data = preds, cols = c(Hare, Lynx),
+                             names_to = "Species", values_to = "Population")
+
+obs_long2 <- pivot_longer(data = obs2, cols = c(Hare, Lynx),
+                           names_to = "Species", values_to = "Population")
+
+preds_long2 <- pivot_longer(data = preds2, cols = c(Hare, Lynx),
+                             names_to = "Species", values_to = "Population")
+
+
+phase_plane_2D(observations = obs_long, predictions = preds_long,
+                           names = Species, values = Population,
+                           x = Hare, y = Lynx, model = UDE1_rel)
+
+phase_plane_2D(observations = obs_long2, predictions = preds_long2,
+                           names = Species, values = Population,
+                           x = Hare, y = Lynx, model = UDE1)
+
+
+
+```
+
+
+Here, more training data and known information about predator-prey dynamics make better models!
+
+As a trade-off for having this structural information about predator-prey dynamics, let's switch our training and testing split from 80/20 to 50/50 and see how the model performs. Jump back to line 116, and then re-run the custom derivatives code chunks!

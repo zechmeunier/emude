@@ -81,6 +81,7 @@ series_plot <- function(
 #' @import ggplot2
 #' @import dplyr
 #' @import tidyr
+#' @import metR
 #'
 #' @param observations A data frame of observed values over time.
 #' @param names The column in `observations` containing the identifier for the
@@ -112,8 +113,13 @@ phase_plane_2D <- function(
     values,
     x,
     y,
-    predictions = NULL
+    model,
+    predictions = NULL,
+    vectors = TRUE,
+    grid_interval = 10
 ){
+
+
   #Pivot observation and prediction datasets
   observations <- observations %>%
     pivot_wider(names_from = {{names}}, values_from = {{values}})
@@ -129,9 +135,44 @@ phase_plane_2D <- function(
     geom_point() +
     defaulttheme
 
+
   if (!is.null(predictions)) {
-    p + geom_path(data = predictions)
-  } else {
-    p
+    print("Predictions")
+    p = p + geom_path(data = predictions)
   }
+
+  if (vectors) {
+    xcol <- observations %>% select({{x}})
+    ycol <- observations %>% select({{y}})
+    x_step = (max(xcol)-min(xcol))/grid_interval
+    y_step = (max(ycol)-min(ycol))/grid_interval
+    xvals <- seq(min(xcol), max(xcol), x_step)
+    yvals <- seq(min(ycol), max(ycol), y_step)
+    grid <- crossing(xvals, yvals)
+    model_function = get_right_hand_side(model = model)
+    dgrid <- grid %>%
+      rowwise() %>%
+      mutate(
+        u = list(model_function(0, c(xvals, yvals))), #add vector of covariates
+        dx = u[[1]],
+        dy = u[[2]],
+        angle = atan((u[[2]])/(u[[1]])) * (180/pi),
+        offset = case_when(
+          u[[1]] >= 0 ~ 0,
+          u[[1]] < 0 ~ 180),
+        mag = sqrt(u[[1]]**2 + u[[2]]**2)/sqrt(x_step**2 + y_step**2)) %>%
+      ungroup() %>%
+      select(-u)
+    print(dgrid)
+    # arctan of dy - y / dx - x for each vector
+    # normalize the size based on the number of steps so that they do not encroach
+    p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
+                        angle = angle + offset, mag = 1),
+                        color = "#529ee0")
+  }
+
+  return(p)
+
 }
+
+
