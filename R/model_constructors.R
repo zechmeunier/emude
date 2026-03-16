@@ -73,7 +73,8 @@ NODE <- function(
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=", model_type,
-                                 "(data_julia_",uid,",time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,
+                                 ",time_column_name=\"",time_column_name,"\"",
                                  ",hidden_units=",hidden_units,
                                  ",seed=",seed,
                                  ",proc_weight=",proc_weight,
@@ -86,7 +87,9 @@ NODE <- function(
   }else{
     JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",covariates_julia_",uid,",time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,
+                                 ",covariates_julia_",uid,
+                                 ",time_column_name=\"",time_column_name,"\"",
                                  ",hidden_units=",hidden_units,
                                  ",seed=",seed,
                                  ",proc_weight=",proc_weight,
@@ -316,7 +319,10 @@ custom_derivatives <- function(
 
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",deriv_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,
+                                 ",deriv_",uid,
+                                 ",parameters_",uid,
+                                 ",time_column_name=\"",time_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
@@ -327,7 +333,11 @@ custom_derivatives <- function(
   }else{
     JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",covariates_julia_",uid,",deriv_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,
+                                 ",covariates_julia_",uid,
+                                 ",deriv_",uid,
+                                 ",parameters_",uid,
+                                 ",time_column_name=\"",time_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
