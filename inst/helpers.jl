@@ -25,7 +25,7 @@ function build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outp
       end
       du = f_julia(u,nn,p.rparams,t)
   end
-# Method 2: With covariates (x)
+# Method 2: With covariates (x), currently doesn't work
   function derivs(u, x, p, t)
       nn = [0.0]
       if length(inputs) == 1
@@ -48,7 +48,7 @@ function build_multi_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_unit
     p_julia = [p_julia]
   end
   init_params = ComponentArray(rparams = p_julia, NN = params)
-
+# Method 1: No covariates
   function derivs(u, i, p, t)
       nn = [0.0]
       if length(inputs) == 1
@@ -58,7 +58,7 @@ function build_multi_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_unit
       end
       f_julia(u,i,nn,p.rparams,t)
   end
-
+# Method 2: With covariates (x), needs to be added
   return derivs, init_params
 end
 
