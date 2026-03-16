@@ -23,11 +23,6 @@ emude_setup <- function() {
   JuliaCall::julia_library("Random")
   JuliaCall::julia_library("DiffEqFlux")
   JuliaCall::julia_library("DataFrames")
-  # This finds the absolute path inside your package
-  setup_path <- system.file("R", "helpers.jl", package = "emude")
-  # Normalize it so Julia receives a clean, absolute path (with forward slashes)
-  setup_path <- normalizePath(setup_path, winslash = "/", mustWork = TRUE)
-  # Pass that path into the Julia include command
-  JuliaCall::julia_command(paste0('include("', setup_path, '")'))
+  JuliaCall::julia_command('include("inst/helpers.jl")')
   return("Setup completed")
 }
