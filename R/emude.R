@@ -23,6 +23,7 @@ emude_setup <- function() {
   JuliaCall::julia_library("Random")
   JuliaCall::julia_library("DiffEqFlux")
   JuliaCall::julia_library("DataFrames")
-  JuliaCall::julia_command('include("inst/helpers.jl")')
+  emudepath <- system.file(package = "emude")
+  JuliaCall::julia_source(paste0('\"',emudepath,'/Julia/helpers.jl\"'))
   return("Setup completed")
 }
