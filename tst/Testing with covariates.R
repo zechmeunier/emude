@@ -4,7 +4,7 @@ derivsCovariates <- function(u, X, nn, p, t){
   return(c(du1,du2))
 }
 
-years = 1845:1935
+years = 1845:1916
 
 X = data.frame(
   Year = years,
