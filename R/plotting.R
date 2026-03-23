@@ -83,15 +83,27 @@ series_plot <- function(
 #' @import tidyr
 #' @import metR
 #'
-#' @param observations A data frame of observed values over time.
+#' @param observations A long-format data frame of observed values over time.
 #' @param names The column in `observations` containing the identifier for the
 #' response variable (e.g., series or species name).
 #' @param values The column in `observations` containing the values for the
 #' response variable (e.g., species abundances).
 #' @param x The state variable to be displayed on the x-axis.
 #' @param y The state variable to be displayed on the y-axis.
-#' @param predictions A data frame of predicted values over time, with column
-#' names matching the column names of `observations`. Optional.
+#' @param model A trained model that will be passed to the `get_right_hand_side()`
+#' function, which yields the vector field. Optional.
+#' @param predictions A long-format data frame of predicted values over time, with
+#' column names matching the column names of `observations`. Optional.
+#' @param vectors Boolean to display the vector field (default) or not.
+#' @param grid_interval The number of grid points to display in each direction.
+#' Default is 10 in both the horizontal and vertical directions, yielding 100 grid points.
+#' @param vector_color The color of the vectors.
+#' @param mag_scale Boolean to display the vector magnitude on the original scale
+#' or a standard scale (default).
+#' @param covariates A data frame of covariate data. Optional.
+#' @param covariates_values The column in the covariate data frame used to display
+#' facet panels. The column is cut into four intervals and the median value is
+#' displayed as the panel label.
 #'
 #' @return A `ggplot2` figure showing the phase plane of observations and model
 #' predictions. Can be adjusted with additional `ggplot2` functions.
@@ -123,7 +135,6 @@ phase_plane_2D <- function(
     covariates_values = NULL
 ){
 
-
   #Pivot observation and prediction datasets
   observations <- observations %>%
     pivot_wider(names_from = {{names}}, values_from = {{values}})
@@ -133,12 +144,10 @@ phase_plane_2D <- function(
       pivot_wider(names_from = {{names}}, values_from = {{values}})
   }
 
-
   #Create plot
   p <- ggplot(data = observations, aes(x = {{x}}, y = {{y}})) +
     geom_point() +
     defaulttheme
-
 
   if (!is.null(predictions)) {
     p = p + geom_path(data = predictions)
@@ -147,8 +156,8 @@ phase_plane_2D <- function(
   if (vectors) {
     xcol <- observations %>% select({{x}})
     ycol <- observations %>% select({{y}})
-    x_step = (max(xcol)-min(xcol))/grid_interval
-    y_step = (max(ycol)-min(ycol))/grid_interval
+    x_step <- (max(xcol)-min(xcol))/grid_interval
+    y_step <- (max(ycol)-min(ycol))/grid_interval
     xvals <- seq(min(xcol), max(xcol), x_step)
     yvals <- seq(min(ycol), max(ycol), y_step)
     grid <- crossing(xvals, yvals)
@@ -164,45 +173,44 @@ phase_plane_2D <- function(
           u = list(model_function(0, c(xvals, yvals), median_val)),
           dx = u[[1]],
           dy = u[[2]],
-          angle = atan(dy)/(dx) * (180/pi),
+          angle = atan(dy/dx) * (180/pi),
           offset = case_when(
-            u[[1]] >= 0 ~ 0,
-            u[[1]] < 0 ~ 180),
+            dx >= 0 ~ 0,
+            dx < 0 ~ 180),
           mag = sqrt(dx**2 + dy**2)/sqrt(x_step**2 + y_step**2)) %>%
         ungroup() %>%
         select(-u)
-      }
+      p = p + facet_wrap(vars(median_val))
+    }
 
     else{
       dgrid <- grid %>%
         rowwise() %>%
         mutate(
-            u = list(model_function(0, c(xvals, yvals)),
+          u = list(model_function(0, c(xvals, yvals))),
           dx = u[[1]],
           dy = u[[2]],
-          angle = atan(dy)/(dx) * (180/pi),
+          angle = atan(dy/dx) * (180/pi),
           offset = case_when(
-            u[[1]] >= 0 ~ 0,
-            u[[1]] < 0 ~ 180),
-          mag = sqrt(dx**2 + dy**2)/sqrt(x_step**2 + y_step**2))) %>%
+            dx >= 0 ~ 0,
+            dx < 0 ~ 180),
+          mag = sqrt(dx**2 + dy**2)/sqrt(x_step**2 + y_step**2)) %>%
         ungroup() %>%
         select(-u)}
-
 
     if (mag_scale) {
       p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
                                             angle = angle + offset, mag = mag),
                           color = vector_color, show.legend = FALSE)
-
     }
     else{
       p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
                                             angle = angle + offset, mag = 1),
                           color = vector_color, show.legend = FALSE)
     }
-    if (!is.null(covariates)) {
-      p = p + facet_wrap(vars(median_val))
-    }
+    # if (!is.null(covariates)) {
+    #   p = p + facet_wrap(vars(median_val))
+    # }
   }
 
   return(p)
