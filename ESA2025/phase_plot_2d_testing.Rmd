@@ -166,9 +166,10 @@ phase_plane_2D(observations = obs_long, predictions = preds_long,
 
 
 ```{r}
-derivsMTS <- function(u, i, nn, p, t){
-  du[i] = p$r*u[i][1] - nn[i][1]
-  return(du[i])
+derivsMTS <- function(u,i,nn,p,t){
+  du1 = p$r*u[1] - nn[1]
+  du2 = p$theta*nn[1] - p$m*u[2]
+  return(c(du1,du2))
 }
 
 
@@ -182,10 +183,16 @@ MTS_split = split_series(MTS, time_column_name = "Year")
 
 mUDE1 = multi_custom_derivatives(MTS_split$train, time_column_name = "Year", 
                                  derivs = derivsMTS,
-                                 initial_parameters = list(r=0.5))
+                                 initial_parameters = list(r=0.5, theta = 0.1, m = 0.1))
+
 
 train_UDE(mUDE1)
 
+
+```
+```{r}
+
+R_to_Julia(derivsMTS)
 
 ```
 
