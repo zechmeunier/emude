@@ -125,7 +125,7 @@ get_right_hand_side <- function(model){
 
   covars = JuliaCall::julia_eval(paste0("typeof(",model, ".X", ")"), need_return = "R")
 
-  if(as.character(covars) != "DataFrames.DataFrame"){
+  if(as.character(covars) != "DataFrame"){
     print("Returning ODE of form: function(t,u)")
     rhs <- function(t,u){
       JuliaCall::julia_assign("u",u)

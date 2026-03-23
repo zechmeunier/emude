@@ -4,7 +4,21 @@
 \alias{phase_plane_2D}
 \title{Plot two-dimensional phase plane}
 \usage{
-phase_plane_2D(observations, names, values, x, y, predictions = NULL)
+phase_plane_2D(
+  observations,
+  names,
+  values,
+  x,
+  y,
+  model,
+  predictions = NULL,
+  vectors = TRUE,
+  grid_interval = 10,
+  vector_color = "#529ee0",
+  mag_scale = FALSE,
+  covariates = NULL,
+  covariates_values = NULL
+)
 }
 \arguments{
 \item{observations}{A data frame of observed values over time.}

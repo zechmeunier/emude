@@ -81,6 +81,7 @@ series_plot <- function(
 #' @import ggplot2
 #' @import dplyr
 #' @import tidyr
+#' @import metR
 #'
 #' @param observations A data frame of observed values over time.
 #' @param names The column in `observations` containing the identifier for the
@@ -112,8 +113,17 @@ phase_plane_2D <- function(
     values,
     x,
     y,
-    predictions = NULL
+    model,
+    predictions = NULL,
+    vectors = TRUE,
+    grid_interval = 10,
+    vector_color = "#529ee0",
+    mag_scale = FALSE,
+    covariates = NULL,
+    covariates_values = NULL
 ){
+
+
   #Pivot observation and prediction datasets
   observations <- observations %>%
     pivot_wider(names_from = {{names}}, values_from = {{values}})
@@ -129,9 +139,74 @@ phase_plane_2D <- function(
     geom_point() +
     defaulttheme
 
+
   if (!is.null(predictions)) {
-    p + geom_path(data = predictions)
-  } else {
-    p
+    p = p + geom_path(data = predictions)
   }
+
+  if (vectors) {
+    xcol <- observations %>% select({{x}})
+    ycol <- observations %>% select({{y}})
+    x_step = (max(xcol)-min(xcol))/grid_interval
+    y_step = (max(ycol)-min(ycol))/grid_interval
+    xvals <- seq(min(xcol), max(xcol), x_step)
+    yvals <- seq(min(ycol), max(ycol), y_step)
+    grid <- crossing(xvals, yvals)
+    model_function = get_right_hand_side(model = model)
+    if (!is.null(covariates)){
+      facets <- covariates %>%
+        group_by(bin = cut({{covariates_values}}, breaks = 4)) %>%
+        summarise(median_val = median({{covariates_values}}))
+      dgrid <- grid %>%
+        cross_join(facets) %>%
+        rowwise() %>%
+        mutate(
+          u = list(model_function(0, c(xvals, yvals), median_val)),
+          dx = u[[1]],
+          dy = u[[2]],
+          angle = atan(dy)/(dx) * (180/pi),
+          offset = case_when(
+            u[[1]] >= 0 ~ 0,
+            u[[1]] < 0 ~ 180),
+          mag = sqrt(dx**2 + dy**2)/sqrt(x_step**2 + y_step**2)) %>%
+        ungroup() %>%
+        select(-u)
+      }
+
+    else{
+      dgrid <- grid %>%
+        rowwise() %>%
+        mutate(
+            u = list(model_function(0, c(xvals, yvals)),
+          dx = u[[1]],
+          dy = u[[2]],
+          angle = atan(dy)/(dx) * (180/pi),
+          offset = case_when(
+            u[[1]] >= 0 ~ 0,
+            u[[1]] < 0 ~ 180),
+          mag = sqrt(dx**2 + dy**2)/sqrt(x_step**2 + y_step**2))) %>%
+        ungroup() %>%
+        select(-u)}
+
+
+    if (mag_scale) {
+      p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
+                                            angle = angle + offset, mag = mag),
+                          color = vector_color, show.legend = FALSE)
+
+    }
+    else{
+      p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
+                                            angle = angle + offset, mag = 1),
+                          color = vector_color, show.legend = FALSE)
+    }
+    if (!is.null(covariates)) {
+      p = p + facet_wrap(vars(median_val))
+    }
+  }
+
+  return(p)
+
 }
+
+
