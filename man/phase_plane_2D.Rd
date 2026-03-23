@@ -21,7 +21,7 @@ phase_plane_2D(
 )
 }
 \arguments{
-\item{observations}{A data frame of observed values over time.}
+\item{observations}{A long-format data frame of observed values over time.}
 
 \item{names}{The column in \code{observations} containing the identifier for the
 response variable (e.g., series or species name).}
@@ -33,8 +33,27 @@ response variable (e.g., species abundances).}
 
 \item{y}{The state variable to be displayed on the y-axis.}
 
-\item{predictions}{A data frame of predicted values over time, with column
-names matching the column names of \code{observations}. Optional.}
+\item{model}{A trained model that will be passed to the \code{get_right_hand_side()}
+function, which yields the vector field. Optional.}
+
+\item{predictions}{A long-format data frame of predicted values over time, with
+column names matching the column names of \code{observations}. Optional.}
+
+\item{vectors}{Boolean to display the vector field (default) or not.}
+
+\item{grid_interval}{The number of grid points to display in each direction.
+Default is 10 in both the horizontal and vertical directions, yielding 100 grid points.}
+
+\item{vector_color}{The color of the vectors.}
+
+\item{mag_scale}{Boolean to display the vector magnitude on the original scale
+or a standard scale (default).}
+
+\item{covariates}{A data frame of covariate data. Optional.}
+
+\item{covariates_values}{The column in the covariate data frame used to display
+facet panels. The column is cut into four intervals and the median value is
+displayed as the panel label.}
 }
 \value{
 A \code{ggplot2} figure showing the phase plane of observations and model
