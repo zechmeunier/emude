@@ -35,10 +35,14 @@ The MacLulich (1937) dataset records the number of pelts in the thousands, while
 
 ```{r}
 lynxhare1 <- read.csv("MacLulich 1937.csv")
-lynxhare2 <- read.csv("Leigh 1968.csv")
-#perform relativization by column maximum
-?rel_colmax()
+
 lynxhare1_rel <- rel_colmax(lynxhare1, time_column_name = "Year")
+
+lynxhare1_norm <- rel_minmax(lynxhare1, time_column_name = "Year")
+
+
+lynxhare1_MTS <- bind_rows(lynxhare1, lynxhare1_rel, lynxhare1_norm)
+
 
 ```
 
@@ -58,8 +62,9 @@ As in many machine learning applications, we should split our data into training
 # List of datasets to split
 datasets <- list(
   lynxhare1_rel = lynxhare1_rel,
+  lynxhare1_norm = lynxhare1_norm,
   lynxhare1 = lynxhare1,
-  lynxhare2 = lynxhare2
+  lynxhare1_MTS = lynxhare1_MTS
 )
 
 # Function to split into train/test (80/20)
@@ -77,11 +82,15 @@ splits <- lapply(datasets, split_data)
 lynxhare1_rel_train <- splits$lynxhare1_rel$train
 lynxhare1_rel_test  <- splits$lynxhare1_rel$test
 
+lynxhare1_norm_train <- splits$lynxhare1_norm$train
+lynxhare1_norm_test <- splits$lynxhare1_norm$test
+
 lynxhare1_train <- splits$lynxhare1$train
 lynxhare1_test  <- splits$lynxhare1$test
 
-lynxhare2_train <- splits$lynxhare2$train
-lynxhare2_test<- splits$lynxhare2$test
+lynxhare1_MTS_train <- splits$lynxhare1_MTS$train
+lynxhare1_MTS_test <- splits$lynxhare1_MTS$test
+
 
 ```
 
@@ -93,39 +102,44 @@ derivs <- function(u,nn,p,t){
   return(c(du1,du2))
 }
 
+covariate_derivs <- function(u, X, nn, p, t){
+  du1 = p$r*u[1] - nn[1] + p$beta * X[1]
+  du2 = p$theta*nn[1] - p$m*u[2] + p$beta * X[1]
+  return(c(du1,du2))
+}
 
-years = 1845:1935
+years = 1835:1920
 
 X = data.frame(
   Year = years,
   d = rpois(years, 1)
 )
 
-
-
 UDE1 <- custom_derivatives(data = lynxhare1_train,
-                           derivs = derivs,
-                           initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
+                           derivs = covariate_derivs,
+                           initial_parameters = list(r=0.5, theta=0.1, m = 0.2, beta = 0.1),
+                           covariates = X,
                            time_column_name = "Year")
 
+
+NODE1 = NODE(data = lynxhare1_train, time_column_name = "Year", covariates = X)
 
 train_UDE(UDE1)
 UDE1_predictions <- predict_UDE(UDE1, test_data = lynxhare1_test)
 
-NODE1 = NODE(data = lynxhare1_train, covariates = X, time_column_name = "Year")
-
 train_UDE(NODE1)
 NODE1_predictions <- predict_UDE(NODE1, test_data = lynxhare1_test)
 
-rhs = get_right_hand_side(NODE1)
-
+rhs = get_right_hand_side(UDE1)
+rhs2 = get_right_hand_side(NODE1)
 ```
 
 ```{r}
 library(metR)
 
-obs = lynxhare1_rel
-preds = NODE1_predictions
+obs = lynxhare1
+preds = UDE1_predictions
+predsNODE = NODE1_predictions
 
 obs_long <- pivot_longer(data = obs, cols = c(Hare, Lynx),
                            names_to = "Species", values_to = "Population")
@@ -133,29 +147,46 @@ obs_long <- pivot_longer(data = obs, cols = c(Hare, Lynx),
 preds_long <- pivot_longer(data = preds, cols = c(Hare, Lynx),
                              names_to = "Species", values_to = "Population")
 
-obs_long2 <- pivot_longer(data = obs2, cols = c(Hare, Lynx),
-                           names_to = "Species", values_to = "Population")
-
-preds_long2 <- pivot_longer(data = preds2, cols = c(Hare, Lynx),
+preds_long <- pivot_longer(data = predsNODE, cols = c(Hare, Lynx),
                              names_to = "Species", values_to = "Population")
+
 
 
 phase_plane_2D(observations = obs_long, predictions = preds_long,
                            names = Species, values = Population,
-                           x = Hare, y = Lynx, model = NODE1, covariates = X)
+                           x = Hare, y = Lynx, model = UDE1, covariates = X, covariates_values = d, mag_scale = TRUE)
 
-phase_plane_2D(observations = obs_long2, predictions = preds_long2,
+phase_plane_2D(observations = obs_long, predictions = preds_long,
                            names = Species, values = Population,
-                           x = Hare, y = Lynx, model = UDE1, mag_scale = TRUE)
+                           x = Hare, y = Lynx, model = NODE1, covariates = X, covariates_values = d, mag_scale = TRUE)
+
+
 
 ```
+
 
 ```{r}
-get_right_hand_side(UDE1_rel)
+derivsMTS <- function(u, i, nn, p, t){
+  du[i] = p$r*u[i][1] - nn[i][1]
+  return(du[i])
+}
+
+
+lynxhare1_MTS = lynxhare1 %>% mutate(Series = 0)
+lynxhare1_rel_MTS = lynxhare1_rel %>% mutate(Series = 1)
+lynxhare1_norm_MTS = lynxhare1_norm %>% mutate(Series = 2)
+
+MTS = bind_rows(lynxhare1_MTS, lynxhare1_rel_MTS, lynxhare1_norm_MTS)
+
+MTS_split = split_series(MTS, time_column_name = "Year")
+
+mUDE1 = multi_custom_derivatives(MTS_split$train, time_column_name = "Year", 
+                                 derivs = derivsMTS,
+                                 initial_parameters = list(r=0.5))
+
+train_UDE(mUDE1)
+
+
 ```
 
 
-
-Here, more training data and known information about predator-prey dynamics make better models!
-
-As a trade-off for having this structural information about predator-prey dynamics, let's switch our training and testing split from 80/20 to 50/50 and see how the model performs. Jump back to line 116, and then re-run the custom derivatives code chunks!
