@@ -116,7 +116,10 @@ phase_plane_2D <- function(
     model,
     predictions = NULL,
     vectors = TRUE,
-    grid_interval = 10
+    grid_interval = 10,
+    color = "#529ee0",
+    mag_scale = FALSE,
+    covariates = NULL
 ){
 
 
@@ -150,25 +153,48 @@ phase_plane_2D <- function(
     yvals <- seq(min(ycol), max(ycol), y_step)
     grid <- crossing(xvals, yvals)
     model_function = get_right_hand_side(model = model)
-    dgrid <- grid %>%
-      rowwise() %>%
-      mutate(
-        u = list(model_function(0, c(xvals, yvals))), #add vector of covariates
-        dx = u[[1]],
-        dy = u[[2]],
-        angle = atan((u[[2]])/(u[[1]])) * (180/pi),
-        offset = case_when(
-          u[[1]] >= 0 ~ 0,
-          u[[1]] < 0 ~ 180),
-        mag = sqrt(u[[1]]**2 + u[[2]]**2)/sqrt(x_step**2 + y_step**2)) %>%
-      ungroup() %>%
-      select(-u)
-    print(dgrid)
-    # arctan of dy - y / dx - x for each vector
-    # normalize the size based on the number of steps so that they do not encroach
-    p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
-                        angle = angle + offset, mag = 1),
-                        color = "#529ee0")
+    if (!is.null(covariates)){
+      dgrid <- grid %>%
+        rowwise() %>%
+        mutate(
+          u = list(model_function(0, c(xvals, yvals), covariates)),
+          dx = u[[1]],
+          dy = u[[2]],
+          angle = atan(dy)/(dx) * (180/pi),
+          offset = case_when(
+            u[[1]] >= 0 ~ 0,
+            u[[1]] < 0 ~ 180),
+          mag = sqrt(dx**2 + dy**2)/sqrt(x_step**2 + y_step**2)) %>%
+        ungroup() %>%
+        select(-u)}
+
+    else{
+      dgrid <- grid %>%
+        rowwise() %>%
+        mutate(
+            u = list(model_function(0, c(xvals, yvals)),
+          dx = u[[1]],
+          dy = u[[2]],
+          angle = atan(dy)/(dx) * (180/pi),
+          offset = case_when(
+            u[[1]] >= 0 ~ 0,
+            u[[1]] < 0 ~ 180),
+          mag = sqrt(dx**2 + dy**2)/sqrt(x_step**2 + y_step**2))) %>%
+        ungroup() %>%
+        select(-u)}
+
+
+    if (mag_scale){
+      p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
+                                            angle = angle + offset, mag = mag),
+                          color = color, show.legend = FALSE)
+
+    }
+    else{
+      p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
+                                            angle = angle + offset, mag = 1),
+                          color = color, show.legend = FALSE)
+    }
   }
 
   return(p)

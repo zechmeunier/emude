@@ -94,43 +94,38 @@ derivs <- function(u,nn,p,t){
 }
 
 
-# relativization by column maximum
-UDE1_rel <- custom_derivatives(data = lynxhare1_rel_train,
-                               derivs = derivs,
-                               initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
-                               time_column_name = "Year")
+years = 1845:1935
+
+X = data.frame(
+  Year = years,
+  d = rpois(years, 1)
+)
+
+
 
 UDE1 <- custom_derivatives(data = lynxhare1_train,
                            derivs = derivs,
                            initial_parameters = list(r=0.5, theta=0.1, m = 0.2),
                            time_column_name = "Year")
-```
 
-As for the NODE models, we'll perform leave-future-out CV with the **emude function** `cross_validation()` for all six models. This time, try writing the results to a file path using the `path` argument.
-
-Let's again compare our models for the original and rescaled datasets using the cross-validation results. Note that the mean absolute error of the original data is much higher because it was not rescaled, but that doesn't make it worse.
-
-
-Based on the second plot, the best models are `UDE1_rel` and `UDE2_norm` models. We'll use these for training and one-step ahead predictions. As before, we'll perform this step using the **emude functions** `train_UDE()` and `predict_UDE()`.
-
-```{r}
-train_UDE(UDE1_rel)
-UDE1_rel_predictions <- predict_UDE(UDE1_rel, test_data = lynxhare1_rel_test)
 
 train_UDE(UDE1)
 UDE1_predictions <- predict_UDE(UDE1, test_data = lynxhare1_test)
+
+NODE1 = NODE(data = lynxhare1_train, covariates = X, time_column_name = "Year")
+
+train_UDE(NODE1)
+NODE1_predictions <- predict_UDE(NODE1, test_data = lynxhare1_test)
+
+rhs = get_right_hand_side(NODE1)
+
 ```
 
 ```{r}
 library(metR)
 
 obs = lynxhare1_rel
-preds = UDE1_rel_predictions
-model = UDE1_rel
-
-obs2 = lynxhare1
-preds2 = UDE1_predictions
-model = UDE1
+preds = NODE1_predictions
 
 obs_long <- pivot_longer(data = obs, cols = c(Hare, Lynx),
                            names_to = "Species", values_to = "Population")
@@ -147,15 +142,18 @@ preds_long2 <- pivot_longer(data = preds2, cols = c(Hare, Lynx),
 
 phase_plane_2D(observations = obs_long, predictions = preds_long,
                            names = Species, values = Population,
-                           x = Hare, y = Lynx, model = UDE1_rel)
+                           x = Hare, y = Lynx, model = NODE1, covariates = X)
 
 phase_plane_2D(observations = obs_long2, predictions = preds_long2,
                            names = Species, values = Population,
-                           x = Hare, y = Lynx, model = UDE1)
-
-
+                           x = Hare, y = Lynx, model = UDE1, mag_scale = TRUE)
 
 ```
+
+```{r}
+get_right_hand_side(UDE1_rel)
+```
+
 
 
 Here, more training data and known information about predator-prey dynamics make better models!
