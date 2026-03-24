@@ -128,10 +128,7 @@ test_that("custom_derivatives model trains without error (3 iter, derivative mat
 # ── save / load round-trip ────────────────────────────────────────────────────
 
 test_that("save_julia_model_weights writes a file and load_julia_model_weights loads it", {
-  # LoadSaveModels.jl is not include()d in UniversalDiffEq.jl in the installed
-  # version (B7l0K), so save_model_parameters / load_model_parameters! are
-  # unreachable. Skip until the upstream package includes the file.
-  skip("LoadSaveModels.jl not included in installed UniversalDiffEq.jl — save/load unavailable")
+  skip("save_model_parameters / load_model_parameters! not available in the active Julia environment — update UniversalDiffEq.jl to v1.2.0+")
 
   m <- NODE(data = lv_df, time_column_name = "time",
             hidden_units = 5, seed = 1)
