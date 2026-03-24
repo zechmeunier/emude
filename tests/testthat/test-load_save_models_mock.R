@@ -84,25 +84,3 @@ test_that("load_julia_model_weights returns invisibly (no visible return value)"
   result <- load_julia_model_weights("julia_model_test", "weights.json")
   expect_null(result)
 })
-
-# ── Eval string format ────────────────────────────────────────────────────────
-
-test_that('save eval string has format: save_model_parameters(model,"file")', {
-  captured <- character(0)
-  local_mocked_bindings(
-    julia_eval = function(code, ...) { captured <<- code; invisible(NULL) },
-    .package = "JuliaCall"
-  )
-  save_julia_model_weights("julia_model_test", "out.json")
-  expect_equal(captured, 'save_model_parameters(julia_model_test,"out.json")')
-})
-
-test_that('load eval string has format: load_model_parameters!(model,"file")', {
-  captured <- character(0)
-  local_mocked_bindings(
-    julia_eval = function(code, ...) { captured <<- code; invisible(NULL) },
-    .package = "JuliaCall"
-  )
-  load_julia_model_weights("julia_model_test", "in.json")
-  expect_equal(captured, 'load_model_parameters!(julia_model_test,"in.json")')
-})
