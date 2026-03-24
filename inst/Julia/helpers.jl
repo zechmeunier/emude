@@ -19,7 +19,7 @@ function build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outp
   function derivs(u, p, t)
       nn = [0.0]
       if length(inputs) == 1
-           nn = NN(u[round.(Int, [inputs])],p.NN,states)[1]
+          nn = NN(u[round.(Int, [inputs])],p.NN,states)[1]
       else
           nn = NN(u[round.(Int, inputs)],p.NN,states)[1]
       end
@@ -29,7 +29,7 @@ function build_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_units,outp
   function derivs(u, x, p, t)
       nn = [0.0]
       if length(inputs) == 1
-           nn = NN(u[round.(Int, [inputs])],p.NN,states)[1]
+          nn = NN(u[round.(Int, [inputs])],p.NN,states)[1]
       else
           nn = NN(u[round.(Int, inputs)],p.NN,states)[1]
       end
@@ -52,7 +52,7 @@ function build_multi_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_unit
   function derivs(u, i, p, t)
       nn = [0.0]
       if length(inputs) == 1
-           nn = NN(u[round.(Int, [inputs])],p.NN,states)[1]
+          nn = NN(u[round.(Int, [inputs])],p.NN,states)[1]
       else
           nn = NN(u[round.(Int, inputs)],p.NN,states)[1]
       end
@@ -62,7 +62,7 @@ function build_multi_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_unit
   function derivs(u, i, x, p, t)
       nn = [0.0]
       if length(inputs) == 1
-           nn = NN(u[round.(Int, [inputs])],p.NN,states)[1]
+          nn = NN(u[round.(Int, [inputs])],p.NN,states)[1]
       else
           nn = NN(u[round.(Int, inputs)],p.NN,states)[1]
       end
