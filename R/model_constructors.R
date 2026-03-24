@@ -116,8 +116,8 @@ NODE <- function(
 #'
 #' @param data A data frame of observed state variables over time.
 #' @param covariates A data frame of observed covariates (e.g., environmental
-#' conditions) over time. This data frame must have the same column
-#' name for time as the primary dataset, but the time points do not need to
+#' conditions) over time. This data frame must have the same column names for
+#' time and series as the primary dataset, but the time points do not need to
 #' match because the values of the covariates between time points included in
 #' the data frame `covariates` are interpolated using a linear spline. Optional.
 #' @param time_column_name The column in `data` and `covariates` that contains
@@ -369,8 +369,8 @@ custom_derivatives <- function(
 #' @param initial_parameters A named list containing the model parameters stored
 #' in `p`.
 #' @param covariates A data frame of observed covariates (e.g., environmental
-#' conditions) over time. This data frame must have the same column
-#' name for time as the primary dataset, but the time points do not need to
+#' conditions) over time. This data frame must have the same column names for
+#' time and series as the primary dataset, but the time points do not need to
 #' match because the values of the covariates between time points included in
 #' the data frame `covariates` are interpolated using a linear spline. Optional.
 #' @param neural_network_inputs The number of input nodes of the neural network.

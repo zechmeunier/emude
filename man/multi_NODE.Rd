@@ -26,8 +26,8 @@ multi_NODE(
 \item{data}{A data frame of observed state variables over time.}
 
 \item{covariates}{A data frame of observed covariates (e.g., environmental
-conditions) over time. This data frame must have the same column
-name for time as the primary dataset, but the time points do not need to
+conditions) over time. This data frame must have the same column names for
+time and series as the primary dataset, but the time points do not need to
 match because the values of the covariates between time points included in
 the data frame \code{covariates} are interpolated using a linear spline. Optional.}
 
