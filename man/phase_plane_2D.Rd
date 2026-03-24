@@ -12,7 +12,7 @@ phase_plane_2D(
   y,
   model,
   predictions = NULL,
-  vectors = TRUE,
+  vectors = FALSE,
   grid_interval = 10,
   vector_color = "#529ee0",
   mag_scale = FALSE,
@@ -39,10 +39,10 @@ function, which yields the vector field. Optional.}
 \item{predictions}{A long-format data frame of predicted values over time, with
 column names matching the column names of \code{observations}. Optional.}
 
-\item{vectors}{Boolean to display the vector field (default) or not.}
+\item{vectors}{Boolean to display the vector field or not (default).}
 
-\item{grid_interval}{The number of grid points to display in each direction.
-Default is 10 in both the horizontal and vertical directions, yielding 100 grid points.}
+\item{grid_interval}{The number of intervals separating grid points to display in each direction.
+Default is 10 in both the horizontal and vertical directions, yielding 121 grid points.}
 
 \item{vector_color}{The color of the vectors.}
 
@@ -51,7 +51,7 @@ or a standard scale (default).}
 
 \item{covariates}{A data frame of covariate data. Optional.}
 
-\item{covariates_values}{The column in the covariate data frame used to display
+\item{covariates_values}{The numeric column in the covariate data frame used to display
 facet panels. The column is cut into four intervals and the median value is
 displayed as the panel label.}
 }

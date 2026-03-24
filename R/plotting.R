@@ -94,14 +94,14 @@ series_plot <- function(
 #' function, which yields the vector field. Optional.
 #' @param predictions A long-format data frame of predicted values over time, with
 #' column names matching the column names of `observations`. Optional.
-#' @param vectors Boolean to display the vector field (default) or not.
-#' @param grid_interval The number of grid points to display in each direction.
-#' Default is 10 in both the horizontal and vertical directions, yielding 100 grid points.
+#' @param vectors Boolean to display the vector field or not (default).
+#' @param grid_interval The number of intervals separating grid points to display in each direction.
+#' Default is 10 in both the horizontal and vertical directions, yielding 121 grid points.
 #' @param vector_color The color of the vectors.
 #' @param mag_scale Boolean to display the vector magnitude on the original scale
 #' or a standard scale (default).
 #' @param covariates A data frame of covariate data. Optional.
-#' @param covariates_values The column in the covariate data frame used to display
+#' @param covariates_values The numeric column in the covariate data frame used to display
 #' facet panels. The column is cut into four intervals and the median value is
 #' displayed as the panel label.
 #'
@@ -127,7 +127,7 @@ phase_plane_2D <- function(
     y,
     model,
     predictions = NULL,
-    vectors = TRUE,
+    vectors = FALSE,
     grid_interval = 10,
     vector_color = "#529ee0",
     mag_scale = FALSE,
@@ -165,7 +165,7 @@ phase_plane_2D <- function(
     if (!is.null(covariates)){
       facets <- covariates %>%
         group_by(bin = cut({{covariates_values}}, breaks = 4)) %>%
-        summarise(median_val = median({{covariates_values}}))
+        summarise(median_val = round(median({{covariates_values}}),3))
       dgrid <- grid %>%
         cross_join(facets) %>%
         rowwise() %>%
@@ -208,9 +208,6 @@ phase_plane_2D <- function(
                                             angle = angle + offset, mag = 1),
                           color = vector_color, show.legend = FALSE)
     }
-    # if (!is.null(covariates)) {
-    #   p = p + facet_wrap(vars(median_val))
-    # }
   }
 
   return(p)
