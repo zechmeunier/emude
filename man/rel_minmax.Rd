@@ -4,10 +4,10 @@
 \alias{rel_minmax}
 \title{Relativize data frame by its column maxima and minima}
 \usage{
-rel_minmax(df, time_column_name = "time", series_column_name = "series")
+rel_minmax(data, time_column_name = "time", series_column_name = "series")
 }
 \arguments{
-\item{df}{A data frame with any dimensions containing \code{time_column_name}, \code{series_column_name}, and observations.}
+\item{data}{A data frame with any dimensions containing \code{time_column_name}, \code{series_column_name}, and observations.}
 
 \item{time_column_name}{The column that contains the time data, indicating when the observations were made.}
 
@@ -21,10 +21,10 @@ A data frame scaled so that minimum and maximum values per column are 0 and 1, r
 column. It will exclude the specified time and series columns.
 }
 \examples{
-df <- data.frame("time" = rep(seq(1,10),4),
-                 "transect" = c(rep(1,10),rep(2,10),rep(3,10),rep(4,10)),
-                 "speciesA" = rpois(40,2),
-                 "speciesB" = rpois(40,3))
-rel_colmax(df, time_column_name = "time", series_column_name = "transect")
+testdata <- data.frame("time" = rep(seq(1,10),4),
+                       "transect" = c(rep(1,10),rep(2,10),rep(3,10),rep(4,10)),
+                       "speciesA" = rpois(40,2),
+                       "speciesB" = rpois(40,3))
+rel_colmax(testdata, time_column_name = "time", series_column_name = "transect")
 
 }

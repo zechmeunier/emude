@@ -4,10 +4,10 @@
 \alias{colmax}
 \title{Calculate the column maxima}
 \usage{
-colmax(df)
+colmax(data)
 }
 \arguments{
-\item{df}{A data frame with any dimensions.}
+\item{data}{A data frame with any dimensions.}
 }
 \value{
 Vector of column maxima, with length equal to the number of columns.
@@ -16,8 +16,8 @@ Vector of column maxima, with length equal to the number of columns.
 \code{colmax()} calculates the maximum (highest) value per column.
 }
 \examples{
-df <- data.frame("speciesA" = rpois(40,2),
-                 "speciesB" = rpois(40,3))
-colmax(df = df)
+testdata <- data.frame("speciesA" = rpois(40,2),
+                       "speciesB" = rpois(40,3))
+colmax(data = testdata)
 
 }

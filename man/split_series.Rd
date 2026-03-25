@@ -5,30 +5,48 @@
 \title{Split time series}
 \usage{
 split_series(
-  df,
+  data,
   time_column_name = "time",
   series_column_name = "series",
+  split_by = "time",
+  split_by_seed = 36,
   train_frac = 0.8
 )
 }
 \arguments{
-\item{df}{A data frame with any dimensions containing \code{time_column_name} and observations. The \code{series_column_name} is optional; if not found, the entire data frame is treated as one series.}
+\item{data}{A data frame with any dimensions containing observations, time, and series.}
 
 \item{time_column_name}{The column that contains the time data, indicating when the observations were made.}
 
-\item{series_column_name}{The column that contains the series data, indicating the identifying information for the observations. Optional.}
+\item{series_column_name}{The column that contains the series data, indicating
+the identifying information for the observations. Optional; if not found, the entire data frame is treated as one series.}
 
-\item{train_frac}{The proportion [0,1] of observations that represents data used for training and validation. The testing data are calculated as the remaining proportion.}
+\item{split_by}{Split by time (default) or series. The former will use the first set of observations
+across all series as the training data, the latter will randomly select series across all time points
+for training data.}
+
+\item{split_by_seed}{The random seed for repeating the series splits. Only necessary if \code{split_by = "series"}.}
+
+\item{train_frac}{The proportion [0,1] of observations that represents data
+used for training and validation. The testing data are calculated as the remaining proportion.}
 }
 \value{
 A list containing two data frames: \code{train} and \code{test}.
 }
 \description{
 \code{split_series()} separates the complete time series into training data and testing data.
-It will group the dataset based on the series column information, and then split
+It will group the dataset based on the \code{split_by} column identifier, and then split
 based on the provided training fraction, with a default of 80\%/20\% for training/testing.
 }
 \examples{
-print("test")
+testdata <- data.frame("year" = rep(seq(1,10),4),
+                       "transect" = c(rep(1,10),rep(2,10),rep(3,10),rep(4,10)),
+                       "speciesA" = rpois(40,2),
+                       "speciesB" = rpois(40,3))
+split_series(data = testdata, time_column_name = "year",
+             series_column_name = "transect", split_by = "time")
+split_series(data = testdata, time_column_name = "year",
+             series_column_name = "transect", split_by = "series",
+             split_by_seed = 2, train_frac = 0.75)
 
 }
