@@ -204,14 +204,12 @@ phase_plane_2D <- function(
     if (mag_scale) {
       p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
                                             angle = angle + offset, mag = mag),
-                          color = vector_color, show.legend = FALSE,
-                          alpha = 0.8)
+                          color = vector_color, show.legend = FALSE)
     }
     else{
       p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
                                             angle = angle + offset, mag = 1),
-                          color = vector_color, show.legend = FALSE,
-                          alpha = 0.8)
+                          color = vector_color, show.legend = FALSE)
     }
   }
 
