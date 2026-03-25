@@ -206,7 +206,8 @@ phase_plane_2D <- function(
     else{
       p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
                                             angle = angle + offset, mag = 1),
-                          color = vector_color, show.legend = FALSE)
+                          color = vector_color, show.legend = FALSE,
+                          alpha = 0.8)
     }
   }
 
