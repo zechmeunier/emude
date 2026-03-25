@@ -22,10 +22,10 @@ ode_model(
 \arguments{
 \item{data}{A data frame of observed state variables over time.}
 
-\item{derivs}{A user-defined function of the form \code{derivs(u,nn,p,t)} where
-\code{u} stores the value of the state variables, \code{nn} stores the neural network
-outputs, \code{p} stores the model parameters, and \code{t} is time. The function should
-save each ODE to \code{du[i]}, where \code{i} is an index for each time derivative.}
+\item{derivs}{A user-defined function of the form \code{derivs(u,p,t)} where
+\code{u} stores the value of the state variables, \code{p} stores the model parameters,
+and \code{t} is time. The function should save each ODE to \code{du[i]},
+where \code{i} is an index for each time derivative.}
 
 \item{initial_parameters}{A named list containing the model parameters stored
 in \code{p}.}

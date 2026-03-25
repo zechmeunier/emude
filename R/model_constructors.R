@@ -494,10 +494,10 @@ multi_custom_derivatives <- function(
 #' does not train a neural network and can be used as a null model.
 #'
 #' @param data A data frame of observed state variables over time.
-#' @param derivs A user-defined function of the form `derivs(u,nn,p,t)` where
-#' `u` stores the value of the state variables, `nn` stores the neural network
-#' outputs, `p` stores the model parameters, and `t` is time. The function should
-#' save each ODE to `du[i]`, where `i` is an index for each time derivative.
+#' @param derivs A user-defined function of the form `derivs(u,p,t)` where
+#' `u` stores the value of the state variables, `p` stores the model parameters,
+#' and `t` is time. The function should save each ODE to `du[i]`,
+#' where `i` is an index for each time derivative.
 #' @param initial_parameters A named list containing the model parameters stored
 #' in `p`.
 #' @param covariates A data frame of observed covariates (e.g., environmental
