@@ -147,13 +147,13 @@ phase_plane_2D <- function(
   #Create plot
   p <- ggplot(data = observations, aes(x = {{x}}, y = {{y}})) +
     geom_point(aes(color = "Observations")) +
+    scale_color_manual(name = "Data Type",
+                       values = c("Observations" = "black",
+                                  "Predictions" = "aquamarine3")) +
     defaulttheme
 
   if (!is.null(predictions)) {
-    p = p + geom_path(data = predictions, aes(color = "Predictions")) +
-      scale_color_manual(name = "Data Type",
-                         values = c("Observations" = "black",
-                                    "Predictions" = "aquamarine3"))
+    p = p + geom_path(data = predictions, aes(color = "Predictions"))
   }
 
   if (vectors) {
