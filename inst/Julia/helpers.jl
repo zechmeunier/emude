@@ -73,8 +73,11 @@ end
 
 function build_custom_ode(f_julia,p_julia,inputs,outputs)
   init_params = NamedTuple(p_julia),
-  function derivs(du, u, p, t)
-      du .= f_julia(u,p,t)
+  #function derivs(du, u, p, t)
+  #    du .= f_julia(u,p,t)
+  #end
+  function derivs(u, p, t)
+      f_julia(u,p,t)
   end
   return derivs, init_params
 end
