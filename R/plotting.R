@@ -146,11 +146,14 @@ phase_plane_2D <- function(
 
   #Create plot
   p <- ggplot(data = observations, aes(x = {{x}}, y = {{y}})) +
-    geom_point() +
+    geom_point(aes(color = "Observations")) +
     defaulttheme
 
   if (!is.null(predictions)) {
-    p = p + geom_path(data = predictions)
+    p = p + geom_path(data = predictions, aes(color = "Predictions")) +
+      scale_color_manual(name = "Data Type",
+                         values = c("Observations" = "black",
+                                    "Predictions" = "aquamarine3"))
   }
 
   if (vectors) {
@@ -201,7 +204,8 @@ phase_plane_2D <- function(
     if (mag_scale) {
       p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
                                             angle = angle + offset, mag = mag),
-                          color = vector_color, show.legend = FALSE)
+                          color = vector_color, show.legend = FALSE,
+                          alpha = 0.8)
     }
     else{
       p = p + geom_vector(data = dgrid, aes(x = xvals, y = yvals,
