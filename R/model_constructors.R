@@ -566,7 +566,7 @@ ode_model <- function(
 
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
 
-  julia_model <- julia_eval(paste0("deriv_",uid,", parameters_",uid," = build_custom_ode(f_julia,p_julia_",uid,",inputs_julia_",uid,",outputs_julia_",uid,")"))
+  julia_model <- julia_eval(paste0("deriv_",uid,", parameters_",uid," = build_custom_ode(f_julia,p_julia_",uid,")"))
 
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,

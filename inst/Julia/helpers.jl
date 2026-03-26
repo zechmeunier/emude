@@ -71,7 +71,7 @@ function build_multi_custom_derivs_function_R(f_julia,p_julia,inputs,hidden_unit
   return derivs, init_params
 end
 
-function build_custom_ode(f_julia,p_julia,inputs,outputs)
+function build_custom_ode(f_julia,p_julia)
   init_params = NamedTuple(p_julia),
   #function derivs(du, u, p, t)
   #    du .= f_julia(u,p,t)
