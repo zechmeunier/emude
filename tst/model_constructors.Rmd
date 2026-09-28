@@ -1,0 +1,18 @@
+Load packages and setup emude
+```{r}
+library(JuliaCall)
+library(tidyverse)
+library(emude)
+emude_setup()
+```
+
+Create dummy dataset for testing
+```{r}
+diff_data <- data.frame(time = seq(1,50,1),
+                        values = rpois(n = 50, lambda = 100),
+                        species = rep("SpA",50))
+
+NNDE(data = diff_data)
+
+```
+
