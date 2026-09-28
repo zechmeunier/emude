@@ -80,7 +80,7 @@ use neural networks to learn unknown nonlinear relationships from time series
 data. \code{NNDE()} builds a discrete-time UDE for state variables \eqn{u_t} and
 covariates \eqn{X_t} using a neural network, with weights \eqn{w} and
 biases \eqn{b}, to represent the right-hand side of the difference equation
-\deqn{\frac{du}{dt} = NN(u_t,X_t;w,b)}
+\deqn{\Delta u_t = u_{t+1} - u_t = NN(u_t,X_t;w,b)}
 }
 \examples{
 print("NNDE")
