@@ -225,10 +225,9 @@ multi_NODE <- function(
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
 #'
 #' @param data A data frame of observed state variables over time.
-#' @param derivs A user-defined function of the form `derivs(u,nn,p,t)` where
-#' `u` stores the value of the state variables, `nn` stores the neural network
-#' outputs, `p` stores the model parameters, and `t` is time. The function should
-#' save each ODE to `du[i]`, where `i` is an index for each time derivative.
+#' @param derivs A user-defined function of the form `derivs(u,X,nn,p,t)` where
+#' `u` stores the value of the state variables, `X` stores the optional covariates,
+#' `nn` stores the neural network outputs, `p` stores the model parameters, and `t` is time.
 #' @param initial_parameters A named list containing the model parameters stored
 #' in `p`.
 #' @param covariates A data frame of observed covariates (e.g., environmental
@@ -357,16 +356,16 @@ custom_derivatives <- function(
 #' for multiple time series
 #' based on known functional forms in a user-defined derivatives function `derivs`.
 #' These models embed neural networks in the right-hand side of a system of differential equations
-#' \deqn{\frac{du}{dt}=f(u_{i,t},x_{i,t},i,t,NN(u_{i,t},x_{i,t});\theta)},
+#' \deqn{\frac{du}{dt}=f(u_{i,t},i,x_{i,t},t,NN(u_{i,t},x_{i,t});\theta)},
 #' where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
 #' \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
 #'
 #' @param data A data frame of observed state variables over time.
-#' @param derivs A user-defined function of the form `derivs(u,nn,p,t)` where
-#' `u` stores the value of the state variables, `nn` stores the neural network
-#' outputs, `p` stores the model parameters, and `t` is time. The function should
-#' save each ODE to `du[i]`, where `i` is an index for each time derivative.
+#' @param derivs A user-defined function of the form `derivs(u,i,X,nn,p,t)` where
+#' `u` stores the value of the state variables, `i` is an index for each time series,
+#' `X` stores the optional covariates, `nn` stores the neural network outputs,
+#' `p` stores the model parameters, and `t` is time.
 #' @param initial_parameters A named list containing the model parameters stored
 #' in `p`.
 #' @param covariates A data frame of observed covariates (e.g., environmental
