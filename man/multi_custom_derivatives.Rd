@@ -28,10 +28,10 @@ multi_custom_derivatives(
 \arguments{
 \item{data}{A data frame of observed state variables over time.}
 
-\item{derivs}{A user-defined function of the form \code{derivs(u,nn,p,t)} where
-\code{u} stores the value of the state variables, \code{nn} stores the neural network
-outputs, \code{p} stores the model parameters, and \code{t} is time. The function should
-save each ODE to \code{du[i]}, where \code{i} is an index for each time derivative.}
+\item{derivs}{A user-defined function of the form \code{derivs(u,i,X,nn,p,t)} where
+\code{u} stores the value of the state variables, \code{i} is an index for each time series,
+\code{X} stores the optional covariates, \code{nn} stores the neural network outputs,
+\code{p} stores the model parameters, and \code{t} is time.}
 
 \item{initial_parameters}{A named list containing the model parameters stored
 in \code{p}.}
@@ -97,7 +97,7 @@ An untrained custom derivatives UDE model containing all the defined parameters.
 for multiple time series
 based on known functional forms in a user-defined derivatives function \code{derivs}.
 These models embed neural networks in the right-hand side of a system of differential equations
-\deqn{\frac{du}{dt}=f(u_{i,t},x_{i,t},i,t,NN(u_{i,t},x_{i,t});\theta)},
+\deqn{\frac{du}{dt}=f(u_{i,t},i,x_{i,t},t,NN(u_{i,t},x_{i,t});\theta)},
 where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
 \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
 \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
