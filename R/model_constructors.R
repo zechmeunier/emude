@@ -104,6 +104,277 @@ NNDE <- function(
   }
   return(paste0("julia_model_",uid))
 }
+
+#' Define a custom derivatives UDE with one time series
+#' 
+#' `custom_difference` constructs a universal differential equation (UDE) model
+#' based on known functional forms in a user-defined (discrete-time) difference equation `step`.
+#' These models embed neural networks in the right-hand side of a system of differential equations
+#' \deqn{u_{t+1}=f(u_t,X_t,t,NN(u_t,X_t);\theta),},
+#' where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
+#' \eqn{t} is time, \eqn{NN} is the output layer of a neural network, and
+#' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
+#' 
+#' @param data A data frame of observed state variables over time.
+#' @param step A user-defined function of the form `step(u,t,p)` where
+#' `u` stores the value of the state variables, `p` stores the model parameters, and `t` is time.
+#' @param initial_parameters A named list containing the model parameters stored
+#' in `p`.
+#' @param covariates A data frame of observed covariates (e.g., environmental
+#' conditions) over time. This data frame must have the same column
+#' name for time as the primary dataset, but the time points do not need to
+#' match because the values of the covariates between time points included in
+#' the data frame `covariates` are interpolated using a linear spline. Optional.
+#' @param neural_network_inputs The number of input nodes of the neural network.
+#' @param neural_network_outputs The number of output nodes of the neural network.
+#' @param hidden_units Number of neurons in the single hidden layer.
+#' @param time_column_name The column in `data` and `covariates` that contains
+#' the time data, indicating when the observations were made.
+#' @param proc_weight Weight of the process error term \eqn{\nu_t} in the loss
+#' function. The process weight controls how closely the model predictions
+#' match the state estimates \eqn{\hat{u}_t}.
+#' @param obs_weight Weight of the observation error term \eqn{\epsilon_t} in the loss
+#' function. The observation weight controls how closely the state estimates
+#' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
+#' correspond to datasets with larger amounts of observation error and vice versa.
+#' @param reg_weight Weight \eqn{\lambda} of the regularization penalty term in the loss
+#' function.
+#' @param reg_type Type of regularization used to mitigate overfitting.
+#' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
+#' added to the loss function is either the absolute value of the sum of
+#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' default of "L2" should be used.
+#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
+#' Small values lead to fast decay and the extrapolation reverts to the prior mean
+#' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
+#' stays similar to the last trend for a longer period.
+#' @param extrap_rho Extrapolation marginal SD parameter for forecasting.
+#' `extrap_rho` controls the magnitude of the extrapolation. Small values lead to
+#' narrow confidence intervals, large values lead to wide confidence intervals.
+#' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
+#' Bayesian UDE.
+#' @param uid A string that serves as a unique identifier to save the
+#' model into Julia. It is not recommended to modify this parameter.
+#'
+#' @return An untrained custom derivatives UDE model containing all the defined parameters.
+#' @export
+#'
+#' @examples
+#' print("test")
+custom_difference <- function(
+    data,
+    step,
+    initial_parameters,
+    covariates = NULL,
+    neural_network_inputs = c(1),
+    neural_network_outputs = 1,
+    hidden_units = 10,
+    time_column_name = "time",
+    proc_weight = 1.0,
+    obs_weight = 1.0,
+    reg_weight = 10^-6,
+    reg_type = "L2",
+    l = 0.25,
+    extrap_rho = 0.1,
+    bayesian = FALSE,
+    uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
+) {
+  if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
+    cat("Model performance may be improved by scaling the data through transformation or relativization.",
+        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
+  }
+  model_type <- ifelse(bayesian,"BayesianUDE","CustomDifference")
+  
+  if(is.character(step)) {
+    JuliaCall::julia_eval(paste0('include("', step, '")'))
+    JuliaCall::julia_eval("f_julia = step")
+  }
+  else{
+    translated_function <- R_to_Julia(step)
+    JuliaCall::julia_eval(paste("f_julia = ", translated_function))
+  }
+  
+  
+  JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
+  JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
+  
+  JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
+  JuliaCall::julia_assign(paste0("inputs_julia_",uid),neural_network_inputs)
+  JuliaCall::julia_assign(paste0("outputs_julia_",uid),neural_network_outputs)
+  JuliaCall::julia_assign(paste0("hidden_units_julia_",uid),hidden_units)
+  
+  JuliaCall::julia_eval(paste0("step_",uid,", parameters_",uid," = build_custom_derivs_function_R(f_julia,p_julia_",uid,",inputs_julia_",uid,",hidden_units_julia_",uid,",outputs_julia_",uid,")"))
+  
+  if(is.null(covariates)){
+    JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
+                                 "(data_julia_",uid,
+                                 ",step_",uid,
+                                 ",parameters_",uid,
+                                 ",time_column_name=\"",time_column_name,"\"",
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
+  }else{
+    JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
+    JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
+                                 "(data_julia_",uid,
+                                 ",covariates_julia_",uid,
+                                 ",step_",uid,
+                                 ",parameters_",uid,
+                                 ",time_column_name=\"",time_column_name,"\"",
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
+  }
+  return(paste0("julia_model_",uid))
+}
+
+#' Define a custom derivatives UDE with multiple time series
+#'
+#'`multi_custom_difference()` constructs a universal differential equation (UDE) model
+#' for multiple time series based on known functional forms in a user-defined (discrete-time) 
+#' difference equation ``. 
+#' 
+#' These models embed neural networks in the right-hand side of a 
+#' system of differential equations 
+#' \deqn{u_{t+1}=f(u_t,X_t,t,NN(u_t,X_t);\theta),},
+#' \deqn{u_{t+1}=f(u_{i,t},i,x_{i,t},t,NN(u_{i,t},x_{i,t});\theta)}
+#' where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
+#' \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
+#' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
+#' 
+#' @param data A data frame of observed state variables over time.
+#' @param step A user-defined function of the form `step(u,i,X,nn,p,t)` where
+#' `u` stores the value of the state variables, `X` stores the optional covariates,
+#' `nn` stores the neural network outputs, `p` stores the model parameters, and `t` is time.
+#' @param covariates A data frame of observed covariates (e.g., environmental
+#' conditions) over time. This data frame must have the same column names for
+#' time and series as the primary dataset. The number of series must be equivalent
+#' in the covariates and observed state variables data frames, but the time points
+#' do not need to match because the values of the covariates between time points included in
+#' the data frame `covariates` are interpolated using a linear spline. Optional.
+#' @param neural_network_inputs The number of input nodes of the neural network.
+#' @param neural_network_outputs The number of output nodes of the neural network.
+#' @param hidden_units Number of neurons in the single hidden layer.
+#' @param time_column_name The column in `data` and `covariates` that contains
+#' the time data, indicating when the observations were made.
+#' @param series_column_name The column in `data` and `covariates` that contains
+#' the series data, indicating the identifying information for the observations.
+#' @param proc_weight Weight of the process error term \eqn{\nu_t} in the loss
+#' function. The process weight controls how closely the model predictions
+#' match the state estimates \eqn{\hat{u}_t}.
+#' @param obs_weight Weight of the observation error term \eqn{\epsilon_t} in the loss
+#' function. The observation weight controls how closely the state estimates
+#' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
+#' correspond to datasets with larger amounts of observation error and vice versa.
+#' @param reg_weight Weight \eqn{\lambda} of the regularization penalty term in the loss
+#' function.
+#' @param reg_type Type of regularization used to mitigate overfitting.
+#' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
+#' added to the loss function is either the absolute value of the sum of
+#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' default of "L2" should be used.
+#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
+#' Small values lead to fast decay and the extrapolation reverts to the prior mean
+#' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
+#' stays similar to the last trend for a longer period.
+#' @param extrap_rho Extrapolation marginal SD parameter for forecasting.
+#' `extrap_rho` controls the magnitude of the extrapolation. Small values lead to
+#' narrow confidence intervals, large values lead to wide confidence intervals.
+#' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
+#' Bayesian UDE.
+#' @param uid A string that serves as a unique identifier to save the
+#' model into Julia. It is not recommended to modify this parameter.
+#'
+#' @return An untrained custom derivatives UDE model containing all the defined parameters.
+#' @export
+#'
+#' @examples
+#' print("test")
+
+multi_custom_difference <- function(
+    data,
+    step,
+    initial_parameters,
+    covariates = NULL,
+    neural_network_inputs = c(1),
+    neural_network_outputs = 1,
+    hidden_units = 10,
+    time_column_name = "time",
+    series_column_name = "series",
+    proc_weight = 1.0,
+    obs_weight = 1.0,
+    reg_weight = 10^-6,
+    reg_type = "L2",
+    l = 0.25,
+    extrap_rho = 0.1,
+    bayesian = FALSE,
+    uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
+){
+  if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
+    cat("Model performance may be improved by scaling the data through transformation or relativization.",
+        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
+  }
+  model_type <- ifelse(bayesian,"BayesianUDE","MultiCustomDifference")
+  
+  if(is.character(step)) {
+    JuliaCall::julia_eval(paste0('include("', step, '")'))
+    JuliaCall::julia_eval("f_julia = step")
+  }
+  else{
+    translated_function <- R_to_Julia(step)
+    JuliaCall::julia_eval(paste("f_julia = ", translated_function))
+  }
+  
+  
+  JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
+  JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
+  
+  JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
+  JuliaCall::julia_assign(paste0("inputs_julia_",uid),neural_network_inputs)
+  JuliaCall::julia_assign(paste0("outputs_julia_",uid),neural_network_outputs)
+  JuliaCall::julia_assign(paste0("hidden_units_julia_",uid),hidden_units)
+  
+  JuliaCall::julia_eval(paste0("step_",uid,", parameters_",uid," = build_multi_custom_derivs_function_R(f_julia,p_julia_",uid,",inputs_julia_",uid,",hidden_units_julia_",uid,",outputs_julia_",uid,")"))
+  
+  if(is.null(covariates)){
+    JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
+                                 "(data_julia_",uid,",step_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
+                                 ",series_column_name=\"",series_column_name,"\"",
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
+  }else{
+    JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
+    JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
+                                 "(data_julia_",uid,",covariates_julia_",uid,",step_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
+                                 ",series_column_name=\"",series_column_name,"\"",
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
+  }
+  return(paste0("julia_model_",uid))
+}
+
+
 ## Continuous-time Functions
 ##
 #' Define a NODE model with one time series
