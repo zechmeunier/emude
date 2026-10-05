@@ -106,7 +106,7 @@ NNDE <- function(
 }
 
 #' Define a custom derivatives UDE with one time series
-#' 
+#'
 #' `custom_difference` constructs a universal differential equation (UDE) model
 #' based on known functional forms in a user-defined (discrete-time) difference equation `step`.
 #' These models embed neural networks in the right-hand side of a system of differential equations
@@ -114,7 +114,7 @@ NNDE <- function(
 #' where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
 #' \eqn{t} is time, \eqn{NN} is the output layer of a neural network, and
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
-#' 
+#'
 #' @param data A data frame of observed state variables over time.
 #' @param step A user-defined function of the form `step(u,t,p)` where
 #' `u` stores the value of the state variables, `p` stores the model parameters, and `t` is time.
@@ -185,7 +185,7 @@ custom_difference <- function(
         "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","CustomDifference")
-  
+
   if(is.character(step)) {
     JuliaCall::julia_eval(paste0('include("', step, '")'))
     JuliaCall::julia_eval("f_julia = step")
@@ -194,18 +194,18 @@ custom_difference <- function(
     translated_function <- R_to_Julia(step)
     JuliaCall::julia_eval(paste("f_julia = ", translated_function))
   }
-  
-  
+
+
   JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
   JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
-  
+
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
   JuliaCall::julia_assign(paste0("inputs_julia_",uid),neural_network_inputs)
   JuliaCall::julia_assign(paste0("outputs_julia_",uid),neural_network_outputs)
   JuliaCall::julia_assign(paste0("hidden_units_julia_",uid),hidden_units)
-  
-  JuliaCall::julia_eval(paste0("step_",uid,", parameters_",uid," = build_custom_derivs_function_R(f_julia,p_julia_",uid,",inputs_julia_",uid,",hidden_units_julia_",uid,",outputs_julia_",uid,")"))
-  
+
+  JuliaCall::julia_eval(paste0("step_",uid,", parameters_",uid," = build_custom_diffs_function_R(f_julia,p_julia_",uid,",inputs_julia_",uid,",hidden_units_julia_",uid,",outputs_julia_",uid,")"))
+
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
                                  "(data_julia_",uid,
@@ -241,17 +241,17 @@ custom_difference <- function(
 #' Define a custom derivatives UDE with multiple time series
 #'
 #'`multi_custom_difference()` constructs a universal differential equation (UDE) model
-#' for multiple time series based on known functional forms in a user-defined (discrete-time) 
-#' difference equation ``. 
-#' 
-#' These models embed neural networks in the right-hand side of a 
-#' system of differential equations 
+#' for multiple time series based on known functional forms in a user-defined (discrete-time)
+#' difference equation ``.
+#'
+#' These models embed neural networks in the right-hand side of a
+#' system of differential equations
 #' \deqn{u_{t+1}=f(u_t,X_t,t,NN(u_t,X_t);\theta),},
 #' \deqn{u_{t+1}=f(u_{i,t},i,x_{i,t},t,NN(u_{i,t},x_{i,t});\theta)}
 #' where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
 #' \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
-#' 
+#'
 #' @param data A data frame of observed state variables over time.
 #' @param step A user-defined function of the form `step(u,i,X,nn,p,t)` where
 #' `u` stores the value of the state variables, `X` stores the optional covariates,
@@ -326,7 +326,7 @@ multi_custom_difference <- function(
         "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","MultiCustomDifference")
-  
+
   if(is.character(step)) {
     JuliaCall::julia_eval(paste0('include("', step, '")'))
     JuliaCall::julia_eval("f_julia = step")
@@ -335,18 +335,18 @@ multi_custom_difference <- function(
     translated_function <- R_to_Julia(step)
     JuliaCall::julia_eval(paste("f_julia = ", translated_function))
   }
-  
-  
+
+
   JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
   JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
-  
+
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
   JuliaCall::julia_assign(paste0("inputs_julia_",uid),neural_network_inputs)
   JuliaCall::julia_assign(paste0("outputs_julia_",uid),neural_network_outputs)
   JuliaCall::julia_assign(paste0("hidden_units_julia_",uid),hidden_units)
-  
+
   JuliaCall::julia_eval(paste0("step_",uid,", parameters_",uid," = build_multi_custom_derivs_function_R(f_julia,p_julia_",uid,",inputs_julia_",uid,",hidden_units_julia_",uid,",outputs_julia_",uid,")"))
-  
+
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
                                  "(data_julia_",uid,",step_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",

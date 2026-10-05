@@ -85,3 +85,36 @@ function retrieve_model_parameters(model)
   param_tuple = NamedTuple{Tuple(Symbol.(param_names))}(Tuple(parameters))
   return param_tuple
 end
+
+function build_custom_diffs_function_R(f_julia,p_julia,inputs,hidden_units,outputs)
+  hidden_units, outputs = Integer.([hidden_units,outputs])
+  NN = Lux.Chain(Lux.Dense(length(inputs),hidden_units,tanh),Lux.Dense(hidden_units,outputs))
+  rng = Random.default_rng()
+  params, states = Lux.setup(rng,NN)
+  params = params |> ComponentArray
+  if length(p_julia) == 1
+    p_julia = [p_julia]
+  end
+  init_params = ComponentArray(rparams = p_julia, NN = params)
+# Method 1: No covariates
+  function step(u, t, p)
+      nn = [0.0]
+      if length(inputs) == 1
+          nn = NN(u[round.(Int, [inputs])],p.NN,states)[1]
+      else
+          nn = NN(u[round.(Int, inputs)],p.NN,states)[1]
+      end
+      return f_julia(u, nn, p.rparams, t)
+  end
+# Method 2: With covariates (x)
+  function step(u, x, t, p)
+      nn = [0.0]
+      if length(inputs) == 1
+          nn = NN(u[round.(Int, [inputs])],p.NN,states)[1]
+      else
+          nn = NN(u[round.(Int, inputs)],p.NN,states)[1]
+      end
+      return f_julia(u, x, nn, p.rparams, t)
+  end
+  return step, init_params
+end
