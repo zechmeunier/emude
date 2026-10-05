@@ -86,7 +86,7 @@ model into Julia. It is not recommended to modify this parameter.}
 An untrained custom derivatives UDE model containing all the defined parameters.
 }
 \description{
-\code{custom_difference} constructs a universal dynamic equation (UDE) model
+\code{custom_difference()} constructs a universal dynamic equation (UDE) model
 for one time series based on known functional forms in a user-defined difference function \code{step}.
 These discrete-time models embed neural networks in the right-hand side of a system of difference equations
 \deqn{u_{t+1}=f(u_t,X_t,t,NN(u_t,X_t);\theta)}
