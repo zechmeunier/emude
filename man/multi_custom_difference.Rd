@@ -2,7 +2,7 @@
 % Please edit documentation in R/model_constructors.R
 \name{multi_custom_difference}
 \alias{multi_custom_difference}
-\title{Define a custom derivatives UDE with multiple time series}
+\title{Define a custom difference UDE with multiple time series}
 \usage{
 multi_custom_difference(
   data,
@@ -31,6 +31,9 @@ multi_custom_difference(
 \item{step}{A user-defined function of the form \code{step(u,i,X,nn,p,t)} where
 \code{u} stores the value of the state variables, \code{X} stores the optional covariates,
 \code{nn} stores the neural network outputs, \code{p} stores the model parameters, and \code{t} is time.}
+
+\item{initial_parameters}{A named list containing the model parameters stored
+in \code{p}.}
 
 \item{covariates}{A data frame of observed covariates (e.g., environmental
 conditions) over time. This data frame must have the same column names for
@@ -91,13 +94,10 @@ An untrained custom derivatives UDE model containing all the defined parameters.
 \description{
 \code{multi_custom_difference()} constructs a universal differential equation (UDE) model
 for multiple time series based on known functional forms in a user-defined (discrete-time)
-difference equation ``.
-}
-\details{
+difference equation \code{step}.
 These models embed neural networks in the right-hand side of a
-system of differential equations
-\deqn{u_{t+1}=f(u_t,X_t,t,NN(u_t,X_t);\theta),},
-\deqn{u_{t+1}=f(u_{i,t},i,x_{i,t},t,NN(u_{i,t},x_{i,t});\theta)}
+system of difference equations
+\deqn{u_{i,t+1}=f(u_{i,t},i,X_{i,t},t,NN(u_{i,t},X_{i,t});\theta)}
 where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
 \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
 \eqn{\theta} is a set of parameters including the weights and biases of the neural network.

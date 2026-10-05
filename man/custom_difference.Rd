@@ -2,7 +2,7 @@
 % Please edit documentation in R/model_constructors.R
 \name{custom_difference}
 \alias{custom_difference}
-\title{Define a custom derivatives UDE with one time series}
+\title{Define a custom difference UDE with one time series}
 \usage{
 custom_difference(
   data,

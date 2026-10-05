@@ -105,7 +105,7 @@ NNDE <- function(
   return(paste0("julia_model_",uid))
 }
 
-#' Define a custom derivatives UDE with one time series
+#' Define a custom difference UDE with one time series
 #'
 #' `custom_difference` constructs a universal differential equation (UDE) model
 #' based on known functional forms in a user-defined (discrete-time) difference equation `step`.
@@ -194,7 +194,7 @@ custom_difference <- function(
     translated_function <- R_to_Julia(step)
     JuliaCall::julia_eval(paste("f_julia = ", translated_function))
   }
-
+  print(R_to_Julia(step)) #troubleshooting, remove later
 
   JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
   JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
@@ -238,16 +238,14 @@ custom_difference <- function(
   return(paste0("julia_model_",uid))
 }
 
-#' Define a custom derivatives UDE with multiple time series
+#' Define a custom difference UDE with multiple time series
 #'
 #'`multi_custom_difference()` constructs a universal differential equation (UDE) model
 #' for multiple time series based on known functional forms in a user-defined (discrete-time)
-#' difference equation ``.
-#'
+#' difference equation `step`.
 #' These models embed neural networks in the right-hand side of a
-#' system of differential equations
-#' \deqn{u_{t+1}=f(u_t,X_t,t,NN(u_t,X_t);\theta),},
-#' \deqn{u_{t+1}=f(u_{i,t},i,x_{i,t},t,NN(u_{i,t},x_{i,t});\theta)}
+#' system of difference equations
+#' \deqn{u_{i,t+1}=f(u_{i,t},i,X_{i,t},t,NN(u_{i,t},X_{i,t});\theta)}
 #' where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
 #' \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
@@ -256,6 +254,8 @@ custom_difference <- function(
 #' @param step A user-defined function of the form `step(u,i,X,nn,p,t)` where
 #' `u` stores the value of the state variables, `X` stores the optional covariates,
 #' `nn` stores the neural network outputs, `p` stores the model parameters, and `t` is time.
+#' @param initial_parameters A named list containing the model parameters stored
+#' in `p`.
 #' @param covariates A data frame of observed covariates (e.g., environmental
 #' conditions) over time. This data frame must have the same column names for
 #' time and series as the primary dataset. The number of series must be equivalent
@@ -345,7 +345,7 @@ multi_custom_difference <- function(
   JuliaCall::julia_assign(paste0("outputs_julia_",uid),neural_network_outputs)
   JuliaCall::julia_assign(paste0("hidden_units_julia_",uid),hidden_units)
 
-  JuliaCall::julia_eval(paste0("step_",uid,", parameters_",uid," = build_multi_custom_derivs_function_R(f_julia,p_julia_",uid,",inputs_julia_",uid,",hidden_units_julia_",uid,",outputs_julia_",uid,")"))
+  JuliaCall::julia_eval(paste0("step_",uid,", parameters_",uid," = build_multi_custom_diffs_function_R(f_julia,p_julia_",uid,",inputs_julia_",uid,",hidden_units_julia_",uid,",outputs_julia_",uid,")"))
 
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,

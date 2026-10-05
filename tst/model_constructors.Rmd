@@ -10,9 +10,19 @@ Create dummy dataset for testing
 ```{r}
 diff_data <- data.frame(time = seq(1,50,1),
                         values = rpois(n = 50, lambda = 100),
-                        species = rep("SpA",50))
+                        species = rep(1,50) #needs to be handled if string
+                        )
 
-NNDE(data = diff_data)
+step <- function(u,nn,p,t){
+  stepu = u[1]*exp(nn[1]*(1-u[1]/p$K))
+  return(c(stepu))
+}
 
+testdiff <- custom_difference(data = diff_data, step = step, 
+                  initial_parameters = list(K = 130),
+                  time_column_name = "time")
+predict_UDE(testdiff, test_data = diff_data)
+
+train_UDE(testdiff, loss_function = "marginal likelihood")
 ```
 
