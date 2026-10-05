@@ -107,10 +107,10 @@ NNDE <- function(
 
 #' Define a custom difference UDE with one time series
 #'
-#' `custom_difference` constructs a universal differential equation (UDE) model
-#' based on known functional forms in a user-defined (discrete-time) difference equation `step`.
-#' These models embed neural networks in the right-hand side of a system of differential equations
-#' \deqn{u_{t+1}=f(u_t,X_t,t,NN(u_t,X_t);\theta),},
+#' `custom_difference` constructs a universal dynamic equation (UDE) model
+#' for one time series based on known functional forms in a user-defined difference function `step`.
+#' These discrete-time models embed neural networks in the right-hand side of a system of difference equations
+#' \deqn{u_{t+1}=f(u_t,X_t,t,NN(u_t,X_t);\theta)}
 #' where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
 #' \eqn{t} is time, \eqn{NN} is the output layer of a neural network, and
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
@@ -240,11 +240,9 @@ custom_difference <- function(
 
 #' Define a custom difference UDE with multiple time series
 #'
-#'`multi_custom_difference()` constructs a universal differential equation (UDE) model
-#' for multiple time series based on known functional forms in a user-defined (discrete-time)
-#' difference equation `step`.
-#' These models embed neural networks in the right-hand side of a
-#' system of difference equations
+#'`multi_custom_difference()` constructs a universal dynamic equation (UDE) model
+#' for multiple time series based on known functional forms in a user-defined difference function `step`.
+#' These discrete-time models embed neural networks in the right-hand side of a system of difference equations
 #' \deqn{u_{i,t+1}=f(u_{i,t},i,X_{i,t},t,NN(u_{i,t},X_{i,t});\theta)}
 #' where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
 #' \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
@@ -595,10 +593,10 @@ multi_NODE <- function(
 
 #' Define a custom derivatives UDE with one time series
 #'
-#' `custom_derivatives()` constructs a universal differential equation (UDE) model
-#' based on known functional forms in a user-defined derivatives function `derivs`.
+#' `custom_derivatives()` constructs a universal dynamic equation (UDE) model
+#' for one time series based on known functional forms in a user-defined derivatives function `derivs`.
 #' These models embed neural networks in the right-hand side of a system of differential equations
-#' \deqn{\frac{du}{dt}=f(u_t,X_t,t,NN(u_t,X_t);\theta)},
+#' \deqn{\frac{du}{dt}=f(u_t,X_t,t,NN(u_t,X_t);\theta)}
 #' where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
 #' \eqn{t} is time, \eqn{NN} is the output layer of a neural network, and
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
@@ -731,11 +729,10 @@ custom_derivatives <- function(
 
 #' Define a custom derivatives UDE with multiple time series
 #'
-#' `multi_custom_derivatives()` constructs a universal differential equation (UDE) model
-#' for multiple time series
-#' based on known functional forms in a user-defined derivatives function `derivs`.
+#' `multi_custom_derivatives()` constructs a universal dynamic equation (UDE) model
+#' for multiple time series based on known functional forms in a user-defined derivatives function `derivs`.
 #' These models embed neural networks in the right-hand side of a system of differential equations
-#' \deqn{\frac{du}{dt}=f(u_{i,t},i,x_{i,t},t,NN(u_{i,t},x_{i,t});\theta)},
+#' \deqn{\frac{du}{dt}=f(u_{i,t},i,x_{i,t},t,NN(u_{i,t},x_{i,t});\theta)}
 #' where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
 #' \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.

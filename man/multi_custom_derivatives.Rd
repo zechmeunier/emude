@@ -93,11 +93,10 @@ model into Julia. It is not recommended to modify this parameter.}
 An untrained custom derivatives UDE model containing all the defined parameters.
 }
 \description{
-\code{multi_custom_derivatives()} constructs a universal differential equation (UDE) model
-for multiple time series
-based on known functional forms in a user-defined derivatives function \code{derivs}.
+\code{multi_custom_derivatives()} constructs a universal dynamic equation (UDE) model
+for multiple time series based on known functional forms in a user-defined derivatives function \code{derivs}.
 These models embed neural networks in the right-hand side of a system of differential equations
-\deqn{\frac{du}{dt}=f(u_{i,t},i,x_{i,t},t,NN(u_{i,t},x_{i,t});\theta)},
+\deqn{\frac{du}{dt}=f(u_{i,t},i,x_{i,t},t,NN(u_{i,t},x_{i,t});\theta)}
 where \eqn{u_t} is a vector of state variables, \eqn{X_t} is a vector of covariates,
 \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
 \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
