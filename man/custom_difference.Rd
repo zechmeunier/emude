@@ -25,7 +25,8 @@ custom_difference(
 )
 }
 \arguments{
-\item{data}{A data frame of observed state variables over time.}
+\item{data}{A data frame of observed state variables over time.
+Each state variable should be in its own column and all columns must be numeric.}
 
 \item{step}{A user-defined function of the form \code{step(u,t,p)} where
 \code{u} stores the value of the state variables, \code{p} stores the model parameters, and \code{t} is time.}
@@ -79,7 +80,7 @@ narrow confidence intervals, large values lead to wide confidence intervals.}
 \item{bayesian}{Logical (\code{TRUE} or \code{FALSE}) for whether or not the UDE is a
 Bayesian UDE.}
 
-\item{uid}{A string that serves as a unique identifier to save the
+\item{uid}{A timestamp string that serves as a unique identifier to save the
 model into Julia. It is not recommended to modify this parameter.}
 }
 \value{

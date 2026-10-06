@@ -7,9 +7,10 @@
 #' data. `NNDE()` builds a discrete-time UDE for state variables \eqn{u_t} and
 #' covariates \eqn{X_t} using a neural network, with weights \eqn{w} and
 #' biases \eqn{b}, to represent the right-hand side of the difference equation
-#' \deqn{\Delta u_t = u_{t+1} - u_t = NN(u_t,X_t;w,b)}
+#' \deqn{\Delta u = u_{t+1} - u_t = NN(u_t,X_t;w,b)}
 #'
 #' @param data A data frame of observed state variables over time.
+#' Each state variable should be in its own column and all columns must be numeric.
 #' @param covariates A data frame of observed covariates (e.g., environmental
 #' conditions) over time. This data frame must have the same column
 #' name for time as the primary dataset, but the time points do not need to
@@ -43,7 +44,7 @@
 #' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the
+#' @param uid A timestamp string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return An untrained NNDE model containing all the defined parameters.
@@ -67,9 +68,11 @@ NNDE <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
+  if (!all(sapply(data, is.numeric))) {
+    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+  }
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
-    cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
   model_type <- ifelse(bayesian,"BayesianNODE","NNDE")
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
@@ -116,6 +119,7 @@ NNDE <- function(
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
 #'
 #' @param data A data frame of observed state variables over time.
+#' Each state variable should be in its own column and all columns must be numeric.
 #' @param step A user-defined function of the form `step(u,t,p)` where
 #' `u` stores the value of the state variables, `p` stores the model parameters, and `t` is time.
 #' @param initial_parameters A named list containing the model parameters stored
@@ -154,7 +158,7 @@ NNDE <- function(
 #' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the
+#' @param uid A timestamp string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return An untrained custom derivatives UDE model containing all the defined parameters.
@@ -180,9 +184,11 @@ custom_difference <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ) {
+  if (!all(sapply(data, is.numeric))) {
+    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+  }
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
-    cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","CustomDifference")
 
@@ -249,6 +255,7 @@ custom_difference <- function(
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
 #'
 #' @param data A data frame of observed state variables over time.
+#' Each state variable should be in its own column and all columns must be numeric.
 #' @param step A user-defined function of the form `step(u,i,X,nn,p,t)` where
 #' `u` stores the value of the state variables, `X` stores the optional covariates,
 #' `nn` stores the neural network outputs, `p` stores the model parameters, and `t` is time.
@@ -291,7 +298,7 @@ custom_difference <- function(
 #' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the
+#' @param uid A timestamp string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return An untrained custom derivatives UDE model containing all the defined parameters.
@@ -319,9 +326,11 @@ multi_custom_difference <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
+  if (!all(sapply(data, is.numeric))) {
+    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+  }
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
-    cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","MultiCustomDifference")
 
@@ -385,6 +394,7 @@ multi_custom_difference <- function(
 #' \deqn{\frac{du}{dt} = NN(u_t,X_t;w,b)}
 #'
 #' @param data A data frame of observed state variables over time.
+#' Each state variable should be in its own column and all columns must be numeric.
 #' @param covariates A data frame of observed covariates (e.g., environmental
 #' conditions) over time. This data frame must have the same column
 #' name for time as the primary dataset, but the time points do not need to
@@ -418,7 +428,7 @@ multi_custom_difference <- function(
 #' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the
+#' @param uid A timestamp string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return An untrained NODE model containing all the defined parameters.
@@ -442,9 +452,11 @@ NODE <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
+  if (!all(sapply(data, is.numeric))) {
+    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+  }
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
-    cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
   model_type <- ifelse(bayesian,"BayesianNODE","NODE")
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
@@ -492,6 +504,7 @@ NODE <- function(
 #' \deqn{\frac{du}{dt} = NN(u_{i,t},x_{i,t};w,b)}
 #'
 #' @param data A data frame of observed state variables over time.
+#' Each state variable should be in its own column and all columns must be numeric.
 #' @param covariates A data frame of observed covariates (e.g., environmental
 #' conditions) over time. This data frame must have the same column names for
 #' time and series as the primary dataset. The number of series must be equivalent
@@ -528,7 +541,7 @@ NODE <- function(
 #' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the
+#' @param uid A timestamp string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return An untrained NODE model containing all the defined parameters.
@@ -552,10 +565,11 @@ multi_NODE <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
-
+  if (!all(sapply(data, is.numeric))) {
+    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+  }
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
-    cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
   model_type <- ifelse(bayesian,"BayesianNODE","MultiNODE")
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
@@ -602,6 +616,7 @@ multi_NODE <- function(
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
 #'
 #' @param data A data frame of observed state variables over time.
+#' Each state variable should be in its own column and all columns must be numeric.
 #' @param derivs A user-defined function of the form `derivs(u,X,nn,p,t)` where
 #' `u` stores the value of the state variables, `X` stores the optional covariates,
 #' `nn` stores the neural network outputs, `p` stores the model parameters, and `t` is time.
@@ -641,7 +656,7 @@ multi_NODE <- function(
 #' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the
+#' @param uid A timestamp string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return An untrained custom derivatives UDE model containing all the defined parameters.
@@ -667,10 +682,11 @@ custom_derivatives <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
-
+  if (!all(sapply(data, is.numeric))) {
+    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+  }
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
-    cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","CustomDerivatives")
 
@@ -738,6 +754,7 @@ custom_derivatives <- function(
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
 #'
 #' @param data A data frame of observed state variables over time.
+#' Each state variable should be in its own column and all columns must be numeric.
 #' @param derivs A user-defined function of the form `derivs(u,i,X,nn,p,t)` where
 #' `u` stores the value of the state variables, `i` is an index for each time series,
 #' `X` stores the optional covariates, `nn` stores the neural network outputs,
@@ -781,7 +798,7 @@ custom_derivatives <- function(
 #' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the
+#' @param uid A timestamp string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return An untrained custom derivatives UDE model containing all the defined parameters.
@@ -808,10 +825,11 @@ multi_custom_derivatives <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
-
+  if (!all(sapply(data, is.numeric))) {
+    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+  }
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
-    cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","MultiCustomDerivatives")
 
@@ -869,6 +887,7 @@ multi_custom_derivatives <- function(
 #' does not train a neural network and can be used as a null model.
 #'
 #' @param data A data frame of observed state variables over time.
+#' Each state variable should be in its own column and all columns must be numeric.
 #' @param derivs A user-defined function of the form `derivs(u,p,t)` where
 #' `u` stores the value of the state variables, `p` stores the model parameters,
 #' and `t` is time. The function should save each ODE to `du[i]`,
@@ -899,7 +918,7 @@ multi_custom_derivatives <- function(
 #' narrow confidence intervals, large values lead to wide confidence intervals.
 #' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
 #' Bayesian UDE.
-#' @param uid A string that serves as a unique identifier to save the
+#' @param uid A timestamp string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return An untrained ODE model containing all the defined parameters.
@@ -920,10 +939,11 @@ ode_model <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
-
+  if (!all(sapply(data, is.numeric))) {
+    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+  }
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
-    cat("Model performance may be improved by scaling the data through transformation or relativization.",
-        "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).\n")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","CustomDerivatives")
 
