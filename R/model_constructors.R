@@ -204,6 +204,7 @@ custom_difference <- function(
 
   JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
   JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
+  print(JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")) #troubleshooting, remove later
 
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
   JuliaCall::julia_assign(paste0("inputs_julia_",uid),neural_network_inputs)
