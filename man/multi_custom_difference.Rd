@@ -92,7 +92,7 @@ Bayesian UDE.}
 model into Julia. It is not recommended to modify this parameter.}
 }
 \value{
-An untrained custom derivatives UDE model containing all the defined parameters.
+An untrained custom difference UDE model containing all the defined parameters.
 }
 \description{
 \code{multi_custom_difference()} constructs a universal dynamic equation (UDE) model

@@ -50,7 +50,6 @@
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return An untrained NNDE model containing all the defined parameters.
-#'
 #' @export
 #'
 #' @examples
@@ -165,7 +164,7 @@ NNDE <- function(
 #' @param uid A timestamp string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
-#' @return An untrained custom derivatives UDE model containing all the defined parameters.
+#' @return An untrained custom difference UDE model containing all the defined parameters.
 #' @export
 #'
 #' @examples
@@ -308,12 +307,11 @@ custom_difference <- function(
 #' @param uid A timestamp string that serves as a unique identifier to save the
 #' model into Julia. It is not recommended to modify this parameter.
 #'
-#' @return An untrained custom derivatives UDE model containing all the defined parameters.
+#' @return An untrained custom difference UDE model containing all the defined parameters.
 #' @export
 #'
 #' @examples
 #' print("test")
-
 multi_custom_difference <- function(
     data,
     step,
@@ -441,7 +439,6 @@ multi_custom_difference <- function(
 #' model into Julia. It is not recommended to modify this parameter.
 #'
 #' @return An untrained NODE model containing all the defined parameters.
-#'
 #' @export
 #'
 #' @examples
