@@ -26,8 +26,10 @@ multi_custom_derivatives(
 )
 }
 \arguments{
-\item{data}{A data frame of observed state variables over time.
-Each state variable should be in its own column and all columns must be numeric.}
+\item{data}{A wide-format data frame of observed state variables over time.
+Each state variable should be in its own column and all columns except series must be numeric.
+Do not include extraneous columns or metadata (e.g., species names or functional groups),
+because all columns besides time and series will be interpreted as state variables.}
 
 \item{derivs}{A user-defined function of the form \code{derivs(u,i,X,nn,p,t)} where
 \code{u} stores the value of the state variables, \code{i} is an index for each time series,

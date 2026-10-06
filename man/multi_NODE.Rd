@@ -23,8 +23,10 @@ multi_NODE(
 )
 }
 \arguments{
-\item{data}{A data frame of observed state variables over time.
-Each state variable should be in its own column and all columns must be numeric.}
+\item{data}{A wide-format data frame of observed state variables over time.
+Each state variable should be in its own column and all columns except series must be numeric.
+Do not include extraneous columns or metadata (e.g., species names or functional groups),
+because all columns besides time and series will be interpreted as state variables.}
 
 \item{covariates}{A data frame of observed covariates (e.g., environmental
 conditions) over time. This data frame must have the same column names for

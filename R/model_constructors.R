@@ -9,8 +9,10 @@
 #' biases \eqn{b}, to represent the right-hand side of the difference equation
 #' \deqn{\Delta u = u_{t+1} - u_t = NN(u_t,X_t;w,b)}
 #'
-#' @param data A data frame of observed state variables over time.
+#' @param data A wide-format data frame of observed state variables over time.
 #' Each state variable should be in its own column and all columns must be numeric.
+#' Do not include extraneous columns or metadata (e.g., species names, functional groups, or site identifiers),
+#' because all columns besides time will be interpreted as state variables.
 #' @param covariates A data frame of observed covariates (e.g., environmental
 #' conditions) over time. This data frame must have the same column
 #' name for time as the primary dataset, but the time points do not need to
@@ -118,8 +120,10 @@ NNDE <- function(
 #' \eqn{t} is time, \eqn{NN} is the output layer of a neural network, and
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
 #'
-#' @param data A data frame of observed state variables over time.
+#' @param data A wide-format data frame of observed state variables over time.
 #' Each state variable should be in its own column and all columns must be numeric.
+#' Do not include extraneous columns or metadata (e.g., species names, functional groups, or site identifiers),
+#' because all columns besides time will be interpreted as state variables.
 #' @param step A user-defined function of the form `step(u,t,p)` where
 #' `u` stores the value of the state variables, `p` stores the model parameters, and `t` is time.
 #' @param initial_parameters A named list containing the model parameters stored
@@ -255,8 +259,10 @@ custom_difference <- function(
 #' \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
 #'
-#' @param data A data frame of observed state variables over time.
-#' Each state variable should be in its own column and all columns must be numeric.
+#' @param data A wide-format data frame of observed state variables over time.
+#' Each state variable should be in its own column and all columns except series must be numeric.
+#' Do not include extraneous columns or metadata (e.g., species names or functional groups),
+#' because all columns besides time and series will be interpreted as state variables.
 #' @param step A user-defined function of the form `step(u,i,X,nn,p,t)` where
 #' `u` stores the value of the state variables, `X` stores the optional covariates,
 #' `nn` stores the neural network outputs, `p` stores the model parameters, and `t` is time.
@@ -327,7 +333,7 @@ multi_custom_difference <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
-  if (!all(sapply(data, is.numeric))) {
+  if (!all(sapply(data[, names(data) != series_column_name], is.numeric))) {
     stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
   }
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
@@ -394,8 +400,10 @@ multi_custom_difference <- function(
 #' biases \eqn{b}, to represent the right-hand side of the differential equation
 #' \deqn{\frac{du}{dt} = NN(u_t,X_t;w,b)}
 #'
-#' @param data A data frame of observed state variables over time.
+#' @param data A wide-format data frame of observed state variables over time.
 #' Each state variable should be in its own column and all columns must be numeric.
+#' Do not include extraneous columns or metadata (e.g., species names, functional groups, or site identifiers),
+#' because all columns besides time will be interpreted as state variables.
 #' @param covariates A data frame of observed covariates (e.g., environmental
 #' conditions) over time. This data frame must have the same column
 #' name for time as the primary dataset, but the time points do not need to
@@ -504,8 +512,10 @@ NODE <- function(
 #' biases \eqn{b}, to represent the right-hand side of the differential equation
 #' \deqn{\frac{du}{dt} = NN(u_{i,t},x_{i,t};w,b)}
 #'
-#' @param data A data frame of observed state variables over time.
-#' Each state variable should be in its own column and all columns must be numeric.
+#' @param data A wide-format data frame of observed state variables over time.
+#' Each state variable should be in its own column and all columns except series must be numeric.
+#' Do not include extraneous columns or metadata (e.g., species names or functional groups),
+#' because all columns besides time and series will be interpreted as state variables.
 #' @param covariates A data frame of observed covariates (e.g., environmental
 #' conditions) over time. This data frame must have the same column names for
 #' time and series as the primary dataset. The number of series must be equivalent
@@ -566,7 +576,7 @@ multi_NODE <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
-  if (!all(sapply(data, is.numeric))) {
+  if (!all(sapply(data[, names(data) != series_column_name], is.numeric))) {
     stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
   }
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
@@ -616,8 +626,10 @@ multi_NODE <- function(
 #' \eqn{t} is time, \eqn{NN} is the output layer of a neural network, and
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
 #'
-#' @param data A data frame of observed state variables over time.
+#' @param data A wide-format data frame of observed state variables over time.
 #' Each state variable should be in its own column and all columns must be numeric.
+#' Do not include extraneous columns or metadata (e.g., species names, functional groups, or site identifiers),
+#' because all columns besides time will be interpreted as state variables.
 #' @param derivs A user-defined function of the form `derivs(u,X,nn,p,t)` where
 #' `u` stores the value of the state variables, `X` stores the optional covariates,
 #' `nn` stores the neural network outputs, `p` stores the model parameters, and `t` is time.
@@ -754,8 +766,10 @@ custom_derivatives <- function(
 #' \eqn{t} is time, \eqn{i} is series, \eqn{NN} is the output layer of a neural network, and
 #' \eqn{\theta} is a set of parameters including the weights and biases of the neural network.
 #'
-#' @param data A data frame of observed state variables over time.
-#' Each state variable should be in its own column and all columns must be numeric.
+#' @param data A wide-format data frame of observed state variables over time.
+#' Each state variable should be in its own column and all columns except series must be numeric.
+#' Do not include extraneous columns or metadata (e.g., species names or functional groups),
+#' because all columns besides time and series will be interpreted as state variables.
 #' @param derivs A user-defined function of the form `derivs(u,i,X,nn,p,t)` where
 #' `u` stores the value of the state variables, `i` is an index for each time series,
 #' `X` stores the optional covariates, `nn` stores the neural network outputs,
@@ -826,7 +840,7 @@ multi_custom_derivatives <- function(
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
-  if (!all(sapply(data, is.numeric))) {
+  if (!all(sapply(data[, names(data) != series_column_name], is.numeric))) {
     stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
   }
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
@@ -887,8 +901,10 @@ multi_custom_derivatives <- function(
 #' `ode_model()` constructs an ordinary differential equation (ODE) model. It
 #' does not train a neural network and can be used as a null model.
 #'
-#' @param data A data frame of observed state variables over time.
+#' @param data A wide-format data frame of observed state variables over time.
 #' Each state variable should be in its own column and all columns must be numeric.
+#' Do not include extraneous columns or metadata (e.g., species names, functional groups, or site identifiers),
+#' because all columns besides time will be interpreted as state variables.
 #' @param derivs A user-defined function of the form `derivs(u,p,t)` where
 #' `u` stores the value of the state variables, `p` stores the model parameters,
 #' and `t` is time. The function should save each ODE to `du[i]`,

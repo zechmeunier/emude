@@ -1,28 +1,57 @@
 Load packages and setup emude
 ```{r}
+library(devtools)
 library(JuliaCall)
 library(tidyverse)
 library(emude)
 emude_setup()
 ```
 
-Create dummy dataset for testing
+Run every time you make changes to the package functionality or help text
+```{r}
+document()
+load_all()
+```
+
+Create and test a dummy dataset with one time series
 ```{r}
 diff_data <- data.frame(time = seq(1,50,1),
-                        values = rpois(n = 50, lambda = 100)
-                        #species = rep(1,50) #needs to be handled if string
-                        )
+                        values = rpois(n = 50, lambda = 100),
+                        species = rep(1,50) #needs to be handled if present
+)
 
-step <- function(u,nn,p,t){
-  stepu = u[1]*exp(nn[1]*(1-u[1]/p$K[1])) #need to index into parameters to have exp() work in Julia
+ricker <- function(u,nn,p,t){
+  stepu = u[1]*exp(nn[1]*(1-u[1]/p$K[1])) 
+  #need to index into parameters to have exp() work in Julia
   return(c(stepu))
 }
 
-testdiff <- custom_difference(data = diff_data, step = step, 
-                  initial_parameters = list(K = 130),
-                  time_column_name = "time")
-predict_UDE(testdiff, test_data = diff_data)
+diff_model <- custom_difference(data = diff_data, step = ricker, 
+                                initial_parameters = list(K = 130),
+                                time_column_name = "time")
+predict_UDE(diff_model, test_data = diff_data)
 
-train_UDE(testdiff, loss_function = "conditional likelihood")
+train_UDE(diff_model, loss_function = "conditional likelihood")
 ```
+
+Create and test a dummy dataset with multiple time series
+```{r}
+multi_diff_data <- data.frame(time = seq(1,50,1),
+                              values = rpois(n = 50, lambda = 100),
+                              series = c(rep("Site1",25),rep("Site2",25))
+)
+
+ricker <- function(u,nn,p,t){
+  stepu = u[1]*exp(nn[1]*(1-u[1]/p$K[1])) 
+  #need to index into parameters to have exp() work in Julia
+  return(c(stepu))
+}
+
+multi_diff_model <- multi_custom_difference(data = multi_diff_data, step = ricker,
+                                            initial_parameters = list(K = 130),
+                                            time_column_name = "time",
+                                            series_column_name = "series")
+```
+
+
 
