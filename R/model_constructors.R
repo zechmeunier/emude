@@ -109,6 +109,120 @@ NNDE <- function(
   return(paste0("julia_model_",uid))
 }
 
+#' Define a NNDE model with multiple time series
+#'
+#' `multi_NNDE()` constructs a neural network difference equation (NNDE) model for
+#' multiple time series. NNDEs use neural networks to learn unknown nonlinear relationships
+#' from time series data. `NNDE()` builds a discrete-time UDE for state variables
+#' \eqn{u_t} and covariates \eqn{X_t} using a neural network, with weights \eqn{w} and
+#' biases \eqn{b}, to represent the right-hand side of the difference equation
+#' \deqn{\Delta u_i = u_{i,t+1} - u_{i,t} = NN(u_{i,t},x_{i,t};w,b)}
+#'
+#' @param data A wide-format data frame of observed state variables over time.
+#' Each state variable should be in its own column and all columns must be numeric.
+#' Do not include extraneous columns or metadata (e.g., species names, functional groups),
+#' because all columns besides time and series will be interpreted as state variables.
+#' @param covariates A data frame of observed covariates (e.g., environmental
+#' conditions) over time. This data frame must have the same column
+#' name for time as the primary dataset, but the time points do not need to
+#' match because the values of the covariates between time points included in
+#' the data frame `covariates` are interpolated using a linear spline. Optional.
+#' @param time_column_name The column in `data` and `covariates` that contains
+#' the time data, indicating when the observations were made.
+#' @param series_column_name The column in `data` and `covariates` that contains
+#' the series data, indicating the identifying information for the observations.
+#' @param hidden_units Number of neurons in the single hidden layer.
+#' @param seed Fixed random seed for repeatable results.
+#' @param proc_weight Weight of the process error term \eqn{\nu_t} in the loss
+#' function. The process weight controls how closely the model predictions
+#' match the state estimates \eqn{\hat{u}_t}.
+#' @param obs_weight Weight of the observation error term \eqn{\epsilon_t} in the loss
+#' function. The observation weight controls how closely the state estimates
+#' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
+#' correspond to datasets with larger amounts of observation error and vice versa.
+#' @param reg_weight Weight \eqn{\lambda} of the regularization penalty term in the loss
+#' function.
+#' @param reg_type Type of regularization used to mitigate overfitting.
+#' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
+#' added to the loss function is either the absolute value of the sum of
+#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' default of "L2" should be used.
+#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
+#' Small values lead to fast decay and the extrapolation reverts to the prior mean
+#' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
+#' stays similar to the last trend for a longer period.
+#' @param extrap_rho Extrapolation marginal SD parameter for forecasting.
+#' `extrap_rho` controls the magnitude of the extrapolation. Small values lead to
+#' narrow confidence intervals, large values lead to wide confidence intervals.
+#' @param bayesian Logical (`TRUE` or `FALSE`) for whether or not the UDE is a
+#' Bayesian UDE.
+#' @param uid A timestamp string that serves as a unique identifier to save the
+#' model into Julia. It is not recommended to modify this parameter.
+#'
+#' @return An untrained NNDE model containing all the defined parameters.
+#' @export
+#'
+#' @examples
+#' print("NNDE")
+multi_NNDE <- function(
+    data,
+    covariates = NULL,
+    time_column_name = "time",
+    series_column_name = "series",
+    hidden_units = 10,
+    seed = 1,
+    proc_weight = 1.0,
+    obs_weight = 1.0,
+    reg_weight = 10^-6,
+    reg_type = "L2",
+    l = 0.25,
+    extrap_rho = 0.1,
+    bayesian = FALSE,
+    uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
+){
+  if (!all(sapply(data[, names(data) != series_column_name], is.numeric))) {
+    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+  }
+  if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
+    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+  }
+  model_type <- ifelse(bayesian,"BayesianNODE","MultiNNDE")
+  JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
+  if(is.null(covariates)){
+    JuliaCall::julia_eval(paste0("julia_model_",uid,"=", model_type,
+                                 "(data_julia_",uid,
+                                 ",time_column_name=\"",time_column_name,"\"",
+                                 ",series_column_name=\"",series_column_name,"\"",
+                                 ",hidden_units=",hidden_units,
+                                 ",seed=",seed,
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
+  }else{
+    JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
+    JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
+                                 "(data_julia_",uid,
+                                 ",covariates_julia_",uid,
+                                 ",time_column_name=\"",time_column_name,"\"",
+                                 ",series_column_name=\"",series_column_name,"\"",
+                                 ",hidden_units=",hidden_units,
+                                 ",seed=",seed,
+                                 ",proc_weight=",proc_weight,
+                                 ",obs_weight=",obs_weight,
+                                 ",reg_weight=",reg_weight,
+                                 ",reg_type=\"",reg_type,"\"",
+                                 ",l=",l,
+                                 ",extrap_rho=",extrap_rho,")"),
+                          need_return = "Julia")
+  }
+  return(paste0("julia_model_",uid))
+}
+
 #' Define a custom difference UDE with one time series
 #'
 #' `custom_difference()` constructs a universal dynamic equation (UDE) model
@@ -123,7 +237,7 @@ NNDE <- function(
 #' Each state variable should be in its own column and all columns must be numeric.
 #' Do not include extraneous columns or metadata (e.g., species names, functional groups, or site identifiers),
 #' because all columns besides time will be interpreted as state variables.
-#' @param step A user-defined function of the form `step(u,t,p)` where
+#' @param step A user-defined function of the form `step(u,nn,t,p)` where
 #' `u` stores the value of the state variables, `p` stores the model parameters, and `t` is time.
 #' @param initial_parameters A named list containing the model parameters stored
 #' in `p`.
