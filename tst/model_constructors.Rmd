@@ -16,8 +16,8 @@ load_all()
 Create and test a dummy dataset with one time series
 ```{r}
 diff_data <- data.frame(time = seq(1,50,1),
-                        values = rpois(n = 50, lambda = 100),
-                        species = rep(1,50) #needs to be handled if present
+                        values = rpois(n = 50, lambda = 100)
+                        #species = rep(1,50) #needs to be handled if present
 )
 
 ricker <- function(u,nn,p,t){
