@@ -37,7 +37,7 @@ On Mac, the julia and juliaup commands will not be available until the terminal 
 Try running the following command or opening a new tab in the terminal app.
 
 ```shell
-. /User/**your user name**/.zshrc
+. /Users/**your user name**/.zshrc
 ```
 
 Both:
