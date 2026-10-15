@@ -113,19 +113,20 @@ NNDE <- function(
 #'
 #' `multi_NNDE()` constructs a neural network difference equation (NNDE) model for
 #' multiple time series. NNDEs use neural networks to learn unknown nonlinear relationships
-#' from time series data. `NNDE()` builds a discrete-time UDE for state variables
-#' \eqn{u_t} and covariates \eqn{X_t} using a neural network, with weights \eqn{w} and
+#' from time series data. `multi_NNDE()` builds a discrete-time UDE for state variables
+#' \eqn{u_t} and covariates \eqn{X_t} in series \eqn{i} using a neural network, with weights \eqn{w} and
 #' biases \eqn{b}, to represent the right-hand side of the difference equation
 #' \deqn{\Delta u_i = u_{i,t+1} - u_{i,t} = NN(u_{i,t},x_{i,t};w,b)}
 #'
 #' @param data A wide-format data frame of observed state variables over time.
-#' Each state variable should be in its own column and all columns must be numeric.
-#' Do not include extraneous columns or metadata (e.g., species names, functional groups),
+#' Each state variable should be in its own column and all columns except series must be numeric.
+#' Do not include extraneous columns or metadata (e.g., species names or functional groups),
 #' because all columns besides time and series will be interpreted as state variables.
 #' @param covariates A data frame of observed covariates (e.g., environmental
-#' conditions) over time. This data frame must have the same column
-#' name for time as the primary dataset, but the time points do not need to
-#' match because the values of the covariates between time points included in
+#' conditions) over time. This data frame must have the same column names for
+#' time and series as the primary dataset. The number of series must be equivalent
+#' in the covariates and observed state variables data frames, but the time points
+#' do not need to match because the values of the covariates between time points included in
 #' the data frame `covariates` are interpolated using a linear spline. Optional.
 #' @param time_column_name The column in `data` and `covariates` that contains
 #' the time data, indicating when the observations were made.
@@ -190,7 +191,7 @@ multi_NNDE <- function(
   model_type <- ifelse(bayesian,"BayesianNODE","MultiNNDE")
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
   if(is.null(covariates)){
-    JuliaCall::julia_eval(paste0("julia_model_",uid,"=", model_type,
+    JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
                                  "(data_julia_",uid,
                                  ",time_column_name=\"",time_column_name,"\"",
                                  ",series_column_name=\"",series_column_name,"\"",
@@ -697,7 +698,8 @@ multi_NODE <- function(
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
   if(is.null(covariates)){
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,
+                                 ",time_column_name=\"",time_column_name,"\"",
                                  ",series_column_name=\"",series_column_name,"\"",
                                  ",hidden_units=",hidden_units,
                                  ",seed=",seed,
@@ -711,7 +713,9 @@ multi_NODE <- function(
   }else{
     JuliaCall::julia_assign(paste0("covariates_julia_",uid),convert_column_types(covariates))
     JuliaCall::julia_eval(paste0("julia_model_",uid,"=",model_type,
-                                 "(data_julia_",uid,",covariates_julia_",uid,",time_column_name=\"",time_column_name,"\"",
+                                 "(data_julia_",uid,
+                                 ",covariates_julia_",uid,
+                                 ",time_column_name=\"",time_column_name,"\"",
                                  ",series_column_name=\"",series_column_name,"\"",
                                  ",hidden_units=",hidden_units,
                                  ",seed=",seed,
