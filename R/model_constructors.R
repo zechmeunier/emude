@@ -330,9 +330,7 @@ custom_difference <- function(
   }
 
   JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
-
   JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
-
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
   JuliaCall::julia_assign(paste0("inputs_julia_",uid),neural_network_inputs)
   JuliaCall::julia_assign(paste0("outputs_julia_",uid),neural_network_outputs)
@@ -480,10 +478,8 @@ multi_custom_difference <- function(
     JuliaCall::julia_eval(paste("f_julia = ", translated_function))
   }
 
-
   JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
   JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
-
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
   JuliaCall::julia_assign(paste0("inputs_julia_",uid),neural_network_inputs)
   JuliaCall::julia_assign(paste0("outputs_julia_",uid),neural_network_outputs)
@@ -851,10 +847,8 @@ custom_derivatives <- function(
     JuliaCall::julia_eval(paste("f_julia = ", translated_function))
   }
 
-
   JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
   JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
-
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
   JuliaCall::julia_assign(paste0("inputs_julia_",uid),neural_network_inputs)
   JuliaCall::julia_assign(paste0("outputs_julia_",uid),neural_network_outputs)
@@ -1003,10 +997,8 @@ multi_custom_derivatives <- function(
     JuliaCall::julia_eval(paste("f_julia = ", translated_function))
   }
 
-
   JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
   JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
-
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
   JuliaCall::julia_assign(paste0("inputs_julia_",uid),neural_network_inputs)
   JuliaCall::julia_assign(paste0("outputs_julia_",uid),neural_network_outputs)
@@ -1128,7 +1120,6 @@ ode_model <- function(
 
   JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
   JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
-
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
 
   julia_model <- julia_eval(paste0("deriv_",uid,", parameters_",uid," = build_custom_ode(f_julia,p_julia_",uid,")"))
