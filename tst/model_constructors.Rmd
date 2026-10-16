@@ -1,4 +1,5 @@
 Load packages and setup emude
+
 ```{r}
 library(devtools)
 library(JuliaCall)
@@ -8,50 +9,142 @@ emude_setup()
 ```
 
 Run every time you make changes to the package functionality or help text
+
 ```{r}
 document()
 load_all()
 ```
 
-Create and test a dummy dataset with one time series
-```{r}
-diff_data <- data.frame(time = seq(1,50,1),
-                        values = rpois(n = 50, lambda = 100)
-                        #species = rep(1,50) #needs to be handled if present
-)
+Create 3 datasets:
 
-ricker <- function(u,nn,p,t){
-  stepu = u[1]*exp(nn[1]*(1-u[1]/p$K[1])) 
-  #need to index into parameters to have exp() work in Julia
-  return(c(stepu))
+- one time series simulated from a logistic growth model with carrying capacity $K$
+- one time series simulated from a Ricker model with carrying capacity $2K$
+- multiple time series simulated from both models
+
+```{r}
+#Initial population size and parameters
+N0 <- 10 #initial population size
+tsteps <- 150 #time steps
+r <- 0.05 #growth rate
+K <- 100
+
+#Ricker model
+Ricker <- data.frame(t = 1:tsteps, N_t = NA_real_)
+Ricker$N_t[1] <- N0
+
+for(t in 1:(tsteps-1)){
+  Ricker$N_t[t+1] <- Ricker$N_t[t]*exp(r*(1 - Ricker$N_t[t]/K))
 }
 
-diff_model <- custom_difference(data = diff_data, step = ricker, 
-                                initial_parameters = list(K = 130),
-                                time_column_name = "time")
-predict_UDE(diff_model, test_data = diff_data)
+#Logistic growth model
+Logistic <- data.frame(t = 1:tsteps, N_t = NA_real_, dNdt = NA_real_)
+Logistic$N_t[1] <- N0
 
-train_UDE(diff_model, loss_function = "conditional likelihood")
+for(t in 1:(tsteps-1)){
+  Logistic$dNdt[t] <- r*Logistic$N_t[t]*(1 - Logistic$N_t[t]/(2*K))
+  Logistic$N_t[t+1] <- Logistic$N_t[t] + Logistic$dNdt[t]
+}
+
+discrete_pop <- Ricker
+continuous_pop <- Logistic[,1:2]
+bothpops <- bind_rows(Ricker, Logistic[,1:2], .id = "series")
+
+ggplot() +
+  geom_hline(yintercept = K, color = "black") +
+  geom_hline(yintercept = 2*K, color = "yellow4") +
+  geom_point(data = Logistic, aes(x = t, y = N_t), color = "yellow4") +
+  geom_point(data = Ricker, aes(x = t, y = N_t)) +
+  labs(x="Time",
+       y="Population size (individuals)") +
+  theme_classic()
 ```
 
-Create and test a dummy dataset with multiple time series
-```{r}
-multi_diff_data <- data.frame(time = seq(1,50,1),
-                              values = rpois(n = 50, lambda = 100),
-                              series = c(rep("Site1",25),rep("Site2",25))
-)
+# Discrete-time Model Constructors
 
+Create the Ricker model function
+
+```{r}
 ricker <- function(u,nn,p,t){
   stepu = u[1]*exp(nn[1]*(1-u[1]/p$K[1])) 
-  #need to index into parameters to have exp() work in Julia
   return(c(stepu))
 }
+```
 
-multi_diff_model <- multi_custom_difference(data = multi_diff_data, step = ricker,
+## Test for custom_difference
+
+Split data into training and testing sets, construct model, train model, and predict on testing data
+```{r}
+discrete_pop_train <- 
+  split_series(data = discrete_pop, time_column_name = "t",
+               series_column_name = "series", train_frac = 0.49)$train
+
+discrete_pop_test <- 
+  split_series(data = discrete_pop, time_column_name = "t",
+               series_column_name = "series", train_frac = 0.49)$test
+
+diff_model <- custom_difference(data = discrete_pop_train, step = ricker, 
+                                initial_parameters = list(K = 130),
+                                time_column_name = "time")
+
+train_UDE(diff_model, loss_function = "conditional likelihood")
+
+left_join(predict_UDE(diff_model, test_data = discrete_pop_test),
+          discrete_pop_test, by = "t", suffix = c(".preds", ".obs"))
+```
+
+## Test for multi_custom_difference
+
+Split data into training and testing sets, construct model, train model, and predict on testing data
+```{r}
+both_pops_train <- 
+  split_series(data = bothpops, time_column_name = "t",
+               series_column_name = "series", train_frac = 0.49)$train
+
+both_pops_test <- 
+  split_series(data = bothpops, time_column_name = "t",
+               series_column_name = "series", train_frac = 0.49)$test
+
+multi_diff_model <- multi_custom_difference(data = both_pops_train, step = ricker, 
                                             initial_parameters = list(K = 130),
                                             time_column_name = "time",
                                             series_column_name = "series")
+
+train_UDE(multi_diff_model, loss_function = "conditional likelihood")
+
+left_join(predict_UDE(multi_diff_model, test_data = both_pops_test),
+          both_pops_test, by = "t", suffix = c(".preds", ".obs"))
 ```
 
 
 
+
+
+# Continuous-time Model Constructors
+
+Create the logistic growth model function
+```{r}
+logistic <- function(u,nn,p,t){
+  dudt = u[1]*nn[1]*(1-u[1]/p$K[1])
+  return(c(dudt))
+}
+```
+
+Split data into training and testing sets, construct model, train model, and predict on testing data
+```{r}
+continuous_pop_train <- 
+  split_series(data = continuous_pop, time_column_name = "t",
+               series_column_name = "series", train_frac = 0.49)$train
+
+continuous_pop_test <- 
+  split_series(data = continuous_pop, time_column_name = "t",
+               series_column_name = "series", train_frac = 0.49)$test
+
+diff_model <- custom_difference(data = continuous_pop_train, step = logistic, 
+                                initial_parameters = list(K = 130),
+                                time_column_name = "time")
+
+train_UDE(diff_model, loss_function = "conditional likelihood")
+
+left_join(predict_UDE(diff_model, test_data = continuous_pop_test),
+          continuous_pop_test, by = "t", suffix = c(".preds", ".obs"))
+```
