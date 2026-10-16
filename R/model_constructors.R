@@ -1,5 +1,3 @@
-## Discrete-time Functions
-##
 #' Define a NNDE model with one time series
 #'
 #' `NNDE()` constructs a neural network difference equation (NNDE) model. NNDEs
@@ -70,10 +68,12 @@ NNDE <- function(
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (!all(sapply(data, is.numeric))) {
-    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+    stop("Non-numeric columns detected in the data frame. Model not constructed. ",
+         "Please include only numeric data with each state variable in its own column.")
   }
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
-    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. ",
+            "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
   model_type <- ifelse(bayesian,"BayesianNODE","NNDE")
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
@@ -183,10 +183,12 @@ multi_NNDE <- function(
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (!all(sapply(data[, names(data) != series_column_name], is.numeric))) {
-    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+    stop("Non-numeric columns detected in the data frame. Model not constructed. ",
+         "Please include only numeric data with each state variable in its own column.")
   }
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
-    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. ",
+            "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
   model_type <- ifelse(bayesian,"BayesianNODE","MultiNNDE")
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
@@ -303,10 +305,18 @@ custom_difference <- function(
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ) {
   if (!all(sapply(data, is.numeric))) {
-    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+    stop("Non-numeric columns detected in the data frame. Model not constructed. ",
+         "Please include only numeric data with each state variable in its own column.")
   }
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
-    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. ",
+            "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+  }
+  if (length(initial_parameters) == 1) {
+    initial_parameters$dummy_param <- 0
+    warning("User-defined model includes only a single parameter, which causes issues with Zygote.jl (Julia's automatic differentiation library). ",
+            "Adding 'dummy_param = 0' to initial_parameters so ComponentArrays.jl through Zygote.jl can construct a proper vector. ",
+            "This will not affect the model.")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","CustomDifference")
 
@@ -318,11 +328,10 @@ custom_difference <- function(
     translated_function <- R_to_Julia(step)
     JuliaCall::julia_eval(paste("f_julia = ", translated_function))
   }
-  print(R_to_Julia(step)) #troubleshooting, remove later
 
   JuliaCall::julia_assign(paste0("p_julia_",uid),initial_parameters)
+
   JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")
-  print(JuliaCall::julia_eval(paste0("p_julia_",uid," = NamedTuple(p_julia_",uid,")"), need_return = "Julia")) #troubleshooting, remove later
 
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
   JuliaCall::julia_assign(paste0("inputs_julia_",uid),neural_network_inputs)
@@ -447,10 +456,18 @@ multi_custom_difference <- function(
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (!all(sapply(data[, names(data) != series_column_name], is.numeric))) {
-    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+    stop("Non-numeric columns detected in the data frame. Model not constructed. ",
+         "Please include only numeric data with each state variable in its own column.")
   }
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
-    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. ",
+            "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+  }
+  if (length(initial_parameters) == 1) {
+    initial_parameters$dummy_param <- 0
+    warning("User-defined model includes only a single parameter, which causes issues with Zygote.jl (Julia's automatic differentiation library). ",
+            "Adding 'dummy_param = 0' to initial_parameters so ComponentArrays.jl through Zygote.jl can construct a proper vector. ",
+            "This will not affect the model.")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","MultiCustomDifference")
 
@@ -501,9 +518,6 @@ multi_custom_difference <- function(
   return(paste0("julia_model_",uid))
 }
 
-
-## Continuous-time Functions
-##
 #' Define a NODE model with one time series
 #'
 #' `NODE()` constructs a neural ordinary differential equation (NODE) model. NODEs
@@ -574,10 +588,12 @@ NODE <- function(
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (!all(sapply(data, is.numeric))) {
-    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+    stop("Non-numeric columns detected in the data frame. Model not constructed. ",
+         "Please include only numeric data with each state variable in its own column.")
   }
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
-    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. ",
+            "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
   model_type <- ifelse(bayesian,"BayesianNODE","NODE")
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
@@ -612,7 +628,6 @@ NODE <- function(
   }
   return(paste0("julia_model_",uid))
 }
-
 
 #' Define a NODE model with multiple time series
 #'
@@ -689,10 +704,12 @@ multi_NODE <- function(
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (!all(sapply(data[, names(data) != series_column_name], is.numeric))) {
-    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+    stop("Non-numeric columns detected in the data frame. Model not constructed. ",
+         "Please include only numeric data with each state variable in its own column.")
   }
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
-    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. ",
+            "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
   }
   model_type <- ifelse(bayesian,"BayesianNODE","MultiNODE")
   JuliaCall::julia_assign(paste0("data_julia_",uid),convert_column_types(data))
@@ -729,7 +746,6 @@ multi_NODE <- function(
   }
   return(paste0("julia_model_",uid))
 }
-
 
 #' Define a custom derivatives UDE with one time series
 #'
@@ -811,10 +827,18 @@ custom_derivatives <- function(
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (!all(sapply(data, is.numeric))) {
-    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+    stop("Non-numeric columns detected in the data frame. Model not constructed. ",
+         "Please include only numeric data with each state variable in its own column.")
   }
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
-    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. ",
+            "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+  }
+  if (length(initial_parameters) == 1) {
+    initial_parameters$dummy_param <- 0
+    warning("User-defined model includes only a single parameter, which causes issues with Zygote.jl (Julia's automatic differentiation library). ",
+            "Adding 'dummy_param = 0' to initial_parameters so ComponentArrays.jl through Zygote.jl can construct a proper vector. ",
+            "This will not affect the model.")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","CustomDerivatives")
 
@@ -869,7 +893,6 @@ custom_derivatives <- function(
   }
   return(paste0("julia_model_",uid))
 }
-
 
 #' Define a custom derivatives UDE with multiple time series
 #'
@@ -956,10 +979,18 @@ multi_custom_derivatives <- function(
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (!all(sapply(data[, names(data) != series_column_name], is.numeric))) {
-    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+    stop("Non-numeric columns detected in the data frame. Model not constructed. ",
+         "Please include only numeric data with each state variable in its own column.")
   }
   if (sd(as.matrix(data[, setdiff(names(data), c(time_column_name, series_column_name))]), na.rm = TRUE) > 1) {
-    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. ",
+            "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+  }
+  if (length(initial_parameters) == 1) {
+    initial_parameters$dummy_param <- 0
+    warning("User-defined model includes only a single parameter, which causes issues with Zygote.jl (Julia's automatic differentiation library). ",
+            "Adding 'dummy_param = 0' to initial_parameters so ComponentArrays.jl through Zygote.jl can construct a proper vector. ",
+            "This will not affect the model.")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","MultiCustomDerivatives")
 
@@ -1009,7 +1040,6 @@ multi_custom_derivatives <- function(
   }
   return(paste0("julia_model_",uid))
 }
-
 
 #' Define a custom derivatives model with no neural network
 #'
@@ -1072,10 +1102,18 @@ ode_model <- function(
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
 ){
   if (!all(sapply(data, is.numeric))) {
-    stop("Non-numeric columns detected in the data frame. Model not constructed. \n Please include only numeric data with each state variable in its own column.")
+    stop("Non-numeric columns detected in the data frame. Model not constructed. ",
+         "Please include only numeric data with each state variable in its own column.")
   }
   if (sd(as.matrix(data[, setdiff(names(data), time_column_name)]), na.rm = TRUE) > 1) {
-    warning("Model performance may be improved by scaling the data through transformation or relativization. \n Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+    warning("Model performance may be improved by scaling the data through transformation or relativization. ",
+            "Package options include relativization by column maximum (rel_colmax) and min-max normalization (rel_minmax).")
+  }
+  if (length(initial_parameters) == 1) {
+    initial_parameters$dummy_param <- 0
+    warning("User-defined model includes only a single parameter, which causes issues with Zygote.jl (Julia's automatic differentiation library). ",
+            "Adding 'dummy_param = 0' to initial_parameters so ComponentArrays.jl through Zygote.jl can construct a proper vector. ",
+            "This will not affect the model.")
   }
   model_type <- ifelse(bayesian,"BayesianUDE","CustomDerivatives")
 
