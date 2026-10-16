@@ -7,8 +7,18 @@
 #   ude
 # }
 
+
+#' Set up the emude package
+#'
+#' `emude_setup()` checks that all required Julia packages are installed and loaded,
+#' then sources necessary Julia functions in the R package. The function does not require any
+#' parameters, nor should any be passed, and it should be run after loading the `emude` package.
 #' @import JuliaCall
 #' @export
+#'
+#' @examples
+#' library(emude)
+#' emude_setup()
 emude_setup <- function() {
   JuliaCall::julia_install_package_if_needed("UniversalDiffEq")
   JuliaCall::julia_install_package_if_needed("ComponentArrays")
@@ -23,6 +33,7 @@ emude_setup <- function() {
   JuliaCall::julia_library("Random")
   JuliaCall::julia_library("DiffEqFlux")
   JuliaCall::julia_library("DataFrames")
+  JuliaCall::julia_library("JSON")
   emudepath <- system.file(package = "emude")
   JuliaCall::julia_source(paste0(emudepath,'/Julia/helpers.jl'))
   return("Setup completed")
