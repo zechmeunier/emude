@@ -36,5 +36,6 @@ emude_setup <- function() {
   JuliaCall::julia_library("JSON")
   emudepath <- system.file(package = "emude")
   JuliaCall::julia_source(paste0(emudepath,'/Julia/helpers.jl'))
-  return("Setup completed")
+  return(paste0("Setup completed. Using package UniversalDiffEq.jl v",
+                julia_installed_package("UniversalDiffEq")))
 }
