@@ -125,7 +125,7 @@ Create the logistic growth model function
 ```{r}
 logistic <- function(u,nn,p,t){
   dudt = u[1]*nn[1]*(1-u[1]/p$K[1])
-  return(c(dudt))
+  return(c(u[1]+dudt))
 }
 ```
 
