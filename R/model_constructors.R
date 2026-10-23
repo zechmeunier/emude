@@ -31,10 +31,10 @@
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
-#' added to the loss function is either the absolute value of the sum of
-#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' added to the loss function is either the sum of the absolute value of
+#' coefficients (L1) or the sum of squared coefficients (L2). Generally, the
 #' default of "L2" should be used.
-#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' @param extrap_l Extrapolation length scale parameter for forecasting. `extrap_l` controls
 #' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
 #' Small values lead to fast decay and the extrapolation reverts to the prior mean
 #' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
@@ -62,7 +62,7 @@ NNDE <- function(
     obs_weight = 1.0,
     reg_weight = 10^-6,
     reg_type = "L2",
-    l = 0.25,
+    extrap_l = 0.25,
     extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
@@ -87,7 +87,7 @@ NNDE <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
@@ -102,7 +102,7 @@ NNDE <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }
@@ -145,10 +145,10 @@ NNDE <- function(
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
-#' added to the loss function is either the absolute value of the sum of
-#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' added to the loss function is either the sum of the absolute value of
+#' coefficients (L1) or the sum of squared coefficients (L2). Generally, the
 #' default of "L2" should be used.
-#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' @param extrap_l Extrapolation length scale parameter for forecasting. `extrap_l` controls
 #' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
 #' Small values lead to fast decay and the extrapolation reverts to the prior mean
 #' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
@@ -177,7 +177,7 @@ multi_NNDE <- function(
     obs_weight = 1.0,
     reg_weight = 10^-6,
     reg_type = "L2",
-    l = 0.25,
+    extrap_l = 0.25,
     extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
@@ -203,7 +203,7 @@ multi_NNDE <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
@@ -219,7 +219,7 @@ multi_NNDE <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }
@@ -265,10 +265,10 @@ multi_NNDE <- function(
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
-#' added to the loss function is either the absolute value of the sum of
-#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' added to the loss function is either the sum of the absolute value of
+#' coefficients (L1) or the sum of squared coefficients (L2). Generally, the
 #' default of "L2" should be used.
-#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' @param extrap_l Extrapolation length scale parameter for forecasting. `extrap_l` controls
 #' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
 #' Small values lead to fast decay and the extrapolation reverts to the prior mean
 #' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
@@ -299,7 +299,7 @@ custom_difference <- function(
     obs_weight = 1.0,
     reg_weight = 10^-6,
     reg_type = "L2",
-    l = 0.25,
+    extrap_l = 0.25,
     extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
@@ -348,7 +348,7 @@ custom_difference <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
@@ -363,7 +363,7 @@ custom_difference <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }
@@ -413,10 +413,10 @@ custom_difference <- function(
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
-#' added to the loss function is either the absolute value of the sum of
-#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' added to the loss function is either the sum of the absolute value of
+#' coefficients (L1) or the sum of squared coefficients (L2). Generally, the
 #' default of "L2" should be used.
-#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' @param extrap_l Extrapolation length scale parameter for forecasting. `extrap_l` controls
 #' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
 #' Small values lead to fast decay and the extrapolation reverts to the prior mean
 #' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
@@ -448,7 +448,7 @@ multi_custom_difference <- function(
     obs_weight = 1.0,
     reg_weight = 10^-6,
     reg_type = "L2",
-    l = 0.25,
+    extrap_l = 0.25,
     extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
@@ -495,7 +495,7 @@ multi_custom_difference <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
@@ -507,7 +507,7 @@ multi_custom_difference <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }
@@ -547,10 +547,10 @@ multi_custom_difference <- function(
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
-#' added to the loss function is either the absolute value of the sum of
-#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' added to the loss function is either the sum of the absolute value of
+#' coefficients (L1) or the sum of squared coefficients (L2). Generally, the
 #' default of "L2" should be used.
-#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' @param extrap_l Extrapolation length scale parameter for forecasting. `extrap_l` controls
 #' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
 #' Small values lead to fast decay and the extrapolation reverts to the prior mean
 #' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
@@ -578,7 +578,7 @@ NODE <- function(
     obs_weight = 1.0,
     reg_weight = 10^-6,
     reg_type = "L2",
-    l = 0.25,
+    extrap_l = 0.25,
     extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
@@ -603,7 +603,7 @@ NODE <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
@@ -618,7 +618,7 @@ NODE <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }
@@ -662,10 +662,10 @@ NODE <- function(
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
-#' added to the loss function is either the absolute value of the sum of
-#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' added to the loss function is either the sum of the absolute value of
+#' coefficients (L1) or the sum of squared coefficients (L2). Generally, the
 #' default of "L2" should be used.
-#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' @param extrap_l Extrapolation length scale parameter for forecasting. `extrap_l` controls
 #' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
 #' Small values lead to fast decay and the extrapolation reverts to the prior mean
 #' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
@@ -694,7 +694,7 @@ multi_NODE <- function(
     obs_weight = 1.0,
     reg_weight = 10^-6,
     reg_type = "L2",
-    l = 0.25,
+    extrap_l = 0.25,
     extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
@@ -720,7 +720,7 @@ multi_NODE <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
@@ -736,7 +736,7 @@ multi_NODE <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }
@@ -783,10 +783,10 @@ multi_NODE <- function(
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
-#' added to the loss function is either the absolute value of the sum of
-#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' added to the loss function is either the sum of the absolute value of
+#' coefficients (L1) or the sum of squared coefficients (L2). Generally, the
 #' default of "L2" should be used.
-#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' @param extrap_l Extrapolation length scale parameter for forecasting. `extrap_l` controls
 #' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
 #' Small values lead to fast decay and the extrapolation reverts to the prior mean
 #' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
@@ -817,7 +817,7 @@ custom_derivatives <- function(
     obs_weight = 1.0,
     reg_weight = 10^-6,
     reg_type = "L2",
-    l = 0.25,
+    extrap_l = 0.25,
     extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
@@ -866,7 +866,7 @@ custom_derivatives <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
@@ -881,7 +881,7 @@ custom_derivatives <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }
@@ -932,10 +932,10 @@ custom_derivatives <- function(
 #' function.
 #' @param reg_type Type of regularization used to mitigate overfitting.
 #' Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
-#' added to the loss function is either the absolute value of the sum of
-#' coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+#' added to the loss function is either the sum of the absolute value of
+#' coefficients (L1) or the sum of squared coefficients (L2). Generally, the
 #' default of "L2" should be used.
-#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' @param extrap_l Extrapolation length scale parameter for forecasting. `extrap_l` controls
 #' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
 #' Small values lead to fast decay and the extrapolation reverts to the prior mean
 #' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
@@ -967,7 +967,7 @@ multi_custom_derivatives <- function(
     obs_weight = 1.0,
     reg_weight = 10^-6,
     reg_type = "L2",
-    l = 0.25,
+    extrap_l = 0.25,
     extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
@@ -1014,7 +1014,7 @@ multi_custom_derivatives <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
@@ -1026,7 +1026,7 @@ multi_custom_derivatives <- function(
                                  ",obs_weight=",obs_weight,
                                  ",reg_weight=",reg_weight,
                                  ",reg_type=\"",reg_type,"\"",
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }
@@ -1035,7 +1035,7 @@ multi_custom_derivatives <- function(
 
 #' Define a custom derivatives model with no neural network
 #'
-#' `ode_model()` constructs an ordinary differential equation (ODE) model. It
+#' `ODE_model()` constructs an ordinary differential equation (ODE) model. It
 #' does not train a neural network and can be used as a null model.
 #'
 #' @param data A wide-format data frame of observed state variables over time.
@@ -1062,7 +1062,7 @@ multi_custom_derivatives <- function(
 #' function. The observation weight controls how closely the state estimates
 #' \eqn{\hat{u}_t} match the observations \eqn{y_t}. Smaller values of the observation weight
 #' correspond to datasets with larger amounts of observation error and vice versa.
-#' @param l Extrapolation length scale parameter for forecasting. `l` controls
+#' @param extrap_l Extrapolation length scale parameter for forecasting. `extrap_l` controls
 #' how quickly correlations decay with distance between points (i.e., how wiggly the function is).
 #' Small values lead to fast decay and the extrapolation reverts to the prior mean
 #' quickly beyond the observed data. Large values lead to slow decay and the extrapolation
@@ -1080,7 +1080,7 @@ multi_custom_derivatives <- function(
 #'
 #' @examples
 #' print("test")
-ode_model <- function(
+ODE_model <- function(
     data,
     derivs,
     initial_parameters,
@@ -1088,7 +1088,7 @@ ode_model <- function(
     time_column_name = "time",
     proc_weight = 1.0,
     obs_weight = 1.0,
-    l = 10^3,
+    extrap_l = 10^3,
     extrap_rho = 0.1,
     bayesian = FALSE,
     uid = gsub(x=format(Sys.time(), "%Y%m%d%H%M%OS6"),pattern = "[.]",replacement="")
@@ -1129,7 +1129,7 @@ ode_model <- function(
                                  "(data_julia_",uid,",deriv_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }else{
@@ -1138,7 +1138,7 @@ ode_model <- function(
                                  "(data_julia_",uid,",covariates_julia_",uid,",deriv_",uid,",parameters_",uid,",time_column_name=\"",time_column_name,"\"",
                                  ",proc_weight=",proc_weight,
                                  ",obs_weight=",obs_weight,
-                                 ",l=",l,
+                                 ",l=",extrap_l,
                                  ",extrap_rho=",extrap_rho,")"),
                           need_return = "Julia")
   }

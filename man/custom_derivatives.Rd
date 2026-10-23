@@ -17,7 +17,7 @@ custom_derivatives(
   obs_weight = 1,
   reg_weight = 10^-6,
   reg_type = "L2",
-  l = 0.25,
+  extrap_l = 0.25,
   extrap_rho = 0.1,
   bayesian = FALSE,
   uid = gsub(x = format(Sys.time(), "\%Y\%m\%d\%H\%M\%OS6"), pattern = "[.]", replacement
@@ -66,11 +66,11 @@ function.}
 
 \item{reg_type}{Type of regularization used to mitigate overfitting.
 Options are either "L1" (LASSO) or "L2" (ridge regression). The penalty term
-added to the loss function is either the absolute value of the sum of
-coefficients (L1) or the squared sum of coefficients (L2). Generally, the
+added to the loss function is either the sum of the absolute value of
+coefficients (L1) or the sum of squared coefficients (L2). Generally, the
 default of "L2" should be used.}
 
-\item{l}{Extrapolation length scale parameter for forecasting. \code{l} controls
+\item{extrap_l}{Extrapolation length scale parameter for forecasting. \code{extrap_l} controls
 how quickly correlations decay with distance between points (i.e., how wiggly the function is).
 Small values lead to fast decay and the extrapolation reverts to the prior mean
 quickly beyond the observed data. Large values lead to slow decay and the extrapolation
