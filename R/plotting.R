@@ -28,7 +28,7 @@ defaulttheme <- theme(axis.title = element_text(size = 11, color = "black"),
 #' variable (e.g., species abundances), which will be displayed on the y-axis.
 #' @param group The column containing the identifier for the response variable
 #' (e.g., series or species name). Also defaults to the color scheme, but this
-#' can be adjusted with user-defined call to `aes(color = variable)`.
+#' can be adjusted with user-defined call to `aes(color = variable)`. Optional.
 #' @param predictions A data frame of predicted values over time, with column
 #' names matching the column names of `observations`. Optional.
 #'
@@ -49,28 +49,48 @@ series_plot <- function(
     observations,
     x,
     y,
-    group,
+    group = NULL,
     predictions = NULL
-){
-  p <- ggplot(data = observations,
-              aes(x = {{x}}, y = {{y}}, group = {{group}}, color = {{group}})) +
-    geom_point() +
-    defaulttheme
-
-  if (!is.null(predictions)) {
-    p + geom_line(data = predictions) +
-      scale_y_continuous(limits = c(
-        min(c(0, observations %>% pull({{y}}), predictions %>% pull({{y}}))),
-        max(observations %>% pull({{y}}), predictions %>% pull({{y}}))
-      ))
+) {
+  has_group <- !rlang::quo_is_null(rlang::enquo(group))
+  # Build base plot for observations
+  if (has_group) {
+    p <- ggplot(data = observations,
+                aes(x = {{x}}, y = {{y}}, group = {{group}}, color = {{group}})) +
+      geom_point(alpha = 0.5) +
+      defaulttheme
   } else {
-    p + scale_y_continuous(limits = c(
-      min(c(0, observations %>% pull({{y}}))),
-      max(observations %>% pull({{y}}))
+    p <- ggplot(data = observations, aes(x = {{x}}, y = {{y}})) +
+      geom_point(color = "grey36", alpha = 0.5) +
+      defaulttheme
+  }
+
+  # Add prediction line and set y-limits safely
+  if (!is.null(predictions)) {
+    if (has_group) {
+      p <- p + geom_line(data = predictions, linewidth = 1)
+    } else {
+      p <- p + geom_line(data = predictions, color = "aquamarine3", linewidth = 1)
+    }
+
+    y_obs  <- observations %>% pull({{y}})
+    y_pred <- predictions %>% pull({{y}})
+
+    p <- p + coord_cartesian(ylim = c(
+      min(c(0, y_obs, y_pred), na.rm = TRUE),
+      max(c(y_obs, y_pred), na.rm = TRUE)
+    ))
+  } else {
+    y_obs <- observations %>% pull({{y}})
+
+    p <- p + coord_cartesian(ylim = c(
+      min(c(0, y_obs), na.rm = TRUE),
+      max(y_obs, na.rm = TRUE)
     ))
   }
-}
 
+  return(p)
+}
 
 #' Plot two-dimensional phase plane
 #'

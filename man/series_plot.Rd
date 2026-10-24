@@ -4,7 +4,7 @@
 \alias{series_plot}
 \title{Plot time series}
 \usage{
-series_plot(observations, x, y, group, predictions = NULL)
+series_plot(observations, x, y, group = NULL, predictions = NULL)
 }
 \arguments{
 \item{observations}{A data frame of observed values over time.}
@@ -17,7 +17,7 @@ variable (e.g., species abundances), which will be displayed on the y-axis.}
 
 \item{group}{The column containing the identifier for the response variable
 (e.g., series or species name). Also defaults to the color scheme, but this
-can be adjusted with user-defined call to \code{aes(color = variable)}.}
+can be adjusted with user-defined call to \code{aes(color = variable)}. Optional.}
 
 \item{predictions}{A data frame of predicted values over time, with column
 names matching the column names of \code{observations}. Optional.}
