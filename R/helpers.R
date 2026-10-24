@@ -25,6 +25,8 @@ R_to_Julia <- function(f, filepath = NULL){
   f_code <- gsub("/", " \\./", f_code) # broadcasts division
   f_code <- gsub("\\^", " \\.\\^", f_code) # broadcasts exponentiation
   f_code <- gsub("c\\(([^()]*)\\)", "[\\1]", f_code) # converts c() to []
+  f_code <- gsub("as\\.integer\\(([^()]*)\\)", "Int(round(\\1))", f_code) # translate R's as.integer(x) to Julia's Int(round(x))
+  f_code <- sub("(function[^(]*\\([^)]*\\bi\\b[^)]*\\))", "\\1; i = Int(round(i))", f_code) # automatically coerce 'i' to Julia Int if 'i' is an argument in the function header
 
   if(!is.null(filepath)) {
     fileConn<-file(paste0(filepath,".jl"))
