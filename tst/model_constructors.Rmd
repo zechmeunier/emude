@@ -47,7 +47,7 @@ for(t in 1:(tsteps-1)){
 
 discrete_pop <- Ricker
 continuous_pop <- Logistic[,1:2]
-bothpops <- bind_rows(Ricker, Logistic[,1:2], .id = "series")
+both_pops <- bind_rows(Ricker, Logistic[,1:2], .id = "series")
 
 ggplot() +
   geom_hline(yintercept = K, color = "black") +
@@ -68,11 +68,16 @@ ricker <- function(u,nn,p,t){
   stepu = u[1]*exp(nn[1]*(1-u[1]/p$K[1])) 
   return(c(stepu))
 }
+
+multi_ricker <- function(u,i,nn,p,t){
+  stepu = u[1]*exp(nn[1]*(1-u[1]/p$K[i])) 
+  return(c(stepu))
+}
 ```
 
-## Test for custom_difference
+## Test for custom_difference()
 
-Split data into training and testing sets, construct model, train model, and predict on testing data
+Split data into training and testing sets, construct model, train model, predict on testing data, and construct a series plot
 ```{r}
 discrete_pop_train <- 
   split_series(data = discrete_pop, time_column_name = "t",
@@ -82,41 +87,47 @@ discrete_pop_test <-
   split_series(data = discrete_pop, time_column_name = "t",
                series_column_name = "series", train_frac = 0.49)$test
 
-diff_model <- custom_difference(data = discrete_pop_train, step = ricker, 
-                                initial_parameters = list(K = 130),
-                                time_column_name = "time")
+diff_model <- 
+  custom_difference(data = discrete_pop_train, step = ricker, 
+                    initial_parameters = list(K = 130),
+                    time_column_name = "t")
 
 train_UDE(diff_model, loss_function = "conditional likelihood")
 
-left_join(predict_UDE(diff_model, test_data = discrete_pop_test),
-          discrete_pop_test, by = "t", suffix = c(".preds", ".obs"))
+diff_preds <- 
+  predict_UDE(diff_model, test_data = discrete_pop_test)
+
+series_plot(observations = discrete_pop, x = t, y = N_t, 
+            predictions = diff_preds)
 ```
 
-## Test for multi_custom_difference
+## Test for multi_custom_difference()
 
-Split data into training and testing sets, construct model, train model, and predict on testing data
+Split data into training and testing sets, construct model, train model, predict on testing data, and construct a series plot
 ```{r}
-both_pops_train <- 
-  split_series(data = bothpops, time_column_name = "t",
-               series_column_name = "series", train_frac = 0.49)$train
-
-both_pops_test <- 
-  split_series(data = bothpops, time_column_name = "t",
-               series_column_name = "series", train_frac = 0.49)$test
-
-multi_diff_model <- multi_custom_difference(data = both_pops_train, step = ricker, 
-                                            initial_parameters = list(K = 130),
-                                            time_column_name = "time",
-                                            series_column_name = "series")
-
-train_UDE(multi_diff_model, loss_function = "conditional likelihood")
-
-left_join(predict_UDE(multi_diff_model, test_data = both_pops_test),
-          both_pops_test, by = "t", suffix = c(".preds", ".obs"))
+#won't work until MultiCustomDifference() is exported
+# both_pops_train <- 
+#   split_series(data = both_pops, time_column_name = "t",
+#                series_column_name = "series", train_frac = 0.49)$train
+# 
+# both_pops_test <- 
+#   split_series(data = both_pops, time_column_name = "t",
+#                series_column_name = "series", train_frac = 0.49)$test
+# 
+# multi_diff_model <-
+#   multi_custom_difference(data = both_pops_train, step = multi_ricker,
+#                           initial_parameters = list(K = c(K,2*K)),,
+#                           time_column_name = "t",
+#                           series_column_name = "series")
+#
+# train_UDE(multi_diff_model, loss_function = "conditional likelihood")
+# 
+# multi_diff_preds <- 
+#  predict_UDE(multi_diff_model, test_data = both_pops_test)
+# 
+# series_plot(observations = both_pops, x = t, y = N_t, group = series,
+#             predictions = multi_diff_preds)
 ```
-
-
-
 
 
 # Continuous-time Model Constructors
@@ -127,9 +138,16 @@ logistic <- function(u,nn,p,t){
   dudt = u[1]*nn[1]*(1-u[1]/p$K[1])
   return(c(u[1]+dudt))
 }
+
+multi_logistic <- function(u,i,nn,p,t){
+  dudt = u[1]*nn[1]*(1-u[1]/p$K[i])
+  return(c(u[1]+dudt))
+}
 ```
 
-Split data into training and testing sets, construct model, train model, and predict on testing data
+## Test for custom_derivative()
+
+Split data into training and testing sets, construct model, train model, predict on testing data, and construct a series plot
 ```{r}
 continuous_pop_train <- 
   split_series(data = continuous_pop, time_column_name = "t",
@@ -139,12 +157,45 @@ continuous_pop_test <-
   split_series(data = continuous_pop, time_column_name = "t",
                series_column_name = "series", train_frac = 0.49)$test
 
-diff_model <- custom_difference(data = continuous_pop_train, step = logistic, 
-                                initial_parameters = list(K = 130),
-                                time_column_name = "time")
+deriv_model <- 
+  custom_derivatives(data = continuous_pop_train, derivs = logistic, 
+                     initial_parameters = list(K = 130),
+                     time_column_name = "t",
+                     neural_network_inputs = 1)
 
-train_UDE(diff_model, loss_function = "conditional likelihood")
+train_UDE(deriv_model, loss_function = "derivative matching")
 
-left_join(predict_UDE(diff_model, test_data = continuous_pop_test),
-          continuous_pop_test, by = "t", suffix = c(".preds", ".obs"))
+deriv_preds <- 
+  predict_UDE(deriv_model, test_data = continuous_pop_test)
+
+series_plot(observations = continuous_pop, x = t, y = N_t, 
+            predictions = deriv_preds)
+```
+
+## Test for multi_custom_derivative()
+
+Split data into training and testing sets, construct model, train model, predict on testing data, and construct a series plot
+```{r}
+both_pops_train <- 
+  split_series(data = both_pops, time_column_name = "t",
+               series_column_name = "series", train_frac = 0.49)$train
+
+both_pops_test <- 
+  split_series(data = both_pops, time_column_name = "t",
+               series_column_name = "series", train_frac = 0.49)$test
+
+multi_deriv_model <- 
+  multi_custom_derivatives(data = both_pops_train, derivs = multi_logistic, 
+                           initial_parameters = list(K = c(K,2*K)),
+                           time_column_name = "t",
+                           series_column_name = "series",
+                           neural_network_inputs = 1)
+
+train_UDE(multi_deriv_model, loss_function = "derivative matching")
+
+multi_deriv_preds <- 
+  predict_UDE(multi_deriv_model, test_data = both_pops_test)
+
+series_plot(observations = both_pops, x = t, y = N_t, group = series,
+            predictions = multi_deriv_preds)
 ```
