@@ -89,7 +89,7 @@ discrete_pop_test <-
 
 diff_model <- 
   custom_difference(data = discrete_pop_train, step = ricker, 
-                    initial_parameters = list(K = 130),
+                    initial_parameters = list(K = K),
                     time_column_name = "t")
 
 train_UDE(diff_model, loss_function = "conditional likelihood")
@@ -136,12 +136,12 @@ Create the logistic growth model function
 ```{r}
 logistic <- function(u,nn,p,t){
   dudt = u[1]*nn[1]*(1-u[1]/p$K[1])
-  return(c(u[1]+dudt))
+  return(c(dudt))
 }
 
 multi_logistic <- function(u,i,nn,p,t){
   dudt = u[1]*nn[1]*(1-u[1]/p$K[i])
-  return(c(u[1]+dudt))
+  return(c(dudt))
 }
 ```
 
@@ -159,7 +159,7 @@ continuous_pop_test <-
 
 deriv_model <- 
   custom_derivatives(data = continuous_pop_train, derivs = logistic, 
-                     initial_parameters = list(K = 130),
+                     initial_parameters = list(K = 2*K),
                      time_column_name = "t",
                      neural_network_inputs = 1)
 
