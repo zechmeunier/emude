@@ -53,27 +53,37 @@ series_plot <- function(
     predictions = NULL
 ) {
   has_group <- !rlang::quo_is_null(rlang::enquo(group))
-  # Build base plot for observations
+
+  # Initialize base plot aesthetics and theme
   if (has_group) {
     p <- ggplot(data = observations,
                 aes(x = {{x}}, y = {{y}}, group = {{group}}, color = {{group}})) +
-      geom_point(alpha = 0.5) +
       defaulttheme
   } else {
     p <- ggplot(data = observations, aes(x = {{x}}, y = {{y}})) +
-      geom_point(color = "grey36", alpha = 0.5) +
       defaulttheme
   }
 
-  # Add prediction line and set y-limits safely
+  # Add prediction line first (renders behind points)
   if (!is.null(predictions)) {
     if (has_group) {
       p <- p + geom_line(data = predictions, linewidth = 1)
     } else {
       p <- p + geom_line(data = predictions, color = "aquamarine3", linewidth = 1)
     }
+  }
 
-    y_obs  <- observations %>% pull({{y}})
+  # Add points second (renders in front of line)
+  if (has_group) {
+    p <- p + geom_point(alpha = 0.5)
+  } else {
+    p <- p + geom_point(color = "grey36", alpha = 0.5)
+  }
+
+  # Set y-limits safely based on availability of predictions
+  y_obs <- observations %>% pull({{y}})
+
+  if (!is.null(predictions)) {
     y_pred <- predictions %>% pull({{y}})
 
     p <- p + coord_cartesian(ylim = c(
@@ -81,8 +91,6 @@ series_plot <- function(
       max(c(y_obs, y_pred), na.rm = TRUE)
     ))
   } else {
-    y_obs <- observations %>% pull({{y}})
-
     p <- p + coord_cartesian(ylim = c(
       min(c(0, y_obs), na.rm = TRUE),
       max(y_obs, na.rm = TRUE)
