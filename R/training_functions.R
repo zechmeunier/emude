@@ -9,8 +9,8 @@
 #'  [Julia package documentation](https://jack-h-buckner.github.io/UniversalDiffEq.jl/dev/TrainingRoutines/).
 #'
 #' @param model A UDE model created with one of the model constructor functions:
-#' `NNDE()`, `multi_NNDE()`, `custom_difference()`, and `multi_custom_difference()` for discrete-time or
-#' `NODE()`, `multi_NODE()`, `custom_derivatives()`, and `multi_custom_derivatives()` for continuous-time.
+#' - `NNDE()`, `multi_NNDE()`, `custom_difference()`, or `multi_custom_difference()` for discrete-time models
+#' - `NODE()`, `multi_NODE()`, `custom_derivatives()`, or `multi_custom_derivatives()` for continuous-time models
 #'
 #' @param loss_function One of five possible loss functions:
 #' - `joint likelihood` for a state-space training process calculating the joint likelihood

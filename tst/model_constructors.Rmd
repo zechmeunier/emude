@@ -1,3 +1,13 @@
+Load development version of the Julia package UniversalDiffEq.jl and check version number
+
+```{r}
+JuliaCall::julia_setup()
+JuliaCall::julia_eval('using Pkg; Pkg.add(url = "https://github.com/Jack-H-Buckner/UniversalDiffEq.jl.git")')
+
+JuliaCall::julia_eval("using UniversalDiffEq; string(pkgversion(UniversalDiffEq))")
+```
+
+
 Load packages and setup emude
 
 ```{r}
@@ -6,13 +16,6 @@ library(JuliaCall)
 library(tidyverse)
 library(emude)
 emude_setup()
-```
-
-Run every time you make changes to the package functionality or help text
-
-```{r}
-document()
-load_all()
 ```
 
 Create 3 datasets:
@@ -59,7 +62,59 @@ ggplot() +
   theme_classic()
 ```
 
-# Discrete-time Model Constructors
+# Discrete-time model constructors
+
+## Non-parameteric models
+
+### Test for NNDE()
+
+Split data into training and testing sets, construct model, train model, predict on testing data, and construct a series plot
+```{r}
+discrete_pop_split <- 
+  split_series(data = discrete_pop, time_column_name = "t", train_frac = 0.49)
+
+discrete_pop_train <- discrete_pop_split$train
+discrete_pop_test <- discrete_pop_split$test
+
+diff_model <- 
+  NNDE(data = discrete_pop_train,
+       time_column_name = "t")
+
+train_UDE(diff_model, loss_function = "joint likelihood")
+
+diff_preds <- 
+  predict_UDE(diff_model, test_data = discrete_pop_test)
+
+series_plot(observations = discrete_pop, x = t, y = N_t, 
+            predictions = diff_preds)
+```
+
+### Test for multi_NNDE()
+
+Split data into training and testing sets, construct model, train model, predict on testing data, and construct a series plot
+```{r}
+both_pops_split <- 
+  split_series(data = both_pops, time_column_name = "t",
+               series_column_name = "series", train_frac = 0.49)
+
+both_pops_train <- both_pops_split$train
+both_pops_test <- both_pops_split$test
+
+multi_diff_model <-
+  multi_NNDE(data = both_pops_train,
+             time_column_name = "t",
+             series_column_name = "series")
+
+train_UDE(multi_diff_model, loss_function = "joint likelihood")
+
+multi_diff_preds <-
+  predict_UDE(multi_diff_model, test_data = both_pops_test)
+
+series_plot(observations = both_pops, x = t, y = N_t, group = series,
+            predictions = multi_diff_preds)
+```
+
+## Parametric models
 
 Create the Ricker model function
 
@@ -75,24 +130,22 @@ multi_ricker <- function(u,i,nn,p,t){
 }
 ```
 
-## Test for custom_difference()
+### Test for custom_difference()
 
 Split data into training and testing sets, construct model, train model, predict on testing data, and construct a series plot
 ```{r}
-discrete_pop_train <- 
-  split_series(data = discrete_pop, time_column_name = "t",
-               series_column_name = "series", train_frac = 0.49)$train
+discrete_pop_split <- 
+  split_series(data = discrete_pop, time_column_name = "t", train_frac = 0.49)
 
-discrete_pop_test <- 
-  split_series(data = discrete_pop, time_column_name = "t",
-               series_column_name = "series", train_frac = 0.49)$test
+discrete_pop_train <- discrete_pop_split$train
+discrete_pop_test <- discrete_pop_split$test
 
 diff_model <- 
   custom_difference(data = discrete_pop_train, step = ricker, 
                     initial_parameters = list(K = K),
                     time_column_name = "t")
 
-train_UDE(diff_model, loss_function = "conditional likelihood")
+train_UDE(diff_model, loss_function = "joint likelihood")
 
 diff_preds <- 
   predict_UDE(diff_model, test_data = discrete_pop_test)
@@ -101,36 +154,86 @@ series_plot(observations = discrete_pop, x = t, y = N_t,
             predictions = diff_preds)
 ```
 
-## Test for multi_custom_difference()
+### Test for multi_custom_difference()
 
 Split data into training and testing sets, construct model, train model, predict on testing data, and construct a series plot
 ```{r}
-#won't work until MultiCustomDifference() is exported
-# both_pops_train <- 
-#   split_series(data = both_pops, time_column_name = "t",
-#                series_column_name = "series", train_frac = 0.49)$train
-# 
-# both_pops_test <- 
-#   split_series(data = both_pops, time_column_name = "t",
-#                series_column_name = "series", train_frac = 0.49)$test
-# 
-# multi_diff_model <-
-#   multi_custom_difference(data = both_pops_train, step = multi_ricker,
-#                           initial_parameters = list(K = c(K,2*K)),,
-#                           time_column_name = "t",
-#                           series_column_name = "series")
-#
-# train_UDE(multi_diff_model, loss_function = "conditional likelihood")
-# 
-# multi_diff_preds <- 
-#  predict_UDE(multi_diff_model, test_data = both_pops_test)
-# 
-# series_plot(observations = both_pops, x = t, y = N_t, group = series,
-#             predictions = multi_diff_preds)
+both_pops_split <- 
+  split_series(data = both_pops, time_column_name = "t",
+               series_column_name = "series", train_frac = 0.49)
+
+both_pops_train <- both_pops_split$train
+both_pops_test <- both_pops_split$test
+
+multi_diff_model <-
+  multi_custom_difference(data = both_pops_train, step = multi_ricker,
+                          initial_parameters = list(K = c(K,2*K)),
+                          time_column_name = "t",
+                          series_column_name = "series")
+
+train_UDE(multi_diff_model, loss_function = "joint likelihood")
+
+multi_diff_preds <-
+  predict_UDE(multi_diff_model, test_data = both_pops_test)
+
+series_plot(observations = both_pops, x = t, y = N_t, group = series,
+            predictions = multi_diff_preds)
 ```
 
 
-# Continuous-time Model Constructors
+# Continuous-time model constructors
+
+## Non-parametric models
+
+### Test for NODE()
+
+Split data into training and testing sets, construct model, train model, predict on testing data, and construct a series plot
+```{r}
+continuous_pop_split <- 
+  split_series(data = continuous_pop, time_column_name = "t", train_frac = 0.49)
+
+continuous_pop_train <- continuous_pop_split$train
+continuous_pop_test <- continuous_pop_split$test
+
+deriv_model <- 
+  NODE(data = continuous_pop_train, 
+       time_column_name = "t")
+
+train_UDE(deriv_model, loss_function = "derivative matching")
+
+deriv_preds <- 
+  predict_UDE(deriv_model, test_data = continuous_pop_test)
+
+series_plot(observations = continuous_pop, x = t, y = N_t, 
+            predictions = deriv_preds)
+```
+
+### Test for multi_NODE()
+
+Split data into training and testing sets, construct model, train model, predict on testing data, and construct a series plot
+```{r}
+both_pops_split <- 
+  split_series(data = both_pops, time_column_name = "t",
+               series_column_name = "series", train_frac = 0.49)
+
+both_pops_train <- both_pops_split$train
+both_pops_test <- both_pops_split$test
+
+multi_deriv_model <- 
+  multi_NODE(data = both_pops_train, 
+             time_column_name = "t",
+             series_column_name = "series")
+
+train_UDE(multi_deriv_model, loss_function = "derivative matching")
+
+multi_deriv_preds <- 
+  predict_UDE(multi_deriv_model, test_data = both_pops_test)
+
+series_plot(observations = both_pops, x = t, y = N_t, group = series,
+            predictions = multi_deriv_preds)
+```
+
+## Parametric models
 
 Create the logistic growth model function
 ```{r}
@@ -145,23 +248,20 @@ multi_logistic <- function(u,i,nn,p,t){
 }
 ```
 
-## Test for custom_derivative()
+### Test for custom_derivatives()
 
 Split data into training and testing sets, construct model, train model, predict on testing data, and construct a series plot
 ```{r}
-continuous_pop_train <- 
-  split_series(data = continuous_pop, time_column_name = "t",
-               series_column_name = "series", train_frac = 0.49)$train
+continuous_pop_split <- 
+  split_series(data = continuous_pop, time_column_name = "t", train_frac = 0.49)
 
-continuous_pop_test <- 
-  split_series(data = continuous_pop, time_column_name = "t",
-               series_column_name = "series", train_frac = 0.49)$test
+continuous_pop_train <- continuous_pop_split$train
+continuous_pop_test <- continuous_pop_split$test
 
 deriv_model <- 
   custom_derivatives(data = continuous_pop_train, derivs = logistic, 
                      initial_parameters = list(K = 2*K),
-                     time_column_name = "t",
-                     neural_network_inputs = 1)
+                     time_column_name = "t")
 
 train_UDE(deriv_model, loss_function = "derivative matching")
 
@@ -172,24 +272,22 @@ series_plot(observations = continuous_pop, x = t, y = N_t,
             predictions = deriv_preds)
 ```
 
-## Test for multi_custom_derivative()
+### Test for multi_custom_derivatives()
 
 Split data into training and testing sets, construct model, train model, predict on testing data, and construct a series plot
 ```{r}
-both_pops_train <- 
+both_pops_split <- 
   split_series(data = both_pops, time_column_name = "t",
-               series_column_name = "series", train_frac = 0.49)$train
+               series_column_name = "series", train_frac = 0.49)
 
-both_pops_test <- 
-  split_series(data = both_pops, time_column_name = "t",
-               series_column_name = "series", train_frac = 0.49)$test
+both_pops_train <- both_pops_split$train
+both_pops_test <- both_pops_split$test
 
 multi_deriv_model <- 
   multi_custom_derivatives(data = both_pops_train, derivs = multi_logistic, 
                            initial_parameters = list(K = c(K,2*K)),
                            time_column_name = "t",
-                           series_column_name = "series",
-                           neural_network_inputs = 1)
+                           series_column_name = "series")
 
 train_UDE(multi_deriv_model, loss_function = "derivative matching")
 

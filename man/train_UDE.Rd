@@ -15,8 +15,10 @@ train_UDE(
 }
 \arguments{
 \item{model}{A UDE model created with one of the model constructor functions:
-\code{NNDE()}, \code{multi_NNDE()}, \code{custom_difference()}, and \code{multi_custom_difference()} for discrete-time or
-\code{NODE()}, \code{multi_NODE()}, \code{custom_derivatives()}, and \code{multi_custom_derivatives()} for continuous-time.}
+\itemize{
+\item \code{NNDE()}, \code{multi_NNDE()}, \code{custom_difference()}, and \code{multi_custom_difference()} for discrete-time or
+\item \code{NODE()}, \code{multi_NODE()}, \code{custom_derivatives()}, and \code{multi_custom_derivatives()} for continuous-time.
+}}
 
 \item{loss_function}{One of five possible loss functions:
 \itemize{
