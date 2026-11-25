@@ -240,8 +240,9 @@ multi_NNDE <- function(
 #' Each state variable should be in its own column and all columns must be numeric.
 #' Do not include extraneous columns or metadata (e.g., species names, functional groups, or site identifiers),
 #' because all columns besides time will be interpreted as state variables.
-#' @param step A user-defined function of the form `step(u,nn,t,p)` where
-#' `u` stores the value of the state variables, `p` stores the model parameters, and `t` is time.
+#' @param step A user-defined function of the form `step(u,X,nn,p,t)` where
+#' `u` stores the value of the state variables, `X` stores the optional covariates,
+#' `nn` stores the neural network outputs, `p` stores the model parameters, and `t` is time.
 #' @param initial_parameters A named list containing the model parameters stored
 #' in `p`.
 #' @param covariates A data frame of observed covariates (e.g., environmental
@@ -249,8 +250,11 @@ multi_NNDE <- function(
 #' name for time as the primary dataset, but the time points do not need to
 #' match because the values of the covariates between time points included in
 #' the data frame `covariates` are interpolated using a linear spline. Optional.
-#' @param neural_network_inputs The number of input nodes of the neural network.
-#' @param neural_network_outputs The number of output nodes of the neural network.
+#' @param neural_network_inputs An integer or integer vector specifying which state variable
+#' indices in \eqn{u} feed into the neural network (e.g., `1` to use \eqn{u_1},
+#' or `c(1, 3)` to use \eqn{u_1} and \eqn{u_3}).
+#' @param neural_network_outputs An integer specifying the number of output nodes produced
+#' by the neural network (e.g., `1`).
 #' @param hidden_units Number of neurons in the single hidden layer.
 #' @param time_column_name The column in `data` and `covariates` that contains
 #' the time data, indicating when the observations were made.
@@ -291,7 +295,7 @@ custom_difference <- function(
     step,
     initial_parameters,
     covariates = NULL,
-    neural_network_inputs = c(1),
+    neural_network_inputs = 1,
     neural_network_outputs = 1,
     hidden_units = 10,
     time_column_name = "time",
@@ -385,8 +389,9 @@ custom_difference <- function(
 #' Do not include extraneous columns or metadata (e.g., species names or functional groups),
 #' because all columns besides time and series will be interpreted as state variables.
 #' @param step A user-defined function of the form `step(u,i,X,nn,p,t)` where
-#' `u` stores the value of the state variables, `X` stores the optional covariates,
-#' `nn` stores the neural network outputs, `p` stores the model parameters, and `t` is time.
+#' `u` stores the value of the state variables, `i` is an index for each time series,
+#' `X` stores the optional covariates, `nn` stores the neural network outputs,
+#' `p` stores the model parameters, and `t` is time.
 #' @param initial_parameters A named list containing the model parameters stored
 #' in `p`.
 #' @param covariates A data frame of observed covariates (e.g., environmental
@@ -395,8 +400,11 @@ custom_difference <- function(
 #' in the covariates and observed state variables data frames, but the time points
 #' do not need to match because the values of the covariates between time points included in
 #' the data frame `covariates` are interpolated using a linear spline. Optional.
-#' @param neural_network_inputs The number of input nodes of the neural network.
-#' @param neural_network_outputs The number of output nodes of the neural network.
+#' @param neural_network_inputs An integer or integer vector specifying which state variable
+#' indices in \eqn{u} feed into the neural network (e.g., `1` to use \eqn{u_1},
+#' or `c(1, 3)` to use \eqn{u_1} and \eqn{u_3}).
+#' @param neural_network_outputs An integer specifying the number of output nodes produced
+#' by the neural network (e.g., `1`).
 #' @param hidden_units Number of neurons in the single hidden layer.
 #' @param time_column_name The column in `data` and `covariates` that contains
 #' the time data, indicating when the observations were made.
@@ -439,7 +447,7 @@ multi_custom_difference <- function(
     step,
     initial_parameters,
     covariates = NULL,
-    neural_network_inputs = c(1),
+    neural_network_inputs = 1,
     neural_network_outputs = 1,
     hidden_units = 10,
     time_column_name = "time",
@@ -767,8 +775,11 @@ multi_NODE <- function(
 #' name for time as the primary dataset, but the time points do not need to
 #' match because the values of the covariates between time points included in
 #' the data frame `covariates` are interpolated using a linear spline. Optional.
-#' @param neural_network_inputs The number of input nodes of the neural network.
-#' @param neural_network_outputs The number of output nodes of the neural network.
+#' @param neural_network_inputs An integer or integer vector specifying which state variable
+#' indices in \eqn{u} feed into the neural network (e.g., `1` to use \eqn{u_1},
+#' or `c(1, 3)` to use \eqn{u_1} and \eqn{u_3}).
+#' @param neural_network_outputs An integer specifying the number of output nodes produced
+#' by the neural network (e.g., `1`).
 #' @param hidden_units Number of neurons in the single hidden layer.
 #' @param time_column_name The column in `data` and `covariates` that contains
 #' the time data, indicating when the observations were made.
@@ -809,7 +820,7 @@ custom_derivatives <- function(
     derivs,
     initial_parameters,
     covariates = NULL,
-    neural_network_inputs = c(1),
+    neural_network_inputs = 1,
     neural_network_outputs = 1,
     hidden_units = 10,
     time_column_name = "time",
@@ -914,8 +925,11 @@ custom_derivatives <- function(
 #' in the covariates and observed state variables data frames, but the time points
 #' do not need to match because the values of the covariates between time points included in
 #' the data frame `covariates` are interpolated using a linear spline. Optional.
-#' @param neural_network_inputs The number of input nodes of the neural network.
-#' @param neural_network_outputs The number of output nodes of the neural network.
+#' @param neural_network_inputs An integer or integer vector specifying which state variable
+#' indices in \eqn{u} feed into the neural network (e.g., `1` to use \eqn{u_1},
+#' or `c(1, 3)` to use \eqn{u_1} and \eqn{u_3}).
+#' @param neural_network_outputs An integer specifying the number of output nodes produced
+#' by the neural network (e.g., `1`).
 #' @param hidden_units Number of neurons in the single hidden layer.
 #' @param time_column_name The column in `data` and `covariates` that contains
 #' the time data, indicating when the observations were made.
@@ -958,7 +972,7 @@ multi_custom_derivatives <- function(
     derivs,
     initial_parameters,
     covariates = NULL,
-    neural_network_inputs = c(1),
+    neural_network_inputs = 1,
     neural_network_outputs = 1,
     hidden_units = 10,
     time_column_name = "time",

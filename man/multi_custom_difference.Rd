@@ -9,7 +9,7 @@ multi_custom_difference(
   step,
   initial_parameters,
   covariates = NULL,
-  neural_network_inputs = c(1),
+  neural_network_inputs = 1,
   neural_network_outputs = 1,
   hidden_units = 10,
   time_column_name = "time",
@@ -32,8 +32,9 @@ Do not include extraneous columns or metadata (e.g., species names or functional
 because all columns besides time and series will be interpreted as state variables.}
 
 \item{step}{A user-defined function of the form \code{step(u,i,X,nn,p,t)} where
-\code{u} stores the value of the state variables, \code{X} stores the optional covariates,
-\code{nn} stores the neural network outputs, \code{p} stores the model parameters, and \code{t} is time.}
+\code{u} stores the value of the state variables, \code{i} is an index for each time series,
+\code{X} stores the optional covariates, \code{nn} stores the neural network outputs,
+\code{p} stores the model parameters, and \code{t} is time.}
 
 \item{initial_parameters}{A named list containing the model parameters stored
 in \code{p}.}
@@ -45,9 +46,12 @@ in the covariates and observed state variables data frames, but the time points
 do not need to match because the values of the covariates between time points included in
 the data frame \code{covariates} are interpolated using a linear spline. Optional.}
 
-\item{neural_network_inputs}{The number of input nodes of the neural network.}
+\item{neural_network_inputs}{An integer or integer vector specifying which state variable
+indices in \eqn{u} feed into the neural network (e.g., \code{1} to use \eqn{u_1},
+or \code{c(1, 3)} to use \eqn{u_1} and \eqn{u_3}).}
 
-\item{neural_network_outputs}{The number of output nodes of the neural network.}
+\item{neural_network_outputs}{An integer specifying the number of output nodes produced
+by the neural network (e.g., \code{1}).}
 
 \item{hidden_units}{Number of neurons in the single hidden layer.}
 
